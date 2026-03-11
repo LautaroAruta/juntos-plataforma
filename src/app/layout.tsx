@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
+import Header from "@/components/layout/Header";
 
 export default function RootLayout({
   children,
@@ -22,30 +23,65 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${inter.variable} font-sans antialiased text-slate-800 bg-[#E8F7FF] min-h-screen flex flex-col`}>
+      <body className={`${inter.variable} font-sans antialiased text-slate-800 bg-[#F5F5F5] min-h-screen flex flex-col`}>
         <NextAuthProvider>
-          {/* Header simple por ahora, luego lo moveremos a un componente */}
-          <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-            <div className="max-w-screen-md mx-auto px-4 h-16 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-[#00AEEF] tracking-tighter">JUNTOS</span>
-              </div>
-              <nav className="flex items-center gap-4 text-sm font-medium uppercase tracking-tighter">
-                <Link href="/admin/dashboard" className="text-slate-400 hover:text-slate-600">Admin</Link>
-                <Link href="/provider/dashboard" className="text-slate-400 hover:text-slate-600">Proveedor</Link>
-                <Link href="/auth/login" className="text-[#0077CC] font-black underline decoration-2 underline-offset-4">Ingresar</Link>
-              </nav>
-            </div>
-          </header>
+          <Header />
 
-          {/* Contenido principal móvil first */}
-          <main className="flex-1 max-w-screen-md mx-auto w-full relative">
+          {/* Contenido principal */}
+          <main className="flex-1 w-full relative">
             {children}
           </main>
 
-          <footer className="bg-white py-8 border-t border-gray-100 mt-auto">
-            <div className="max-w-screen-md mx-auto px-4 text-center text-sm text-slate-500">
-              &copy; {new Date().getFullYear()} JUNTOS. Todos los derechos reservados.
+          <footer className="bg-white border-t border-gray-200 pt-16 pb-8 px-6 mt-auto">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div className="flex flex-col gap-6">
+                  <span className="text-3xl font-black text-[#00AEEF] tracking-tighter">JUNTOS</span>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    La plataforma donde comprar en equipo te hace pagar menos. Unite a la revolución del ahorro grupal.
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-bold text-gray-800 mb-6 uppercase tracking-wider text-xs">JUNTOS</h4>
+                  <ul className="flex flex-col gap-4 text-sm text-gray-500">
+                    <li><Link href="/como-funciona" className="hover:text-[#00AEEF] transition-colors">Cómo funciona</Link></li>
+                    <li><Link href="/preguntas-frecuentes" className="hover:text-[#00AEEF] transition-colors">Preguntas frecuentes</Link></li>
+                    <li><Link href="#" className="hover:text-[#00AEEF] transition-colors">Contacto</Link></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-gray-800 mb-6 uppercase tracking-wider text-xs">Legal</h4>
+                  <ul className="flex flex-col gap-4 text-sm text-gray-500">
+                    <li><Link href="/terminos-y-condiciones" className="hover:text-[#00AEEF] transition-colors">Términos y condiciones</Link></li>
+                    <li><Link href="/privacidad" className="hover:text-[#00AEEF] transition-colors">Privacidad</Link></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-gray-800 mb-6 uppercase tracking-wider text-xs">Redes Sociales</h4>
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-[#00AEEF] hover:text-white transition-all cursor-pointer">
+                      {/* Social icons would go here, using placeholders for now */}
+                      <span className="text-[10px] font-bold">IG</span>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-[#00AEEF] hover:text-white transition-all cursor-pointer">
+                      <span className="text-[10px] font-bold">FB</span>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-[#00AEEF] hover:text-white transition-all cursor-pointer">
+                      <span className="text-[10px] font-bold">TW</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-400 text-xs font-medium">
+                <p>© 2026 JUNTOS. Todos los derechos reservados.</p>
+                <div className="flex gap-6">
+                  <span>Hecho con ❤️ para vos</span>
+                </div>
+              </div>
             </div>
           </footer>
         </NextAuthProvider>

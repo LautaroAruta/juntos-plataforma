@@ -1,79 +1,142 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import React from "react";
 import Link from "next/link";
-import { Users, Timer, ChevronRight, Zap, ShoppingCart } from "lucide-react";
+import { 
+  Users, 
+  Timer, 
+  ChevronRight, 
+  ShoppingBag, 
+  Truck, 
+  Gamepad2,
+  Shirt,
+  Apple,
+  Home as HomeIcon,
+  Dumbbell,
+  Sparkles,
+  Puzzle,
+  MoreHorizontal,
+  ArrowRight
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
-  
-  if (session?.user?.id === 'admin' || session?.user?.rol === 'admin') {
-    redirect('/admin/dashboard');
-  }
-
   const supabase = await createClient();
   
-  // Fetch active group deals with their products
-  const { data: deals, error } = await supabase
+  // Fetch active group deals
+  const { data: deals } = await supabase
     .from('group_deals')
     .select(`
       *,
       product:products (*)
     `)
     .eq('estado', 'activo')
+    .limit(8)
     .order('creado_en', { ascending: false });
 
-  if (error) {
-    console.error("Error fetching deals:", error);
-  }
+  // Fetch individual products (featured)
+  const { data: featuredProducts } = await supabase
+    .from('products')
+    .select('*')
+    .limit(8)
+    .order('creado_en', { ascending: false });
+
+  const categories = [
+    { name: "Electrónica", icon: <Gamepad2 size={24} />, color: "text-blue-500" },
+    { name: "Ropa", icon: <Shirt size={24} />, color: "text-pink-500" },
+    { name: "Alimentos", icon: <Apple size={24} />, color: "text-green-500" },
+    { name: "Hogar", icon: <HomeIcon size={24} />, color: "text-orange-500" },
+    { name: "Deportes", icon: <Dumbbell size={24} />, color: "text-red-500" },
+    { name: "Belleza", icon: <Sparkles size={24} />, color: "text-purple-500" },
+    { name: "Juguetes", icon: <Puzzle size={24} />, color: "text-yellow-500" },
+    { name: "Otros", icon: <MoreHorizontal size={24} />, color: "text-gray-500" },
+  ];
 
   return (
-    <div className="pb-24">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#00AEEF] to-[#0077CC] text-white p-6 rounded-b-[2.5rem] shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Zap size={120} />
-        </div>
-        <div className="relative z-10">
-          <h1 className="text-4xl font-black mb-2 leading-tight tracking-tighter uppercase">Comprá en grupo,<br/>pagá menos.</h1>
-          <p className="text-white/90 text-sm mb-6 max-w-[280px] font-medium leading-relaxed">
-            Unite a ofertas grupales y conseguí precios de fábrica. Mientras más somos, más ahorramos.
-          </p>
-          <div className="flex gap-3">
-            <button className="bg-white text-[#0077CC] font-black py-3 px-8 rounded-2xl shadow-xl text-sm hover:scale-105 active:scale-95 transition-all">
-              Ver Ofertas
-            </button>
+    <div className="flex flex-col gap-12 sm:gap-16 pb-20">
+      
+      {/* SECCIÓN 1 — Banner hero */}
+      <section className="relative w-full overflow-hidden bg-white md:bg-transparent px-4 sm:px-6 md:px-0">
+        <div className="max-w-7xl mx-auto md:mt-8">
+          <div className="relative w-full h-[300px] md:h-[450px] rounded-none md:rounded-[3rem] overflow-hidden bg-gradient-to-br from-[#00AEEF] to-[#0077CC] flex items-center shadow-2xl shadow-[#00AEEF]/20">
+            {/* Background pattern/elements */}
+            <div className="absolute inset-0 overflow-hidden opacity-10">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mt-48 blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#E8F7FF] rounded-full -ml-32 -mb-32 blur-2xl"></div>
+            </div>
+
+            <div className="relative z-10 px-8 md:px-20 max-w-2xl">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight tracking-tighter">
+                Comprá en grupo y pagá menos
+              </h1>
+              <p className="text-white/90 text-lg md:text-2xl mb-8 font-medium">
+                Cuantos más somos, más ahorramos
+              </p>
+              <Link 
+                href="/productos"
+                className="inline-flex items-center gap-3 bg-white text-[#0077CC] font-black py-4 px-10 rounded-2xl shadow-xl hover:bg-gray-50 transition-all text-sm md:text-lg uppercase tracking-tight group"
+              >
+                Ver ofertas grupales
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Visual element (placeholder for product image) */}
+            <div className="hidden lg:block absolute right-20 top-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-white/10 rounded-[4rem] backdrop-blur-sm border border-white/20 transform rotate-6">
+               <div className="absolute inset-4 bg-white/20 rounded-[3rem] border border-white/30 flex items-center justify-center -rotate-3 overflow-hidden">
+                  <div className="animate-pulse flex flex-col items-center">
+                    <ShoppingBag size={80} className="text-white opacity-50 mb-4" />
+                    <div className="h-4 w-32 bg-white/20 rounded-full"></div>
+                  </div>
+               </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Categories Bar (Simple Icons) */}
-      <section className="px-4 mt-8 flex justify-between">
-        {['🍎', '🎧', '🏠', '👗'].map((emoji, i) => (
-          <div key={i} className="w-16 h-16 rounded-2xl bg-white border border-slate-50 shadow-sm flex items-center justify-center text-2xl hover:bg-[#E8F7FF] transition-colors cursor-pointer">
-            {emoji}
-          </div>
-        ))}
-      </section>
-
-      {/* Group Deals Section */}
-      <section className="px-4 mt-10">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-black text-slate-800 flex items-center gap-2 tracking-tight uppercase">
-            <Timer className="text-red-500 animate-pulse" size={24} />
-            Terminan pronto
+      {/* SECCIÓN 2 — Categorías destacadas */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight flex items-center gap-2">
+            Categorías
           </h2>
-          <Link href="/catalogo" className="text-xs text-[#00AEEF] font-black uppercase tracking-widest flex items-center gap-1 hover:underline">
-            Ver todas <ChevronRight size={14} />
+        </div>
+        
+        {/* Horizontal scroll on mobile */}
+        <div className="flex sm:grid sm:grid-cols-4 md:grid-cols-8 gap-4 overflow-x-auto pb-4 sm:pb-0 hide-scrollbar no-scrollbar">
+          {categories.map((cat, i) => (
+            <div 
+              key={i} 
+              className="group cursor-pointer flex flex-col items-center gap-4 p-5 bg-white rounded-3xl border border-transparent shadow-sm hover:shadow-xl hover:shadow-[#00AEEF]/5 transition-all min-w-[120px] sm:min-w-0"
+            >
+              <div className={`w-12 h-12 flex items-center justify-center transform group-hover:scale-110 transition-transform ${cat.color}`}>
+                {cat.icon}
+              </div>
+              <span className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest text-center group-hover:text-gray-800 transition-colors">
+                {cat.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* SECCIÓN 3 — Ofertas grupales activas */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#00AEEF]/10 rounded-2xl flex items-center justify-center text-[#00AEEF]">
+              <Timer className="animate-pulse" size={24} />
+            </div>
+            <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tighter">Ofertas grupales activas</h2>
+          </div>
+          <Link href="/productos" className="group text-sm text-[#00AEEF] font-black uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
+            Ver todas <ChevronRight size={18} />
           </Link>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {!deals || deals.length === 0 ? (
-            <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 italic text-slate-400">
-              Pronto habrá nuevas ofertas...
+            <div className="col-span-full bg-white rounded-[3rem] p-20 text-center border-2 border-dashed border-gray-100">
+              <ShoppingBag size={48} className="mx-auto text-gray-200 mb-4" />
+              <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Pronto habrá nuevas ofertas grupales...</p>
             </div>
           ) : deals.map((deal: any) => {
             const progress = (deal.participantes_actuales / deal.min_participantes) * 100;
@@ -82,80 +145,124 @@ export default async function Home() {
             );
 
             return (
-              <Link href={`/products/${deal.product.id}`} key={deal.id}>
-                <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-50 p-5 flex gap-5 relative overflow-hidden group hover:border-[#00AEEF]/30 transition-all">
-                  {/* Discount Badge */}
-                  <div className="absolute top-0 left-0 bg-[#00AEEF] text-white text-xs font-black px-4 py-1.5 rounded-br-2xl z-10 shadow-lg">
-                    AHORRÁ {percentageSaved}%
-                  </div>
-
-                  {/* Product Image */}
-                  <div className="w-32 h-32 shrink-0 rounded-2xl overflow-hidden bg-slate-100 relative shadow-inner">
-                    <img 
-                      src={deal.product.imagen_principal} 
-                      alt={deal.product.nombre}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  </div>
-
-                  {/* Deal Info */}
-                  <div className="flex-1 flex flex-col justify-between py-1">
-                    <div>
-                      <h3 className="font-extrabold text-slate-800 text-base leading-tight line-clamp-2 mb-2 group-hover:text-[#0077CC] transition-colors">
-                        {deal.product.nombre}
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-black text-[#00AEEF] tracking-tighter">${deal.precio_actual.toLocaleString()}</span>
-                        <span className="text-sm text-slate-400 line-through decoration-red-500/50 decoration-2">${deal.product.precio_individual.toLocaleString()}</span>
-                      </div>
+              <div 
+                key={deal.id}
+                className="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-gray-200 transition-all duration-500 flex flex-col border border-gray-50 relative"
+              >
+                {/* Image */}
+                <div className="relative aspect-[4/3] overflow-hidden bg-gray-50 border-b border-gray-50">
+                  <img 
+                    src={deal.product.imagen_principal || "/placeholder-product.jpg"} 
+                    alt={deal.product.nombre}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  {percentageSaved > 0 && (
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm">
+                      <span className="text-[#00AEEF] font-black text-[10px] uppercase tracking-widest">{percentageSaved}% AHORRO</span>
                     </div>
+                  )}
+                </div>
 
-                    {/* Progress info */}
-                    <div className="mt-4">
-                      <div className="flex justify-between items-end mb-2 text-xs">
-                        <div className="flex items-center gap-1.5 text-slate-600 font-black uppercase tracking-tighter">
-                          <Users size={14} className="text-[#0077CC]" />
-                          <span> {deal.min_participantes - deal.participantes_actuales} faltantes</span>
-                        </div>
-                        <span className="text-red-500 font-black tracking-widest px-2 py-0.5 bg-red-50 rounded-lg">23:59:00</span>
+                {/* Content */}
+                <div className="p-8 flex flex-col flex-1">
+                  <h3 className="text-gray-800 font-black text-lg leading-tight mb-4 group-hover:text-[#00AEEF] transition-colors line-clamp-2">
+                    {deal.product.nombre}
+                  </h3>
+                  
+                  <div className="space-y-1 mb-6">
+                    <p className="text-gray-300 text-sm font-bold line-through">
+                      ${deal.product.precio_individual.toLocaleString()}
+                    </p>
+                    <p className="text-3xl font-black text-[#00AEEF] tracking-tighter">
+                      ${deal.precio_actual.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="mt-auto pt-6 border-t border-gray-50 space-y-6">
+                    {/* Progress */}
+                    <div>
+                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
+                        <span>{deal.participantes_actuales} de {deal.min_participantes} unidos</span>
+                        <span className="text-red-500 flex items-center gap-1"><Timer size={12} /> 2h 30min</span>
                       </div>
-                      
-                      {/* Progress Bar */}
-                      <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                      <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-[#00AEEF] to-[#0077CC] rounded-full transition-all duration-1000"
+                          className="h-full bg-gradient-to-r from-[#00AEEF] to-[#0077CC] rounded-full transition-all duration-700"
                           style={{ width: `${Math.min(100, progress)}%` }}
                         />
                       </div>
                     </div>
+
+                    <Link 
+                      href={`/productos/${deal.product.id}`}
+                      className="w-full bg-gray-50 hover:bg-[#00AEEF] text-gray-800 hover:text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center text-sm uppercase tracking-tight group"
+                    >
+                      Ver oferta
+                      <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
       </section>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-100 p-4 flex justify-around items-center max-w-screen-md mx-auto z-50 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-        <Link href="/" className="flex flex-col items-center p-2 text-[#00AEEF]">
-          <span className="text-2xl">🏠</span>
-          <span className="text-[10px] font-black uppercase mt-1">Inicio</span>
-        </Link>
-        <button className="flex flex-col items-center p-2 text-slate-400 hover:text-[#00AEEF] transition-colors">
-          <span className="text-2xl">🔍</span>
-          <span className="text-[10px] font-bold uppercase mt-1">Buscar</span>
-        </button>
-        <button className="flex flex-col items-center p-2 text-slate-400 relative hover:text-[#00AEEF] transition-colors">
-          <span className="text-2xl text-slate-600 font-bold tracking-tighter">🎁</span>
-          <span className="text-[10px] font-bold uppercase mt-1">Ofertas</span>
-          <span className="absolute top-1 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-        </button>
-        <Link href="/auth/login" className="flex flex-col items-center p-2 text-slate-400 hover:text-[#00AEEF] transition-colors">
-          <span className="text-2xl">👤</span>
-          <span className="text-[10px] font-bold uppercase mt-1">Perfil</span>
-        </Link>
-      </nav>
+      {/* SECCIÓN 4 — Productos destacados */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
+        <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tighter mb-10">Más productos destacados</h2>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {featuredProducts?.map((product: any) => (
+            <Link 
+              href={`/productos/${product.id}`}
+              key={product.id}
+              className="bg-white rounded-3xl p-4 md:p-6 shadow-sm hover:shadow-xl hover:shadow-gray-200 transition-all border border-gray-50 group"
+            >
+              <div className="aspect-square bg-gray-50 rounded-2xl mb-4 overflow-hidden">
+                <img 
+                  src={product.imagen_principal || "/placeholder-product.jpg"} 
+                  alt={product.nombre}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <h4 className="font-bold text-gray-800 text-sm mb-2 line-clamp-2 leading-snug group-hover:text-[#00AEEF] transition-colors">{product.nombre}</h4>
+              <p className="font-black text-lg text-gray-900 tracking-tight">${product.precio_individual.toLocaleString()}</p>
+              <p className="text-[10px] text-green-500 font-bold uppercase mt-1">Llega gratis mañana</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works Banner */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
+        <div className="bg-white rounded-[3rem] p-10 md:p-20 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-12">
+          <div className="flex-1 space-y-8">
+            <h2 className="text-3xl md:text-4xl font-black text-gray-800 leading-tight tracking-tighter uppercase">¿Cómo funciona JUNTOS?</h2>
+            <div className="grid grid-cols-1 gap-6">
+              {[
+                { step: "1", title: "Elegí tu oferta", text: "Buscá el producto que necesitás entre cientos de ofertas grupales activas." },
+                { step: "2", title: "Unite al grupo", text: "Sumate a otros compradores para llegar al precio mayorista." },
+                { step: "3", title: "Recibilo en tu casa", text: "Una vez que el grupo se completa, el proveedor envía tu pedido." }
+              ].map((item, idx) => (
+                <div key={idx} className="flex gap-6 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-[#00AEEF]/10 flex-shrink-0 flex items-center justify-center text-[#00AEEF] font-black">{item.step}</div>
+                  <div>
+                    <h5 className="font-black text-gray-800 uppercase tracking-tight mb-1">{item.title}</h5>
+                    <p className="text-gray-500 text-sm leading-relaxed">{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex-1 w-full flex justify-center">
+            <div className="relative w-full aspect-square max-w-sm bg-gray-50 rounded-[4rem] border-8 border-white shadow-2xl flex items-center justify-center overflow-hidden">
+               <Truck size={120} className="text-[#00AEEF] opacity-20 transform -rotate-12" />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#00AEEF]/10 to-transparent"></div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

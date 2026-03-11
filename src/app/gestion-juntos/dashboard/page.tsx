@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { 
   Users, 
   ShieldCheck, 
@@ -14,12 +16,22 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 export default function AdminDashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [providers, setProviders] = useState<any[]>([]);
   const [commission, setCommission] = useState(0.5);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
+    if (status === "loading") return;
+
+    // Strict security check: only aruta839@gmail.com
+    if (!session || session.user?.email !== "aruta839@gmail.com") {
+      router.replace("/");
+      return;
+    }
+
     async function fetchData() {
       const { data } = await supabase.from('providers').select('*').order('creado_en', { ascending: false });
       setProviders(data || []);
@@ -30,7 +42,11 @@ export default function AdminDashboard() {
       setLoading(false);
     }
     fetchData();
-  }, []);
+  }, [session, status, router]);
+
+  if (status === "loading" || !session || session.user?.email !== "aruta839@gmail.com") {
+    return null;
+  }
 
   const approveProvider = async (id: string) => {
     const { error } = await supabase.from('providers').update({ verificado: true }).eq('id', id);

@@ -108,13 +108,18 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
       }
 
-      // Fetch latest role and profile status from DB using email (more reliable for manual registration)
+      // Handle session update (from update() hook in client)
+      if (trigger === "update" && session?.rol) {
+        token.rol = session.rol;
+      }
+
+      // Fetch latest role and profile status from DB using email
       if (token.email) {
         const { data: dbUser } = await supabase
           .from("users")
@@ -123,11 +128,12 @@ export const authOptions: NextAuthOptions = {
           .single();
         
         if (dbUser) {
-          token.id = dbUser.id; // Sync ID
-          token.rol = dbUser.rol || "cliente";
+          token.id = dbUser.id;
+          token.rol = dbUser.rol || null; // Null means they need to pick a role
           token.perfilCompleto = !!dbUser.telefono;
         } else {
-          token.rol = "cliente";
+          // If user exists in auth but not in public.users (Edge case)
+          token.rol = null;
           token.perfilCompleto = false;
         }
       }
@@ -137,6 +143,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/login",
-    newUser: "/auth/completar-perfil",
+    newUser: "/elegir-rol",
   },
 };

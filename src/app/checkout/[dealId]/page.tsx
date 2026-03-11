@@ -6,10 +6,11 @@ import {
   CreditCard, 
   ChevronLeft, 
   ShieldCheck, 
-  ShoppingCart,
   CheckCircle2,
   Loader2,
-  ArrowRight
+  MapPin,
+  Store,
+  Wallet
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -28,7 +29,10 @@ export default function CheckoutPage() {
         .from('group_deals')
         .select(`
           *,
-          product:products (*)
+          product:products (
+            *,
+            provider:providers (nombre_empresa, telefono, direccion)
+          )
         `)
         .eq('id', dealId)
         .single();
@@ -50,6 +54,9 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (data.init_point) {
         window.location.href = data.init_point;
+      } else {
+         alert("Error obteniendo URL de pago.");
+         setCreatingPreference(false);
       }
     } catch (err) {
       alert("Error al procesar pago");
@@ -57,76 +64,184 @@ export default function CheckoutPage() {
     }
   };
 
-  if (loading) return <div className="p-20 text-center uppercase font-black text-slate-300">Cargando Pedido...</div>;
-
-  return (
-    <div className="pb-32 px-4 max-w-lg mx-auto">
-       <Link 
-          href={`/products/${deal?.product?.id}`}
-          className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold my-8 transition-colors group"
-        >
-          <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver al Producto
-        </Link>
-
-        <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase mb-2">Finalizar Compra</h1>
-        <p className="text-slate-500 mb-8 font-medium">Revisá tu pedido antes de pagar.</p>
-
-        <div className="space-y-6">
-          {/* Order Summary Card */}
-          <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl shadow-[#00AEEF]/5 border border-slate-50">
-            <div className="flex gap-4 mb-6 pb-6 border-b border-slate-50">
-               <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
-                  <img src={deal.product.imagen_principal} className="w-full h-full object-cover" />
-               </div>
-               <div>
-                 <h3 className="font-black text-slate-800 text-sm leading-tight uppercase line-clamp-2">{deal.product.nombre}</h3>
-                 <span className="text-xs font-bold text-[#00AEEF] bg-[#E8F7FF] px-2 py-0.5 rounded-lg mt-1 inline-block">PRECIO GRUPAL</span>
-               </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Subtotal</span>
-                <span className="font-bold text-slate-700">${deal.precio_actual.toLocaleString()}</span>
+  // -------------------------
+  // LOADING SKELETON
+  // -------------------------
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] pb-24 pt-8">
+        <div className="max-w-6xl mx-auto px-4 lg:px-8">
+           <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-8" />
+           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+              <div className="lg:w-2/3 space-y-6">
+                 <div className="h-64 bg-white rounded-3xl animate-pulse" />
+                 <div className="h-64 bg-white rounded-3xl animate-pulse" />
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Envío (Retiro)</span>
-                <span className="font-bold text-green-500 uppercase text-[10px] tracking-widest">Gratis</span>
+              <div className="lg:w-1/3">
+                 <div className="h-96 bg-white rounded-3xl animate-pulse" />
               </div>
-              <div className="pt-4 border-t border-slate-50 flex justify-between items-center">
-                <span className="text-slate-800 font-black uppercase text-sm tracking-tighter">Total a pagar</span>
-                <span className="text-3xl font-black text-[#00AEEF] tracking-tighter">${deal.precio_actual.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-blue-50/50 rounded-3xl p-6 border border-blue-100 flex items-start gap-4">
-            <ShieldCheck className="text-blue-500 mt-1" size={24} />
-            <div className="text-xs leading-relaxed">
-              <span className="block font-black text-blue-800 uppercase mb-1 tracking-widest">Compra Protegida</span>
-               Tu pago está asegurado. Si el grupo no se completa en el tiempo estipulado, se te devolverá el 100% de tu dinero de forma automática.
-            </div>
-          </div>
-
-          <button
-            onClick={handlePayment}
-            disabled={creatingPreference}
-            className="w-full bg-[#0077CC] hover:bg-[#00AEEF] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#0077CC]/20 transition-all flex items-center justify-center gap-3 text-lg group"
-          >
-            {creatingPreference ? <Loader2 className="animate-spin" size={24} /> : (
-              <>
-                <CreditCard size={24} className="group-hover:scale-110 transition-transform" /> 
-                PAGAR CON MERCADO PAGO
-              </>
-            )}
-          </button>
-          
-          <div className="flex items-center justify-center gap-2 text-slate-300">
-             <div className="h-px bg-slate-100 flex-1"></div>
-             <span className="text-[10px] uppercase font-black tracking-widest px-2">Secure Payment</span>
-             <div className="h-px bg-slate-100 flex-1"></div>
-          </div>
+           </div>
         </div>
+      </div>
+    );
+  }
+
+  // -------------------------
+  // MAIN RENDER
+  // -------------------------
+  return (
+    <div className="min-h-screen bg-[#F5F5F5] pb-24 md:pb-12 pt-4">
+      {/* Top Header (Checkout specific) */}
+      <div className="bg-[#FFF159] p-4 flex items-center justify-between border-b border-gray-200 hidden">
+        {/* We can hide the global header for checkout if desired, 
+            but since we are inside app/layout, we just render content here.
+            Ideally, checkout has a clean layout. We simulate that by adding a brand bar. */}
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-4">
+        
+        <Link 
+          href={deal?.product ? `/productos/${deal.product.id}` : "/"}
+          className="inline-flex items-center gap-2 text-[#00AEEF] hover:text-[#0077CC] font-bold text-sm mb-6 transition-colors group"
+        >
+          <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> Volver al producto
+        </Link>
+        
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
+          
+          {/* COLUMNA IZQUIERDA: Opciones de Compra */}
+          <div className="lg:w-2/3 space-y-6">
+            
+            <h1 className="text-2xl md:text-3xl font-black text-gray-800 tracking-tight leading-tight mb-2">
+              ¿Cómo querés recibir tu compra?
+            </h1>
+
+            {/* SECCION: DOMICILIO / RETIRO */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 relative overflow-hidden">
+               <div className="absolute top-0 left-0 w-1 h-full bg-[#00AEEF]" />
+               <div className="flex items-start gap-4">
+                 <div className="w-10 h-10 rounded-full bg-[#E8F7FF] flex items-center justify-center shrink-0">
+                   <Store className="text-[#00AEEF]" size={20} />
+                 </div>
+                 <div className="flex-1">
+                   <h3 className="text-lg font-black text-gray-800 mb-1">Retiro en domicilio del vendedor</h3>
+                   <p className="text-sm text-gray-500 font-medium leading-relaxed mb-4">
+                     Se coordina directamente una vez que se complete el grupo de compra.
+                     <br />El proveedor es: <strong className="text-gray-700">{deal?.product?.provider?.nombre_empresa || "Proveedor verificado"}</strong>.
+                   </p>
+                   {/* Opciones (simuladas UI) */}
+                   <div className="border border-[#00AEEF] bg-[#E8F7FF]/50 rounded-2xl p-4 flex items-center justify-between cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="text-[#00AEEF]" size={20} />
+                        <div>
+                           <span className="block font-bold text-gray-800 text-sm">Gratis</span>
+                           <span className="block text-xs text-gray-500">A coordinar post-compra</span>
+                        </div>
+                      </div>
+                   </div>
+                 </div>
+               </div>
+            </div>
+
+            <h2 className="text-2xl mt-8 mb-2 md:text-3xl font-black text-gray-800 tracking-tight leading-tight">
+              ¿Cómo querés pagar?
+            </h2>
+
+            {/* SECCION: PAGO */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+               <div className="flex items-start gap-4">
+                 <div className="w-10 h-10 rounded-full bg-[#E8F7FF] flex items-center justify-center shrink-0">
+                   <Wallet className="text-[#00AEEF]" size={20} />
+                 </div>
+                 <div className="flex-1">
+                   <h3 className="text-lg font-black text-gray-800 mb-1">Mercado Pago</h3>
+                   <p className="text-sm text-gray-500 font-medium leading-relaxed mb-4">
+                     Podés pagar con tus tarjetas de débito, crédito o saldo en cuenta. Tu dinero está protegido.
+                   </p>
+                   
+                   <div className="border border-gray-200 rounded-2xl p-4 flex items-center gap-4 bg-gray-50 opacity-80 mb-3">
+                      <div className="w-12 h-8 bg-blue-100 rounded flex items-center justify-center text-[10px] font-black text-blue-800 uppercase text-center leading-tight shrink-0">
+                         Dinero<br/>en cuenta
+                      </div>
+                      <span className="text-sm font-bold text-gray-600">Dinero en tu cuenta de Mercado Pago</span>
+                   </div>
+                   
+                   <div className="border border-gray-200 rounded-2xl p-4 flex items-center gap-4 bg-gray-50 opacity-80">
+                      <div className="flex gap-1 shrink-0">
+                        <div className="w-8 h-5 bg-blue-600 rounded" />
+                        <div className="w-8 h-5 bg-orange-400 rounded" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-600">Tarjetas de crédito o débito</span>
+                   </div>
+
+                 </div>
+               </div>
+            </div>
+
+          </div>
+
+          {/* COLUMNA DERECHA: Resumen */}
+          <div className="lg:w-1/3">
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 sticky top-24">
+               <h3 className="text-lg font-black text-gray-800 mb-6 uppercase tracking-widest border-b border-gray-100 pb-4">
+                 Resumen de compra
+               </h3>
+               
+               <div className="flex gap-4 mb-6">
+                 <div className="w-16 h-16 rounded-xl border border-gray-100 overflow-hidden shrink-0">
+                   <img src={deal?.product?.imagen_principal || "/placeholder.jpg"} className="w-full h-full object-cover" />
+                 </div>
+                 <div>
+                   <h4 className="font-bold text-sm text-gray-800 leading-snug line-clamp-2 mb-1">{deal?.product?.nombre}</h4>
+                   <span className="text-[10px] font-black bg-[#E8F7FF] text-[#00AEEF] px-2 py-0.5 rounded-md uppercase tracking-widest">
+                     Oferta Grupal
+                   </span>
+                 </div>
+               </div>
+
+               <div className="space-y-3 text-sm border-b border-gray-100 pb-4 mb-4">
+                  <div className="flex justify-between items-center text-gray-600">
+                    <span>Producto</span>
+                    <span className="font-medium">${deal?.precio_actual?.toLocaleString() || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-gray-600">
+                    <span>Envío</span>
+                    <span className="text-green-500 font-bold uppercase text-xs tracking-widest">Gratis</span>
+                  </div>
+               </div>
+
+               <div className="flex justify-between items-end mb-8">
+                  <span className="text-gray-800 font-bold">Pagás</span>
+                  <span className="text-3xl font-black text-gray-800 tracking-tighter">
+                    ${deal?.precio_actual?.toLocaleString() || 0}
+                  </span>
+               </div>
+
+               <button
+                  onClick={handlePayment}
+                  disabled={creatingPreference}
+                  className="w-full bg-[#00AEEF] hover:bg-[#0077CC] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-black py-4 rounded-2xl shadow-lg shadow-[#00AEEF]/20 transition-all flex items-center justify-center gap-2 text-base group mb-6"
+                >
+                  {creatingPreference ? <Loader2 className="animate-spin" size={20} /> : (
+                    <>
+                      Confirmar Compra
+                    </>
+                  )}
+               </button>
+
+               {/* Trust y Seguridad integrados al resumen */}
+               <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                  <ShieldCheck className="text-gray-400 shrink-0" size={20} />
+                  <div className="text-xs text-gray-500 leading-relaxed font-medium">
+                    <strong className="block text-gray-700 font-bold mb-0.5">Compra Protegida</strong>
+                    Solo se debita el dinero si el grupo se completa con éxito.
+                  </div>
+               </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }

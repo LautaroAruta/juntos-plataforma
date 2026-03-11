@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { 
   Building2, 
@@ -30,14 +31,15 @@ const CATEGORIES = [
 
 export default function RegisterProveedor() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     nombreEmpresa: "",
-    nombreContacto: "",
-    email: "",
+    nombreContacto: session?.user?.name || "",
+    email: session?.user?.email || "",
     password: "",
     telefono: "",
     cuit: "",
@@ -60,7 +62,7 @@ export default function RegisterProveedor() {
       return;
     }
 
-    if (formData.password.length < 8) {
+    if (!session && formData.password.length < 8) {
       setError("La contraseña debe tener al menos 8 caracteres.");
       return;
     }
@@ -73,7 +75,9 @@ export default function RegisterProveedor() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register-provider", {
+      const endpoint = session ? "/api/provider/onboarding" : "/api/auth/register-provider";
+      
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -102,11 +106,10 @@ export default function RegisterProveedor() {
           </div>
           <h1 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">¡Recibido!</h1>
           <p className="text-slate-500 font-medium mb-8">
-            Tu cuenta de proveedor está siendo revisada por nuestro equipo. 
-            Te avisaremos por email cuando estés aprobado para empezar a vender.
+            Tu cuenta de proveedor está configurada. Ahora podés empezar a cargar tus productos.
           </p>
-          <Link href="/" className="inline-block bg-[#00AEEF] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#00AEEF]/20 hover:bg-[#0077CC] transition-all uppercase tracking-widest text-sm">
-            Volver al Inicio
+          <Link href="/provider/dashboard" className="inline-block bg-[#00AEEF] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#00AEEF]/20 hover:bg-[#0077CC] transition-all uppercase tracking-widest text-sm">
+            Ir a mi Panel
           </Link>
         </div>
       </div>
@@ -115,13 +118,17 @@ export default function RegisterProveedor() {
 
   return (
     <div className="pb-24 px-4 pt-8 max-w-lg mx-auto">
-      <Link href="/auth/login" className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-800 font-bold mb-8 transition-colors group">
-        <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver al Login
-      </Link>
+      {!session && (
+        <Link href="/auth/login" className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-800 font-bold mb-8 transition-colors group">
+          <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver al Login
+        </Link>
+      )}
 
       <div className="mb-10 text-center">
-        <h1 className="text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">Registro Proveedor</h1>
-        <p className="text-slate-500 font-medium italic italic">Impulsá tu negocio con JUNTOS.</p>
+        <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">
+          {session ? "Completar Perfil" : "Registro Proveedor"}
+        </h1>
+        <p className="text-slate-500 font-medium italic">Impulsá tu negocio con JUNTOS.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -190,20 +197,22 @@ export default function RegisterProveedor() {
         </div>
 
         <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email Empresarial</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="email"
-                required
-                placeholder="ventas@empresa.com"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
-              />
+          {!session && (
+            <div>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email Empresarial</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <input
+                  type="email"
+                  required={!session}
+                  placeholder="ventas@empresa.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Teléfono de Contacto</label>
@@ -220,20 +229,22 @@ export default function RegisterProveedor() {
              </div>
           </div>
 
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Contraseña</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="password"
-                required
-                placeholder="Mínimo 8 caracteres"
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
-              />
+          {!session && (
+            <div>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Contraseña</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <input
+                  type="password"
+                  required={!session}
+                  placeholder="Mínimo 8 caracteres"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
@@ -263,9 +274,10 @@ export default function RegisterProveedor() {
           disabled={loading}
           className="w-full bg-slate-800 hover:bg-black text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-slate-800/20 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest active:scale-95 disabled:grayscale"
         >
-          {loading ? <Loader2 className="animate-spin" size={24} /> : "Registrar Empresa"}
+          {loading ? <Loader2 className="animate-spin" size={24} /> : "Finalizar Empresa"}
         </button>
       </form>
     </div>
   );
 }
+
