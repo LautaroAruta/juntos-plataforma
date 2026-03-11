@@ -3,10 +3,13 @@ import Link from "next/link";
 import { ArrowLeft, Users, Timer, Info, Star, Share2, ShieldCheck, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import JoinDealButton from "@/components/group-deals/JoinDealButton";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth"; // Assuming this path for authOptions
 
-export default async function ProductDetail({ params }: { params: { id: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
-  const { id } = params;
+  const { id } = await params;
+  const session = await getServerSession(authOptions);
 
   // Fetch product and its active deal
   const { data: product, error } = await supabase
@@ -16,7 +19,7 @@ export default async function ProductDetail({ params }: { params: { id: string }
       provider:providers (nombre_empresa),
       group_deals (*)
     `)
-    .eq('id', id)
+    .eq('product_id', id)
     .single();
 
   if (error || !product) {

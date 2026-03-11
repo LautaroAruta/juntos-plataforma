@@ -70,62 +70,35 @@ export default function NewProduct() {
     setLoading(true);
 
     try {
-      // 1. Upload images to Supabase Storage
-      const uploadedUrls: string[] = [];
-      for (const img of images) {
+      const payload = new FormData();
+      payload.append("nombre", formData.nombre);
+      payload.append("descripcion", formData.descripcion);
+      payload.append("precio_individual", formData.precio_individual);
+      payload.append("precio_grupal_minimo", formData.precio_grupal_minimo);
+      payload.append("stock", formData.stock);
+      payload.append("categoria", formData.categoria);
+
+      images.forEach((img) => {
         if (img.file) {
-          const fileExt = img.file.name.split('.').pop();
-          const fileName = `${Math.random()}.${fileExt}`;
-          const filePath = `${fileName}`;
-          
-          const { error: uploadError, data } = await supabase.storage
-            .from('products')
-            .upload(filePath, img.file);
-
-          if (uploadError) throw uploadError;
-          
-          const { data: { publicUrl } } = supabase.storage
-            .from('products')
-            .getPublicUrl(filePath);
-            
-          uploadedUrls.push(publicUrl);
+          payload.append("images", img.file);
         }
+      });
+
+      const response = await fetch("/api/products", {
+        method: "POST",
+        body: payload,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Error al subir el producto.");
       }
 
-      // 2. Clear images and start DB insert
-      // Note: provider_id should be retrieved from session in a real app.
-      // For demo, we'll try to find any provider or use a placeholder.
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Debes iniciar sesión para publicar productos");
-
-      // Fetch the provider associated with this user
-      const { data: provider, error: providerError } = await supabase
-        .from('providers')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (providerError || !provider) {
-        throw new Error("No se encontró un perfil de proveedor asociado a tu cuenta. Por favor, registrate como proveedor.");
-      }
-
-      const { error: dbError } = await supabase
-        .from('products')
-        .insert([{
-          ...formData,
-          precio_individual: parseFloat(formData.precio_individual),
-          precio_grupal_minimo: parseFloat(formData.precio_grupal_minimo),
-          stock: parseInt(formData.stock),
-          provider_id: provider.id,
-          imagenes: uploadedUrls,
-          imagen_principal: uploadedUrls[0] || null,
-          activo: true
-        }]);
-
-      if (dbError) throw dbError;
-
+      alert("Producto publicado exitosamente. ¡A vender!");
       router.push("/provider/dashboard");
       router.refresh();
+
     } catch (err: any) {
       alert("Error al crear producto: " + err.message);
     } finally {

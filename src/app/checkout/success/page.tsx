@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, QrCode, ArrowRight, Home, ShoppingBag, Download } from "lucide-react";
+import { CheckCircle2, QrCode, ArrowRight, Home, ShoppingBag, Download, Loader2 } from "lucide-react";
 import QRCode from 'qrcode';
 
-export default function CheckoutSuccess() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const paymentId = searchParams.get('payment_id');
   const [qrDataUrl, setQrDataUrl] = useState("");
@@ -14,8 +14,6 @@ export default function CheckoutSuccess() {
   useEffect(() => {
     async function generateQR() {
       if (paymentId) {
-        // In a real app, this should be a signed JWT from the backend.
-        // For current demo, we'll QR the payment ID.
         try {
           const url = await QRCode.toDataURL(`JUNTOS-ORDER-${paymentId}`);
           setQrDataUrl(url);
@@ -30,7 +28,6 @@ export default function CheckoutSuccess() {
   return (
     <div className="min-h-screen bg-[#E8F7FF] flex flex-col items-center justify-center p-6 text-center">
       <div className="w-full max-w-sm bg-white rounded-[3rem] p-10 shadow-2xl shadow-[#00AEEF]/20 relative overflow-hidden">
-        {/* Confetti-like decoration circles */}
         <div className="absolute top-0 left-0 w-32 h-32 bg-[#00AEEF]/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-24 h-24 bg-green-50 rounded-full translate-x-1/2 translate-y-1/2"></div>
         
@@ -76,5 +73,13 @@ export default function CheckoutSuccess() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccess() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#E8F7FF]"><Loader2 className="animate-spin text-[#00AEEF]" size={48} /></div>}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }
