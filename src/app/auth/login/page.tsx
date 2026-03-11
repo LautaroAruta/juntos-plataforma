@@ -1,0 +1,142 @@
+"use client";
+
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { LogIn, Mail, Lock, Chrome, Loader2 } from "lucide-react";
+
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setError("Credenciales inválidas. Por favor intenta de nuevo.");
+      } else {
+        router.push("/");
+        router.refresh();
+      }
+    } catch (err) {
+      setError("Ocurrió un error al iniciar sesión.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-4">
+      <div className="w-full max-w-sm glass-card rounded-3xl p-8">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#E8F7FF] text-[#00AEEF] mb-4">
+            <LogIn size={32} />
+          </div>
+          <h1 className="text-2xl font-black text-slate-800">Bienvenido</h1>
+          <p className="text-slate-500 text-sm">Ingresa a tu cuenta de JUNTOS</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 px-1">
+              Email
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF] transition-all"
+                placeholder="tu@email.com"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 px-1">
+              Contraseña
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF] transition-all"
+                placeholder="••••••••"
+              />
+            </div>
+            <div className="text-right mt-1">
+              <Link href="/auth/recuperar" className="text-[10px] font-bold text-[#00AEEF] hover:underline uppercase tracking-tight">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 text-red-500 text-xs p-3 rounded-lg border border-red-100 font-medium">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black py-4 rounded-xl shadow-lg shadow-[#00AEEF]/20 transition-all flex items-center justify-center gap-2 group"
+          >
+            {loading ? <Loader2 className="animate-spin" size={20} /> : "INGRESAR"}
+          </button>
+        </form>
+
+        <div className="relative my-8">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200"></div>
+          </div>
+          <div className="relative flex justify-center text-[10px]">
+            <span className="bg-white px-3 text-slate-400 uppercase tracking-[0.2em] font-black">O continuá con</span>
+          </div>
+        </div>
+
+        <button
+          onClick={() => signIn("google")}
+          className="w-full bg-white border border-slate-200 text-slate-700 font-black py-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-3 shadow-sm active:scale-95"
+        >
+          <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" className="w-5 h-5" alt="Google" />
+          CONTINUAR CON GOOGLE
+        </button>
+
+        <div className="mt-10 space-y-4 text-center">
+          <p className="text-xs text-slate-500 font-medium">
+            ¿No tenés cuenta?{" "}
+            <Link href="/auth/registro/cliente" className="text-[#00AEEF] font-black hover:underline uppercase">
+              Registrate como Cliente
+            </Link>
+          </p>
+          <div className="h-px bg-slate-50 w-1/2 mx-auto"></div>
+          <p className="text-xs text-slate-400 font-medium">
+            ¿Sos proveedor?{" "}
+            <Link href="/auth/registro/proveedor" className="text-slate-600 font-black hover:underline uppercase">
+              Registrate acá
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

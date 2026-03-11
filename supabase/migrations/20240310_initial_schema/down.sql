@@ -1,0 +1,2 @@
+-- down.sql
+-- Migration rollback (not implemented)
