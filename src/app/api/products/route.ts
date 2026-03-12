@@ -108,7 +108,7 @@ export async function POST(req: Request) {
         precio_grupal_minimo: parseFloat(precio_grupal_minimo),
         stock: parseInt(stock),
         categoria,
-        provider_id: providerId,
+        proveedor_id: providerId,
         imagenes: uploadedUrls,
         imagen_principal: uploadedUrls.length > 0 ? uploadedUrls[0] : null,
         activo: true

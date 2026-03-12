@@ -16,7 +16,7 @@ export default function ElegirRolPage() {
     // Si el usuario ya tiene un rol asignado, saltamos esta pantalla
     if (session?.user?.rol) {
       if (session.user.rol === "admin") {
-        router.push("/gestion-juntos");
+        router.push("/gestion-juntos/dashboard");
       } else if (session.user.rol === "cliente") {
         router.push("/dashboard/cliente");
       } else if (session.user.rol === "proveedor") {
