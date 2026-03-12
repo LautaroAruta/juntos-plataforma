@@ -48,9 +48,8 @@ export default function LoginPage() {
           <h1 className="text-xl font-bold text-gray-800">¡Hola! Para continuar, ingresá</h1>
         </div>
 
-        {/* Google Login - Professional & Primary */}
         <button
-          onClick={() => signIn("google")}
+          onClick={() => signIn("google", { callbackUrl: "/elegir-rol" })}
           className="w-full bg-white border border-gray-300 text-gray-700 font-semibold py-3 rounded-md hover:bg-gray-50 transition-all flex items-center justify-center gap-3 shadow-sm active:scale-[0.98] mb-8"
         >
           <svg width="18" height="18" viewBox="0 0 18 18">

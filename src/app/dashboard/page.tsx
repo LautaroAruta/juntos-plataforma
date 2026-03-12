@@ -15,7 +15,9 @@ export default async function DashboardRedirect() {
     redirect("/gestion-juntos");
   } else if (role === "proveedor") {
     redirect("/provider/dashboard");
-  } else {
+  } else if (role === "cliente") {
     redirect("/dashboard/cliente");
+  } else {
+    redirect("/elegir-rol");
   }
 }

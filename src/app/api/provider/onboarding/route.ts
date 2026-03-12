@@ -43,6 +43,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Error al crear perfil de proveedor" }, { status: 500 });
     }
 
+    // Actualizar el rol en la tabla users
+    const { error: userUpdateError } = await supabaseAdmin
+      .from('users')
+      .update({ rol: 'proveedor' })
+      .eq('id', session.user.id);
+
+    if (userUpdateError) {
+      console.error("User role update error:", userUpdateError);
+      return NextResponse.json({ message: "Perfil guardado, pero hubo un error al asignar el rol." }, { status: 500 });
+    }
+
     return NextResponse.json({ message: "Proveedor completado exitosamente" }, { status: 201 });
   } catch (error) {
     console.error("Provider onboarding error:", error);

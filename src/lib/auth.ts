@@ -76,8 +76,8 @@ export const authOptions: NextAuthOptions = {
           .single();
 
         if (!existingUser) {
-          // Determine role
-          const role = email === "aruta839@gmail.com" ? "admin" : "cliente";
+          // Determine role - admin or null initially so they can choose
+          const role = email === "aruta839@gmail.com" ? "admin" : null;
           
           // Create new user record
           const { error: createError } = await supabase.from("users").insert({

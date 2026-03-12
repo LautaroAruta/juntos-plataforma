@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Search, User, Menu, ShoppingCart } from "lucide-react";
+import { Search, User, Menu, ShoppingCart, LogOut } from "lucide-react";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
@@ -77,6 +77,13 @@ export default function Header() {
               <Link href="/carrito" className="text-gray-500 hover:text-[#00AEEF] transition-colors">
                 <ShoppingCart size={20} />
               </Link>
+              <button 
+                onClick={() => signOut({ callbackUrl: "/" })} 
+                className="text-gray-500 hover:text-red-500 transition-colors ml-2"
+                title="Cerrar Sesión"
+              >
+                <LogOut size={20} />
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-4">

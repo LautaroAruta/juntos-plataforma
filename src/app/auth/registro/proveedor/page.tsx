@@ -31,7 +31,7 @@ const CATEGORIES = [
 
 export default function RegisterProveedor() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -87,6 +87,11 @@ export default function RegisterProveedor() {
 
       if (!res.ok) {
         throw new Error(data.message || "Error al registrarse");
+      }
+
+      if (session) {
+        // Refrescar la sesión para que NextAuth vea que ahora somos proveedor
+        await update({ rol: 'proveedor' });
       }
 
       setSuccess(true);
