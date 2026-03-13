@@ -46,11 +46,11 @@ export default function ClientLoginPage() {
           <ChevronLeft size={24} />
         </Link>
         <div className="text-center mb-8 mt-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#E8F7FF] text-[#00AEEF] mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#FFF8E7] text-[#009EE3] mb-4">
             <LogIn size={32} />
           </div>
           <h1 className="text-2xl font-black text-slate-800">Hola Cliente</h1>
-          <p className="text-slate-500 text-sm">Ingresa para comprar y ahorrar juntos</p>
+          <p className="text-slate-500 text-sm">Ingresa para comprar y ahorrar bandha</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -65,7 +65,7 @@ export default function ClientLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF] transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#009EE3]/20 focus:border-[#009EE3] transition-all"
                 placeholder="tu@email.com"
               />
             </div>
@@ -82,12 +82,12 @@ export default function ClientLoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF] transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#009EE3]/20 focus:border-[#009EE3] transition-all"
                 placeholder="••••••••"
               />
             </div>
             <div className="text-right mt-1">
-              <Link href="/auth/recuperar" className="text-[10px] font-bold text-[#00AEEF] hover:underline uppercase tracking-tight">
+              <Link href="/auth/recuperar" className="text-[10px] font-bold text-[#009EE3] hover:underline uppercase tracking-tight">
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
@@ -102,7 +102,7 @@ export default function ClientLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black py-4 rounded-xl shadow-lg shadow-[#00AEEF]/20 transition-all flex items-center justify-center gap-2 group"
+            className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-4 rounded-xl shadow-lg shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-2 group"
           >
             {loading ? <Loader2 className="animate-spin" size={20} /> : "INGRESAR A MI CUENTA"}
           </button>
@@ -128,7 +128,7 @@ export default function ClientLoginPage() {
         <div className="mt-8 space-y-4 text-center">
           <p className="text-xs text-slate-500 font-medium">
             ¿No tenés cuenta?{" "}
-            <Link href="/auth/registro/cliente" className="text-[#00AEEF] font-black hover:underline uppercase">
+            <Link href="/auth/registro/cliente" className="text-[#009EE3] font-black hover:underline uppercase">
               Registrate Fácil
             </Link>
           </p>

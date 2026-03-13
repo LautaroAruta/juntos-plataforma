@@ -1,0 +1,710 @@
+A n á lis is  A rq u ite c tó n ic o  In te g ra l p a ra  
+P la ta fo rm  a s  d e  C o m  e rc io  E le c tró n ic o : 
+F ra m  e w o rk s  F ro n te n d , D is e ñ o  U I y  
+D e s a rro llo  A g é n tic o  A s is tid o  p o r IA  
+L a  E v o lu c ió n  d e l F ro n te n d  e n  e l C o m  e rc io  E le c tró n ic o  
+y  R e q u is ito s  F u n c io n a le s  C e n tra le s  
+El desarrollo de una plataforma de comercio electrónico moderna, especialmente aquella que 
+incorpora dinámicas de comercio social, ofertas en tiempo real y gestión de múltiples 
+proveedores, representa un desafío arquitectónico de alta complejidad. La interfaz de usuario 
+(Frontend) ya no opera como un simple catálogo estático de productos, sino como un 
+orquestador dinámico de estados complejos, interacciones asíncronas y flujos de datos en 
+tiempo real. La arquitectura debe estar diseñada para soportar una fricción de navegación 
+cercana a cero, una retención de usuarios maximizada a través de la velocidad de carga y una 
+modularidad que permita escalar el sistema a medida que se incorporan nuevos vendedores y 
+categorías de inventario. 
+El ecosistema digital actual exige que una plataforma de esta envergadura resuelva requisitos 
+funcionales específicos y críticos. En primer lugar, la visualización de productos debe integrar 
+técnicas de optimización de imágenes, carga diferida (lazy loading) y manejo de estados de 
+carga esqueleto (skeleton loaders) para mantener la percepción de velocidad incluso en redes 
+móviles inestables.1 La implementación de menús de navegación requiere arquitecturas 
+jerárquicas que soporten categorías anidadas (megamenús) sin comprometer la accesibilidad 
+ni el rendimiento del Modelo de Objetos del Documento (DOM). Por su parte, el sistema de 
+filtros —una de las funcionalidades más complejas en el comercio electrónico— demanda un 
+motor de búsqueda facetada en el frontend capaz de procesar múltiples parámetros 
+simultáneos (precio, marca, valoración, disponibilidad), aplicar técnicas de "debouncing" para 
+evitar la saturación de llamadas a la Interfaz de Programación de Aplicaciones (API) y 
+sincronizar el estado del filtro con los parámetros de la URL para garantizar que las búsquedas 
+específicas sean compartibles.3 
+Adicionalmente, la integración de paneles para proveedores (vendor dashboards) introduce la 
+necesidad de control de acceso basado en roles (RBAC) en el frontend. Los proveedores 
+requieren interfaces ricas en datos, tablas de inventario con paginación, ordenamiento y 
+edición en línea, así como visualización analítica de sus ventas.5 Cuando se superponen 
+modelos de negocio como el de Pinduoduo o el proyecto "JUNTO", focalizados en compras 
+grupales y comercio social, el frontend debe además manejar componentes de alta urgencia, 
+----------------Page (0) Break----------------
+como temporizadores de cuenta regresiva sincronizados milimétricamente con el servidor a 
+través de WebSockets o Server-Sent Events, y sistemas nativos de compartición mediante 
+enlaces profundos (deep links) hacia plataformas de mensajería como WhatsApp.7 La 
+resolución técnica de estas demandas requiere una cuidadosa selección del marco de trabajo 
+(framework) subyacente. 
+E v a lu a c ió n  P a ra d ig m  á tic a  d e  F ra m  e w o rk s : W  e b , P W  A  
+y  M  u ltip la ta fo rm  a  
+La decisión fundacional en el desarrollo del frontend determina la trayectoria operativa, los 
+costos de mantenimiento y los límites de escalabilidad del producto. Para un sistema que 
+requiere catálogos de productos interactivos, filtros avanzados y paneles de proveedores, 
+existen tres paradigmas principales a evaluar: desarrollo web tradicional optimizado (a menudo 
+expandido a Progressive Web Apps o PWA), desarrollo móvil nativo y desarrollo 
+multiplataforma. 
+El desarrollo móvil nativo puro (Swift para iOS, Kotlin para Android) ofrece el máximo 
+rendimiento teórico y acceso irrestricto a las interfaces de programación de hardware.8 Sin 
+embargo, este enfoque obliga a mantener múltiples bases de código independientes 
+(incluyendo una tercera para la web, indispensable para los paneles de proveedores y el 
+descubrimiento orgánico de productos). Esta fragmentación triplica los costos de ingeniería, 
+rompe la paridad de características entre plataformas y ralentiza drásticamente el tiempo de 
+salida al mercado (Time-to-Market), haciéndolo financieramente inviable para productos que 
+requieren iteraciones ágiles.10 
+Por otro lado, los frameworks de JavaScript modernos orientados a la web han alcanzado un 
+nivel de madurez excepcional. Frameworks como React.js (y su meta-framework Next.js), 
+Vue.js, Angular y Svelte dominan el panorama.12 Para una plataforma de comercio electrónico, 
+Next.js (basado en React) se erige como la solución web superior debido a su capacidad nativa 
+de renderizado del lado del servidor (Server-Side Rendering o SSR) y generación de sitios 
+estáticos (Static Site Generation o SSG).13 El SSR es innegociable en el comercio electrónico 
+público, ya que permite que los motores de búsqueda indexen el contenido de los productos 
+inmediatamente, maximizando el SEO (Optimización de Motores de Búsqueda), al tiempo que 
+reduce el tiempo hasta el primer byte (TTFB) para los usuarios finales.13 Además, el ecosistema 
+masivo de React facilita la implementación de paneles de administración para proveedores 
+utilizando soluciones como Refine o plantillas administrativas avanzadas basadas en Tailwind 
+CSS.5 
+Si la estrategia comercial exige una presencia imperativa en las tiendas de aplicaciones móviles 
+(App Store y Google Play) para capitalizar la lealtad del usuario y las notificaciones push 
+nativas, el paradigma multiplataforma es la respuesta arquitectónica correcta. En este ámbito, 
+React Native y Flutter son los contendientes definitivos.18 Flutter, impulsado por Google y 
+----------------Page (1) Break----------------
+basado en el lenguaje Dart, utiliza su propio motor de renderizado (Skia o el más reciente 
+Impeller) para dibujar cada píxel en la pantalla, garantizando una consistencia visual absoluta a 
+60-120 cuadros por segundo en cualquier dispositivo, independientemente del sistema 
+operativo anfitrión.20 Es excepcional para interfaces altamente personalizadas y ricas en 
+animaciones. 
+No obstante, para una plataforma de comercio electrónico orientada a transacciones y gestión 
+de proveedores, R e a c t N a tiv e  resulta estratégicamente superior.18 Basado en JavaScript y 
+TypeScript, React Native permite una reutilización masiva de lógica de negocio y talento de 
+ingeniería entre la versión web (Next.js) y la aplicación móvil.18 Su nueva arquitectura, que 
+incluye el motor de ejecución JavaScript Hermes y el sistema de renderizado Fabric, ha 
+eliminado los cuellos de botella históricos de rendimiento asociados con el "puente" asíncrono 
+(bridge), permitiendo interacciones fluidas que rivalizan con el desarrollo nativo.10 Más 
+importante aún, React Native posee un ecosistema de integraciones de terceros inigualable. 
+Para procesar transacciones, bibliotecas complejas como el SDK de Mercado Pago disponen 
+de integraciones probadas y maduras en React Native, mitigando riesgos de seguridad y 
+reduciendo el tiempo de integración de la pasarela de pagos, un componente vital para la 
+conversión y la retención del carrito de compras.26 
+A trib u to  
+A rq u ite c tó n ic o  
+N e x t.js  (W  e b  / P W  A )   R e a c t N a tiv e  (M  ó v il 
+M  u ltip la ta fo rm  a ) 
+F lu tt e r (M  ó v il 
+M  u ltip la ta fo rm  a ) 
+In d e x a c ió n  S E O          Excelente 
+(Renderizado del 
+Lado del Servidor) 
+Inexistente (requiere 
+versión web paralela) 
+Deficiente (optimizado 
+para aplicaciones, no 
+para rastreadores web) 
+C o m  p a rtic ió n  d e  
+C ó d ig o  
+Alta compatibilidad 
+lógica con React 
+Native 
+Comparte lógica de 
+negocio y talento con 
+React Web 
+Aislado en el 
+ecosistema Dart 
+In te g ra c ió n  d e  
+P a g o s  L o c a le s  
+Soporte de API Web 
+universal 
+Ecosistema profundo 
+de SDKs nativos 
+empaquetados 
+Soporte creciente, 
+pero puede requerir 
+canales nativos 
+personalizados 
+----------------Page (2) Break----------------
+P a n e le s  d e  
+P ro v e e d o re s  
+Óptimo para 
+visualización de 
+datos complejos en 
+escritorio 
+Funcional, pero 
+menos ergonómico 
+para tablas masivas 
+Fuerte en UI 
+personalizada, 
+desafiante para web 
+semántica 
+R e n d im  ie n to  d e  
+A n im  a c io n e s  
+Dependiente del 
+navegador 
+(CSS/Framer Motion) 
+Muy bueno 
+(mediante 
+Reanimated y Fabric) 
+Excepcional (motor de 
+renderizado directo) 
+En consecuencia, la arquitectura óptima para este proyecto es un e n fo q u e  d e  m  o n o re p o  
+b a s a d o  e n  e l e c o s is te m  a  d e  R e a c t: utilizar Next.js para el portal web orientado al 
+descubrimiento de productos, el SEO y los paneles administrativos de los proveedores (donde 
+las pantallas de escritorio son fundamentales para gestionar tablas de inventario complejas), 
+emparejado con React Native (potenciado por Expo) para las aplicaciones de iOS y Android 
+orientadas al consumidor final, compartiendo hooks, modelos de datos, esquemas de 
+validación y la lógica de gestión de estado global entre ambas plataformas. 
+S is te m  a s  d e  D is e ñ o  y  B ib lio te c a s  d e  C o m  p o n e n te s  U I 
+p a ra  A lta  C o n v e rs ió n  
+Habiendo cimentado la arquitectura en el ecosistema React/React Native, la eficiencia del 
+desarrollo y la consistencia de la experiencia del usuario (UX) dependen críticamente de la 
+selección de una biblioteca de componentes de Interfaz de Usuario (UI) estructurada. 
+Desarrollar cada botón, menú desplegable, control deslizante de filtros y cuadro de diálogo 
+desde cero es una ineficiencia arquitectónica que introduce variaciones de diseño, deudas 
+técnicas masivas y fallas críticas de accesibilidad.28 El comercio electrónico requiere patrones 
+de interacción predecibles y altamente refinados. 
+En el entorno web (Next.js), el estándar indiscutible de la industria actual es la utilización de 
+T a ilw in d  C S S  combinado con S h a d c n /U I.29 A diferencia de las bibliotecas de componentes 
+monolíticas tradicionales (como Material UI o Bootstrap) que instalan código opaco y difícil de 
+sobrescribir a través de módulos npm, Shadcn/UI es un sistema de componentes "copiar y 
+pegar" basado en primitivas no estilizadas (headless primitives) de Radix UI.32 Esto significa que 
+el código fuente de menús complejos, selectores de fechas y paneles de control reside 
+directamente en el proyecto, proporcionando al desarrollador un control absoluto sobre el 
+comportamiento y la estética, garantizando simultáneamente el cumplimiento riguroso de las 
+directrices de accesibilidad (WAI-ARIA).32 Para los paneles de proveedores (proveedores), se 
+pueden implementar extensiones basadas en Tailwind, como Tremor o plantillas como 
+----------------Page (3) Break----------------
+TailAdmin, que proporcionan abstracciones de alto nivel para tablas de datos con 
+ordenamiento, filtrado y gráficos analíticos listos para producción.5 
+Para trasladar esta eficiencia al ecosistema móvil de React Native, el panorama se diversifica. 
+Frameworks como React Native Paper ofrecen consistencia rápida bajo el paradigma de 
+Material Design, pero pueden resultar inflexibles cuando se busca una identidad de marca 
+distintiva.30 Tamagui se posiciona como el pináculo del rendimiento cruzado (web y móvil) 
+mediante el uso de un compilador de optimización avanzado, pero introduce una curva de 
+aprendizaje arquitectónica severa que puede ralentizar los equipos durante la fase de 
+prototipado rápido.30 
+La solución estratégica que unifica la experiencia web y móvil bajo un mismo paradigma mental 
+es G lu e s ta c k - U I c o m  b in a d o  c o n  N a tiv e W  in d .36 Gluestack-UI (el sucesor moderno de 
+NativeBase) proporciona un extenso catálogo de más de 40 componentes accesibles (menús, 
+modales, tarjetas) diseñados para integrarse fluidamente a través de plataformas.36 La 
+integración con NativeWind es el factor diferenciador crítico: permite aplicar clases de utilidad 
+idénticas a las de Tailwind CSS directamente en los componentes de React Native.38 Esto 
+erradica la disonancia cognitiva de cambiar entre el estilizado web y las hojas de estilo nativas 
+de React, permitiendo que la construcción de tarjetas de ofertas, filtros de barra lateral y feeds 
+de productos se realice con una velocidad y predictibilidad sin precedentes.38 
+In te g ra c ió n  d e  In te lig e n c ia  A rtifi c ia l p a ra  la  
+G e n e ra c ió n  F ro n te n d : H e rra m  ie n ta s  C o m  p le m  e n ta ria s  
+La pregunta central sobre si existe una IA que facilite el desarrollo del frontend y actúe como un 
+complemento superior a los Entornos de Desarrollo Integrados (IDEs) tradicionales tiene una 
+respuesta afirmativa dentro de una categoría específica de herramientas: los generadores de 
+código de interfaz orientados a componentes. Mientras que IDEs agénticos manejan lógica 
+profunda, la traducción de ideas visuales o esquemas a código estructurado se delega de 
+manera más eficiente a plataformas especializadas como v0.dev, Lovable y Bolt.new.41 
+Al evaluar exhaustivamente estas herramientas para el desarrollo de comercio electrónico: 
+El ecosistema de L o v a b le .d e v  brilla en la creación ultrarrápida de Productos Mínimos Viables 
+(MVPs) completos (Full-Stack). Destaca por su capacidad para conectarse automáticamente a 
+arquitecturas de bases de datos estandarizadas como Supabase y desplegar la aplicación 
+instantáneamente.29 Es la herramienta ideal para fundadores no técnicos que buscan validar 
+una idea de inmediato.44 Sin embargo, para un proyecto de comercio electrónico estructurado, 
+que requiere la integración meticulosa de SDKs de terceros (como pasarelas de pago locales o 
+APIs de WhatsApp), lógica de estado de filtros profundos y control absoluto de la base de 
+código para su integración en infraestructuras existentes, Lovable puede resultar demasiado 
+----------------Page (4) Break----------------
+prescriptivo y limitante en sus opciones de exportación modular.42 
+B o lt.n e w  (y su variante de código abierto Bolt.diy) proporciona un entorno de desarrollo 
+completo en el navegador impulsado por la tecnología WebContainers de StackBlitz.42 Permite 
+ejecutar servidores Node.js completos de manera local dentro del navegador, lo que facilita 
+una experiencia de prototipado fluido y la instalación instantánea de dependencias.29 Aunque 
+es excepcional para levantar pruebas de concepto (POC) sin fricciones de configuración del 
+entorno de desarrollo local, tiende a estructurar aplicaciones completas de una manera que 
+puede ser difícil de desenredar y escalar para equipos empresariales consolidados.44 
+v 0 .d e v , desarrollado por Vercel, es categóricamente la IA complementaria óptima para el 
+diseño frontend detallado en React y Tailwind.29 A diferencia de Lovable y Bolt, que intentan 
+construir la aplicación completa, v0.dev se especializa asimétrica y exclusivamente en la 
+generación de componentes de Interfaz de Usuario de calidad de producción.29 Su 
+arquitectura está profundamente entrenada en los patrones de Shadcn/UI y Tailwind CSS. El 
+diferenciador estratégico de v0.dev es su capacidad de "Imagen a Código" (Image-to-Code).29 
+El flujo de trabajo magistral para resolver las necesidades del proyecto (menús, filtros, ver 
+productos, ofertas) comienza aquí. El desarrollador puede proporcionar a v0.dev capturas de 
+pantalla de interfaces de comercio electrónico de alto rendimiento existentes (por ejemplo, el 
+intrincado sistema de filtros de Amazon o el panel de proveedores estructurado de Shopify), o 
+diseños preliminares generados en herramientas de diseño asistidas por IA como Figma AI o 
+Uizard.50 v0.dev interpretará la jerarquía visual y generará un componente React modular, 
+completamente tipado en TypeScript, accesible semánticamente y estilizado con Tailwind, 
+logrando una precisión del 90% respecto a la intención original sin requerir una sola línea de 
+escritura manual.47 Este componente aislado se exporta limpiamente, listo para ser inyectado 
+en el sistema principal. Es este nivel de modularidad y calidad de código lo que hace de v0.dev 
+el socio ideacional y visual perfecto antes de ingresar a la fase de ensamblaje lógico. 
+E l P a ra d ig m  a  A g é n tic o : G o o g le  A n tig ra v ity  c o m  o  
+O rq u e s ta d o r A rq u ite c tó n ic o  
+Una vez que los componentes visuales han sido prototipados a través de v0.dev, el ensamblaje 
+de la lógica de negocio, la gestión del estado global (como el carrito de compras y los filtros de 
+búsqueda), el enrutamiento y las integraciones de backend requieren un entorno de 
+razonamiento estructurado. Aquí es donde G o o g le  A n tig ra v ity  redefine el panorama del 
+desarrollo de software.53 
+Antigravity no es simplemente un asistente de codificación que proporciona sugerencias de 
+autocompletado en línea; es un Entorno de Desarrollo Integrado (IDE) basado en el concepto 
+de "Agent-First" (centrado en el agente).53 El sistema presupone que la Inteligencia Artificial 
+actúa como un ingeniero de software autónomo capaz de investigar bases de código masivas, 
+----------------Page (5) Break----------------
+planificar implementaciones multifuncionales, ejecutar comandos de terminal y verificar 
+resultados interactuando con navegadores web, operando de manera asíncrona.53 
+La arquitectura de la interfaz de Antigravity facilita esta orquestación mediante varias 
+superficies especializadas. La vista clásica del E d ito r proporciona un entorno familiar basado 
+en la base de código abierto de VS Code, equipado con modalidades de interacción 
+impulsadas por IA como predicciones algorítmicas ("Tab") y alteraciones de código en línea 
+basadas en instrucciones en lenguaje natural ("Command").53 El avance paradigmático reside 
+en el A g e n t M  a n a g e r (Centro de Control), un panel dedicado donde el desarrollador despliega 
+y orquesta agentes paralelos para abordar tareas complejas y de largo aliento.53 
+Complementando esto se encuentra el B ro w s e r A g e n t (Agente de Navegador), una entidad 
+automatizada con la directiva específica de renderizar la aplicación local, simular flujos de 
+interacción de usuarios reales, identificar errores de ejecución y capturar evidencia visual 
+(como capturas de pantalla o grabaciones) para validar las alteraciones del código.53 
+Para gestionar la opacidad inherente de los grandes modelos de lenguaje (LLMs) y establecer 
+un vínculo de confianza con el desarrollador humano, Antigravity enfatiza la generación de 
+A rte fa c to s  dentro de su "Modo de Planificación" (Planning Mode).55 Antes de alterar 
+recursivamente un repositorio, el agente formula una hipótesis técnica y expide planes de 
+implementación, esquemas arquitectónicos y listas de tareas interactivas.53 El desarrollador 
+interviene asincrónicamente, revisando estos documentos estructurados y proporcionando 
+anotaciones directas y correcciones lógicas.53 El agente de Antigravity recalibra su trayectoria 
+de ejecución incorporando estos comentarios sin detener sus procesos paralelos, emulando la 
+dinámica colaborativa entre un arquitecto de software senior y un desarrollador junior 
+hiperproductivo.53 
+Para sistemas de comercio electrónico que involucran una extrema densidad de contexto 
+(como el mapeo preciso de esquemas de bases de datos para proveedores o los estrictos 
+requisitos de seguridad de las API de pasarelas de pago), Antigravity introduce el concepto de 
+A g e n t S k ills  (Habilidades del Agente).60 Estas habilidades permiten a los desarrolladores 
+encapsular conjuntos de instrucciones reutilizables, documentación de API específica, reglas 
+de convenciones de código y plantillas estructurales en formato de texto plano (SKILL.md).60 Al 
+dotar al agente con una habilidad, se amplía drásticamente su memoria semántica y su 
+precisión determinista sobre las reglas de negocio propietarias, resolviendo las limitaciones 
+clásicas de saturación de contexto que sufren los LLMs estándar durante ciclos de desarrollo 
+prolongados.60 
+In g e n ie ría  d e  P ro m  p ts  A v a n z a d a  p a ra  A n tig ra v ity : 
+G u ía  d e  Im  p le m  e n ta c ió n  P a s o  a  P a s o  
+Para explotar la capacidad agéntica de Google Antigravity en la construcción del frontend del 
+proyecto (enfocado en catálogos de productos, ofertas, paneles de proveedores, menús y 
+----------------Page (6) Break----------------
+filtros complejos), el enfoque de instrucción debe abandonar las indicaciones singulares y 
+abstractas. En su lugar, se requiere una metodología fundamentada en patrones de diseño de 
+prompts como G  o a l +  C o n s tra in ts  (Objetivos + Restricciones), S te p - b y - S te p  R e a s o n in g  
+(Razonamiento Lógico Paso a Paso) y C h a in - o f-T a s k s  (Cadena de Tareas).63 
+El flujo de trabajo óptimo requiere dividir la arquitectura de la aplicación en dominios 
+funcionales discretos. Es imperativo asegurar que Antigravity esté configurado en el modo 
+"P la n n in g " (Planificación) para forzar la emisión de Artefactos estructurales antes de la 
+manipulación de la base de código.55 A continuación, se presenta el marco estratégico y los 
+prompts literales, ordenados secuencialmente, para que el agente de Antigravity ejecute la 
+construcción del proyecto. 
+F a s e  1 : In ic ia liz a c ió n  A rq u ite c tó n ic a  y  C o n fi g u ra c ió n  d e l E n to rn o  
+La fase génesis establece las fundaciones tecnológicas, la topología de carpetas y las políticas 
+de estilo. Se instruye al agente a asumir un rol experto y a definir un plan maestro sin escribir 
+lógica transaccional inmediata. 
+P ro m  p t 1 : 
+"Asume el rol de un Arquitecto Frontend Senior especializado en plataformas de 
+comercio electrónico escalables. El objetivo es inicializar la arquitectura estructural 
+para un proyecto web/móvil enfocado en catálogos de productos, ofertas 
+dinámicas y gestión de proveedores. 
+Restricciones Técnicas Críticas: 
+1. Utiliza como framework base. 
+2. Implementa para el sistema de diseño y componentes primitivos. 
+3. Diseña una estructura de carpetas modular basada en el patrón 
+'Feature-Sliced Design', separando claramente la lógica global (hooks, 
+estado), la capa de servicios (integración API) y la capa de presentación (UI, 
+componentes compartidos). 
+Tarea de Ejecución: Inicia el proyecto instalando las dependencias 
+fundamentales. No procedas a crear las vistas de los componentes todavía. 
+Evalúa estos requerimientos y genera un Artefacto detallado del 'Plan de 
+Implementación' y una 'Lista de Tareas' (Task List) que servirá de mapa de ruta 
+para los siguientes dominios: Enrutamiento de Usuarios y Proveedores, Lógica 
+de Filtros de Búsqueda, Integración de Feed de Ofertas, y Módulos de Pago." 
+(In te rv e n c ió n  H u m  a n a : E l d e s a rro lla d o r re v is a  e l p la n  d e  a rq u ite c tu ra  g e n e ra d o  e n  e l p a n e l d e  
+A rte fa c to s , a p ru e b a  la  e s tru c tu ra  d e  c a rp e ta s  y  p e rm  ite  a l a g e n te  p ro c e d e r a  la  fa s e  d e  
+c o m  p o n e n te s  v is u a le s ). 
+F a s e  2 : Im  p le m  e n ta c ió n  d e  la  E s tru c tu ra  d e  N a v e g a c ió n  y  M  e n ú s  
+----------------Page (7) Break----------------
+J e rá rq u ic o s  
+El comercio electrónico requiere una organización de datos accesible. Esta fase construye el 
+andamiaje de navegación global y los menús categóricos (megamenús). 
+P ro m  p t 2 : 
+"Basado en el Plan de Implementación aprobado, ejecuta la construcción del 
+sistema de enrutamiento y la capa de navegación. 
+Requisitos del Dominio: 
+1. Crea el Layout global de la aplicación (Header, Footer, Sidebar colapsable para 
+dispositivos móviles). 
+2. Implementa un componente de 'Megamenú' dinámico en el Header para la 
+exploración de categorías de productos (Ej: Tecnología, Hogar, Vestimenta). El 
+menú debe soportar anidamiento de hasta dos niveles de profundidad. 
+3. Configura el sistema de enrutamiento para soportar dos flujos de experiencia 
+de usuario segregados: un flujo público para compradores ('/shop', '/offers', 
+'/cart') y un flujo protegido para proveedores ('/vendor/dashboard', 
+'/vendor/products'). 
+4. Utiliza componentes semánticos y asegura la total compatibilidad con las 
+pautas de accesibilidad WAI-ARIA para la navegación por teclado. 
+Ejecuta la construcción, compila los componentes en los archivos 
+correspondientes y utiliza el Browser Agent para navegar por las rutas, 
+verificando que los enlaces de redirección a los paneles de proveedores y 
+categorías de productos funcionan sin errores 404. Documenta la 
+visualización con capturas de pantalla." 
+F a s e  3 : M  o to r d e  C a tá lo g o  d e  P ro d u c to s  y  F iltro s  d e  B ú s q u e d a  
+A v a n z a d o s  
+Esta fase aborda el núcleo técnico del descubrimiento de e-commerce. La lógica de filtrado 
+requiere una sincronización intrincada del estado. Aquí se puede integrar código base 
+generado preliminarmente con v0.dev. 
+P ro m  p t 3 : 
+"El sistema de navegación está activo. Procede con el ensamblaje de la página de 
+Exploración de Productos ('/shop') y su motor de filtros. 
+Requisitos Funcionales: 
+1. He depositado los componentes visuales estáticos (ProductCard y 
+FilterSidebar) generados mediante v0.dev en el directorio temporal 
+'/docs/ui-drafts'. Analiza, refactoriza e inyecta estos componentes en nuestro 
+----------------Page (8) Break----------------
+sistema de diseño actual. 
+2. Lógica de Estado: Implementa un gestor de estado (como Zustand o Context 
+API) para manejar de forma eficiente una cuadrícula de productos (Product 
+Grid). 
+3. Motor de Búsqueda Facetada: Codifica un hook personalizado 
+('useProductFilters') para gestionar el estado de los filtros múltiples (Rango de 
+Precios mediante slider, Categorías mediante checkboxes, Ordenamiento por 
+relevancia/precio). 
+Restricción Crítica de UX: Sincroniza el estado activo de los filtros 
+directamente con los parámetros de consulta de la URL (URL Search Params). 
+Esto asegura que si un usuario filtra por 'Electrónica' y 'Menor a $100', pueda 
+copiar y compartir ese enlace exacto y mantener el estado. Implementa una 
+función de 'debounce' de 300ms en los campos de entrada de texto para 
+evitar saturar las futuras llamadas a la API. 
+Renderiza la interfaz utilizando un array de datos de productos simulados 
+(mock data) y verifica la reactividad visual." 
+F a s e  4 : L ó g ic a  d e  P a n e l d e  P ro v e e d o re s  (V e n d o r D a s h b o a rd ) 
+Los proveedores requieren herramientas analíticas y de gestión transaccional robustas. El 
+agente debe construir interfaces seguras de manipulación de datos. 
+P ro m  p t 4 : 
+"Transición al dominio de gestión de la cadena de suministro. El objetivo es 
+estructurar la capa visual y de interacción del Panel de Proveedores 
+('/vendor/dashboard'). 
+Funcionalidades del Panel: 
+1. Interfaz Resumen (Overview): Desarrolla una cuadrícula de métricas (tarjetas 
+informativas) para mostrar 'Ventas Totales', 'Órdenes Pendientes' y 'Productos 
+Activos'. 
+2. Tabla de Gestión de Inventario: Implementa un componente de tabla de datos 
+robusta (utilizando principios de diseño de bibliotecas como TanStack Table si 
+corresponde). La tabla debe renderizar la lista de productos del proveedor, 
+permitiendo acciones de interacción integradas: paginación de datos, 
+ordenamiento por columnas (stock, precio) y un modal o menú desplegable 
+en cada fila para operaciones de edición rápida y eliminación de productos. 
+3. Simula una capa de validación de autenticación (mock auth guard) que 
+expulse a los usuarios no autorizados de esta ruta hacia la página de inicio de 
+sesión. 
+Emite un Artefacto detallado describiendo la estructura de datos JSON 
+esperada que el backend deberá proveer para popular este panel 
+----------------Page (9) Break----------------
+eficientemente." 
+F a s e  5 : D in á m  ic a  d e  O fe rta s  e n  T ie m  p o  R e a l y  C o m  e rc io  S o c ia l 
+Incorporando mecánicas de conversión acelerada, urgencia gamificada y bucles virales de 
+compartición social (elementos clave de arquitecturas tipo Pinduoduo/JUNTO).7 
+P ro m  p t 5 : 
+"Activa la funcionalidad de comercio social en la ruta de 'Ofertas Destacadas' 
+('/offers'). Este módulo depende de la percepción de escasez y la coordinación de 
+usuarios. 
+Tareas Críticas: 
+1. Desarrollo del Temporizador de Urgencia: Crea un componente funcional 
+('CountdownTimer') diseñado para recibir una marca de tiempo absoluta (UTC 
+timestamp) de finalización de una oferta de compra grupal. El hook interno 
+debe calcular y renderizar el tiempo restante localmente cada segundo sin 
+desencadenar renderizados completos e ineficientes del árbol de la 
+aplicación. 
+2. Gestión del Ciclo de Vida de la Oferta: Codifica la lógica condicional que, en 
+el instante preciso en que el temporizador alcanza el cero cronológico, 
+cambie el estado visual del componente de 'Oferta Activa' a 'Expirada', 
+deshabilitando las interacciones del botón de compra. 
+3. Integración de Loop Viral: Implementa el módulo lógico para generar un botón 
+de llamada a la acción ('Compartir para Desbloquear Descuento'). Este botón 
+debe invocar las APIs nativas del dispositivo (Web Share API o Deep Linking) 
+para generar un enlace único parametrizado, con un mensaje pre-cargado 
+persuasivo y enfocado en abrir aplicaciones de mensajería social como 
+WhatsApp. Genera un Diff del código para revisión de seguridad." 
+F a s e  6 : O rq u e s ta c ió n  d e l C a rrito  y  P a s a re la  d e  P a g o s  S e g u ra  
+El clímax de la arquitectura de comercio electrónico. Esta fase requiere estricto manejo de 
+variables asíncronas y mitigación de exposición de datos. 
+P ro m  p t 6 : 
+"El catálogo y las ofertas están operativos. Procede a estructurar el flujo final de 
+transacción comercial: el Carrito de Compras y la integración base del Checkout. 
+Requisitos Transaccionales: 
+1. Expande el gestor de estado global implementado en la Fase 3 para soportar 
+las mutaciones del Carrito: 'Añadir Producto', 'Eliminar Producto', 'Modificar 
+Cantidad' y calcular derivaciones en tiempo real (Subtotal, Impuestos, Total 
+----------------Page (10) Break----------------
+Final). 
+2. Andamiaje de la Pasarela de Pago: Crea la interfaz de Checkout ('/checkout'). 
+Basado en la documentación técnica oficial que hemos inyectado mediante 
+un Agent Skill, construye el esqueleto del módulo de integración para el 
+proveedor de pagos regional (ej. Mercado Pago). 
+3. Diseña el flujo de lógica condicional asíncrona asumiendo que el frontend 
+recibirá un 'Preference ID' seguro desde nuestro backend Node.js. Modela la 
+gestión estructurada de los casos de respuesta de la pasarela: escenario de 
+resolución exitosa (redirección a pantalla de agradecimiento), escenario de 
+fallo de fondos (manejo semántico de errores UI) y escenario de abandono 
+por parte del usuario. 
+Asegúrate de que las claves públicas de API se consuman rigurosamente 
+mediante variables de entorno (.env) y que ninguna lógica de validación de 
+precios sensible se asiente de manera expuesta en el código del cliente." 
+F a s e  7 : V a lid a c ió n , R e fa c to riz a c ió n  y  A u d ito ría  F in a l 
+La última etapa del proceso agéntico utiliza las capacidades autónomas del IDE para estabilizar 
+la arquitectura completa. 
+P ro m  p t 7 : 
+"Fase de Auditoría de Código y Verificación de Flujos. El código base inicial está 
+completo. 
+Tarea Final: 
+1. Utiliza el Agente de Navegador interno de Antigravity para ejecutar una 
+prueba de humo (smoke test) end-to-end en el entorno local compilado. 
+Simula el flujo crítico de usuario completo: navega por los menús, filtra 
+productos por categoría, accede a una oferta con temporizador, añade el 
+ítem al carrito y accede a la pantalla de checkout. 
+2. Emite un Artefacto de tipo 'Walkthrough' documentando la ejecución. Captura 
+evidencia visual en cada transición de estado importante. 
+3. Analiza el código resultante en busca de deudas técnicas o cuellos de botella 
+de rendimiento (ej. bucles infinitos en useEffects, fugas de memoria en los 
+observadores del temporizador de ofertas, o problemas de hidratación SSR 
+en componentes cliente). Proporciona sugerencias proactivas de 
+refactorización si detectas ineficiencias de renderizado en las tablas de datos 
+del panel de proveedores. 
+No procedas con cambios arquitectónicos masivos en este paso, únicamente 
+estabiliza y documenta." 
+(In te rv e n c ió n  H u m  a n a  F in a l: E l e q u ip o  d e  d e s a rro llo  re v is a  e l a rte fa c to  d e  re c o rrid o  fi n a l, v a lid a  
+la  in te g rid a d  d e  lo s  e n la c e s  y  la  m  itig a c ió n  d e  e rro re s  d e  c o n s o la  a n te s  d e  p a s a r e l re p o s ito rio  
+----------------Page (11) Break----------------
+a l p ro c e s o  d e  In te g ra c ió n  y  E n tre g a  C o n tin u a  o  C I/C D ). 
+C o n c lu s io n e s  y  R e c o m  e n d a c io n e s  E s tra té g ic a s  
+El diseño de un sistema frontend de comercio electrónico contemporáneo, que equilibra el 
+descubrimiento inmersivo de productos, paneles administrativos densos en datos y dinámicas 
+sociocomerciales transaccionales, se beneficia inmensamente de un enfoque arquitectónico 
+modular asistido por inteligencia artificial predictiva y ejecutiva. La balanza tecnológica indica 
+que un paradigma centrado en React —empleando Next.js para una presencia web optimizada 
+para motores de búsqueda (SEO) y paneles de proveedores, complementado armónicamente 
+con React Native para ecosistemas móviles nativos interactivos— representa la trayectoria de 
+escalabilidad más resiliente y financieramente eficiente en 2026. 
+La adopción de una biblioteca UI construida sobre primitivas headless y sistemas de utilidad, 
+predominantemente la combinación de Tailwind CSS (Shadcn/UI en la web y 
+Gluestack/NativeWind en plataformas móviles), consolida el puente entre el diseño conceptual 
+y el código funcional, erradicando variaciones estéticas de la marca y garantizando pautas de 
+accesibilidad universales. 
+En el ámbito de la aceleración tecnológica, el flujo de trabajo moderno está definido por la 
+orquestación simbiótica de plataformas de Inteligencia Artificial especializadas. La generación 
+de código ideacional de componentes estáticos complejos (como filtros y tarjetas visuales) 
+encuentra su máxima eficiencia mediante la abstracción "Imagen a Código" ofrecida por 
+v 0 .d e v . El verdadero salto cualitativo en la ingeniería de software radica en canalizar esta 
+estructura estática hacia un IDE orientado a agentes como G o o g le  A n tig ra v ity . Al aplicar una 
+ingeniería de prompts metodológica, segmentada por dominios arquitectónicos (routing, 
+gestión de estado global, lógica de temporizadores asíncronos y andamiaje de SDKs de 
+terceros) y al exigir una estricta rendición de cuentas mediante planes de implementación 
+estructurados y artefactos documentados, los equipos pueden eludir las limitaciones clásicas 
+de pérdida de contexto de los grandes modelos de lenguaje (LLMs). Esta triangulación 
+estratégica —arquitecturas de React sólidas, generadores visuales especializados y 
+automatización lógica determinista— asegura una mitigación drástica de la fricción operativa y 
+posiciona el proyecto para dominar los ciclos de iteración en mercados altamente 
+competitivos. 
+O b ra s  c ita d a s  
+1. Best Frontend Frameworks in 2025: React, Vue , or Svelte? - Creative Squad, fecha 
+de acceso: marzo 11, 2026, 
+https://www.creativesquad.ca/blogs/best-frontend -frameworks-in-2025-react-v
+ue-or-svelte 
+2. Best Frontend Technologies and Frameworks for 2025 - WeDoWebApps, fecha 
+de acceso: marzo 11, 2026, 
+https://www.wedowebapps.com/frontend -technologies-tools-frameworks/ 
+----------------Page (12) Break----------------
+3. Top Ecommerce Frameworks in 2026 (What You Need to Kno w) - BigCo mmerce, 
+fecha de acceso: marzo 11, 2026, 
+https://www.bigcommerce.com/articles/ecommerce-website-development/ecom
+merce-frameworks/ 
+4. The Best E-Commerce Frameworks For Online  Selling In 2025 - Kushel Digi 
+Solutions, fecha de acceso: marzo 11, 2026, 
+https://www.kusheldigi.com/blog/the-best-e-commerce-frameworks-for-online-
+selling-in-2025 
+5. React Admin Dashboard - Best Templates & Frameworks (2026 Guide) - Refine, 
+fecha de acceso: marzo 11, 2026, https://refine.dev/blog/react-admin-dashboard/ 
+6. Pinduoduo Clone Development Services - No.1 Social Commerce App - Oyelabs, 
+fecha de acceso: marzo 11, 2026, https://oyelabs.com/pinduoduo-clone/ 
+7. JUNTO_BusinessPlan_2025 (2).docx 
+8. Native App vs PWA in Argentina | Which Performs Better in 2026? - TUXDI, fecha 
+de acceso: marzo 11, 2026, 
+https://tuxdi.com/en/blog/native-app-vs-pwa-in-argentina-which-performs-bette
+r-in-2026 
+9. Progressive Web Apps vs Native Apps: Who Wins in 2025? - Saven Technologies 
+Inc, fecha de acceso: marzo 11, 2026, 
+https://saventech.com/progressive-web-apps-vs-na tive-apps-who-wins-in-2025
+/ 
+10. Native vs React Native in 2025? - Paloma, fecha de acceso: marzo 11, 2026, 
+https://www.palomagroup.com/articles/native-vs-react-native-in-2025 
+11. Flutter vs React Native 2025 : Which Framework is Right for App Development? - 
+Aalpha, fecha de acceso: marzo 11, 2026, 
+https://www.aalpha.net/articles/react-na tive-vs-flutter/ 
+12. Top 7 Frontend Frameworks to Use in 2025: Expert Guidanc e - Talent500, fecha 
+de acceso: marzo 11, 2026, 
+https://talent500.com/blog/top-frontend-frameworks-2025/ 
+13. Best Frontend Frameworks for Web Apps in 2025 - VT Digital, fecha de acceso: 
+marzo 11, 2026, 
+https://vtdigital.com.au/best-frontend-frameworks-for-web-apps-in-2025/ 
+14. The Frontend Forecast: Top 10 Frameworks You Need to Master in 2025 | by 
+Satnam Singh, fecha de acceso: marzo 11, 2026, 
+https://medium.com/@satnammca/the-frontend -forecast-top-10-frameworks-y
+ou-need-to-master-in-2025-239672e17dd5 
+15. Top 15 Front End Frameworks to Learn in 2026 & Selection Tips - up Grad, fecha 
+de acceso: marzo 11, 2026, https://www.upgrad.com/blog/frontend-frameworks/ 
+16. PWA vs Native App in 2025: Which One  Should You Build? - WEZOM, fecha de 
+acceso: marzo 11, 2026, 
+https://wezom.com/blog/progressive-web-apps-vs-na tive-apps-in-2025 
+17. TailAdmin: Free Tailwind CSS Admin Dashboard Template, fecha de acceso: marzo 
+11, 2026, https://tailadmin.com/ 
+18. Flutter vs React Native - Choose the Best Framework 2026 - Ace Infoway, fecha 
+de acceso: marzo 11, 2026, 
+----------------Page (13) Break----------------
+https://www.aceinfoway.com/blog/flutter-vs-react-native-best-framework 
+19. Best Cross-Platform Frameworks 2025 – Flutter vs React Native vs Kotlin 
+Multiplatform, fecha de acceso: marzo 11, 2026, 
+https://moodup.team/best-cross-platform-frameworks-in-2025-flutter-vs-react-
+native-vs-kotlin-multiplatform/ 
+20. Flutter vs React Native: Which One is Better in 2025?  - Galaxy Weblink s, fecha de 
+acceso: marzo 11, 2026, 
+https://www.galaxyweblinks.com/blog/flutter-vs-react-native 
+21. Flutter vs React Native: Complete 2025 Framework Comparison Guide | Blog, 
+fecha de acceso: marzo 11, 2026, 
+https://www.thedroidsonroids.com/blog/flutter-vs-react-native-comparison 
+22. Cross-Platform Mobile App Performanc e Metrics: Flutter vs React Native | 
+Medium, fecha de acceso: marzo 11, 2026, 
+https://kodekx-solutions.medium.com/cross-platform-mobile-app-performance-
+metrics-flutter-vs-react-native-5d690991e123 
+23. Flutter vs React Native 2025: Busine ss Leader's Guide - Mobisoft Infotech, fecha 
+de acceso: marzo 11, 2026, 
+https://mobisoftinfotech.com/resources/blog/mobile/flutter-vs-react-native-2025
+-business-guide 
+24. Flutter Vs React Native (2025): A Detailed Comparison - Digital Hum anity, fecha 
+de acceso: marzo 11, 2026, 
+https://digitalhumanity.co.za/resources/flutter-vs-react-native-which-wins-for-pe
+rformance-roi/ 
+25. Flutter vs React Native: The Brutally Honest Truth (2026) - YouTub e, fecha de 
+acceso: marzo 11, 2026, https://www.youtube.com/watch?v=-Uk9qH39S94 
+26. React Native CLI - Integration for mobile applications - Mercado Pago 
+Developers, fecha de acceso: marzo 11, 2026, 
+https://www.mercadopago.com.ar/developers/en/docs/checkout-pro/mobile-inte
+gration/react-native-cli 
+27. proyecto26/react-native-mercado-pago-enterprise: Integrating  Mobile Checkout 
+of MercadoPago with React Native to create a payment experienc e in your 
+applications. - GitHub, fecha de acceso: marzo 11, 2026, 
+https://github.com/proyecto26/react-na tive-mercado-pago-enterprise 
+28. 15 Best React UI Libraries for 2026 - Builder.io, fecha de acceso: marzo 11, 2026, 
+https://www.builder.io/blog/react-component-libraries-2026 
+29. v0 vs Lovable vs Bolt: AI App Builder Comparison 2025, fecha de acceso: marzo 
+11, 2026, 
+https://www.digitalapplied.com/blog/v0-lovable-bolt-ai-app-builder-comparison 
+30. Choosing the Right UI Library for My React Native App (Need Advice) : 
+r/reactnative - Reddit, fecha de acceso: marzo 11, 2026, 
+https://www.reddit.com/r/reactnative/comments/1o8x7j3/choosing_the_right_ui_li
+brary_for_my_react_native/ 
+31. 15 Best React UI Libraries for 2026: Pick the Right One | by Basanta Sapkota - 
+Medium, fecha de acceso: marzo 11, 2026, 
+https://medium.com/@springmusk/15-best-react-ui-libraries-for-2026-pick-the-r
+----------------Page (14) Break----------------
+ight-one-0171515d78b4 
+32. Top 10 Pre-Built React Frontend UI Libraries for 2025 – Blog - Supernova.io, fecha 
+de acceso: marzo 11, 2026, 
+https://www.supernova.io/blog/top-10-pre-built-react-frontend -ui-libraries-for-2
+025 
+33. 7 Hottest Animated UI Component Libraries of 2025 - Copy and  Paste - 
+DesignerUp, fecha de acceso: marzo 11, 2026, 
+https://designerup.co/blog/copy-and-paste-ui-component-libraries/ 
+34. 10+ Best Tailwind E-commerce Templates for 2026 | UIdeck, fecha de acceso: 
+marzo 11, 2026, https://uideck.com/blog/tailwind-ecommerce-template 
+35. Choosing the Best React Native Compone nt Library for Your App - 
+theappmarket, fecha de acceso: marzo 11, 2026, 
+https://market.gluestack.io/blog/best-react-native-component-library 
+36. Top React Native UI libraries in 2026 - DEV Community, fecha de acceso: marzo 
+11, 2026, https://dev.to/ninarao/top-react-native-ui-libraries-in-2026-2gbe 
+37. Best react native ui libraries: Discover top UI toolkits for faster apps - 
+theappmarket, fecha de acceso: marzo 11, 2026, 
+https://market.gluestack.io/blog/best-react-native-ui-libraries 
+38. The 10 best React Native UI libraries of 2026 - LogRocket Blog, fecha de acceso: 
+marzo 11, 2026, 
+https://blog.logrocket.com/best-react-native-ui-component-libraries/ 
+39. Top 10 Best React Native UI Libraries of 2025 - Helius Work, fecha de acceso: 
+marzo 11, 2026, https://heliuswork.com/blogs/best-react-native-ui-libraries/ 
+40. Best React Native Component Libraries with Tailwind Support for Fast UI 
+Development in 2026 - DEV Community, fecha de acceso: marzo 11, 2026, 
+https://dev.to/ninarao/best-react-native-component-libraries-with-tailwind-supp
+ort-for-fast-ui-development-in-2026-2fe4 
+41. Best v0.dev Alternatives in 2026: Bolt.ne w, Lovable, Replit & More | UI Bakery Blog, 
+fecha de acceso: marzo 11, 2026, https://uibakery.io/blog/vercel-v0-alterna tives 
+42. Lovable vs Bolt vs v0: AI App Builder Comparison, fecha de acceso: marzo 11, 
+2026, https://lovable.dev/guides/lovable-vs-bolt-vs-v0 
+43. Bolt vs Lovable vs V0: Which One to Choose in 2026? | UI Bakery Blog, fecha de 
+acceso: marzo 11, 2026, https://uibakery.io/blog/bolt-vs-lovable-vs-v0 
+44. Lovable vs Bolt.new: Choose The Best Option For Your Needs - Emergent, fecha 
+de acceso: marzo 11, 2026, https://emergent.sh/learn/lovable-vs-bolt 
+45. Bolt vs Lovable 2026: Which AI App Builder Is Actually Better? - No Code MBA, 
+fecha de acceso: marzo 11, 2026, 
+https://www.nocode.mba/articles/bolt-vs-lovable 
+46. The 2026 AI Coding Platform Wars: Replit vs Wind surf vs Bolt.ne w vs Lovable — 
+Which Tool Actually Delivers? | by Aftab - Medium, fecha de acceso: marzo 11, 
+2026, 
+https://medium.com/@aftab001x/the-2026-ai-coding-platform-wars-replit-vs-wi
+ndsurf-vs-bolt-new-f908b9f76325 
+47. Comparing Lovable.dev, Bolt.new, and  v0.dev: Which AI UI Tool Delivers the Best 
+Results?, fecha de acceso: marzo 11, 2026, 
+----------------Page (15) Break----------------
+https://dev.to/boringcoder53/comparing-lovabledev-boltne w-and-v0dev-which-
+ai-ui-tool-delivers-the-best-results-54d8 
+48. v0.dev vs. Lovable.dev vs. Bolt.new – Which One  Worked Best for Me? : r/react - 
+Reddit, fecha de acceso: marzo 11, 2026, 
+https://www.reddit.com/r/react/comments/1jmnyga/v0dev_vs_lovabledev_vs_bolt
+new_which_one_worked/ 
+49. V0 vs Bolt.new vs Lovable: Best AI App Builder 2026 (Complete Comparison) | 
+NxCode, fecha de acceso: marzo 11, 2026, 
+https://www.nxcode.io/resources/news/v0-vs-bolt-vs-lovable-ai-app-builder-co
+mparison-2025 
+50. My 7 Best AI Tools for UI Design - UX Pilot, fecha de acceso: marzo 11, 2026, 
+https://uxpilot.ai/blogs/best-ai-ui-generators 
+51. 10 AI Tools for UI/UX that are redefining design | SparkFabrik, fecha de acceso: 
+marzo 11, 2026, 
+https://www.sparkfabrik.com/en/blog/ui-ux-ai-tools-for-designers/ 
+52. Best AI tools for Product Designers in 2025 | by Fanny | UX Plane t, fecha de 
+acceso: marzo 11, 2026, 
+https://uxplanet.org/5-ai-design-tools-that-make-design-more-efficient-in-2025
+-2a96f53be528 
+53. Google Antigravity Tool (IDE): What It Is and  How Developers Bene fit: 
+ExpertAppDevs.Com, fecha de acceso: marzo 11, 2026, 
+https://medium.com/@expertappdevs/google-antigravity-tool-ide-what-it-is-and
+-how-developers-benefit-50119f8d886c 
+54. Build with Google Antigravity, our ne w agentic development platform, fecha de 
+acceso: marzo 11, 2026, 
+https://developers.googleblog.com/build-with-google-antigravity-our-new-agen
+tic-development-platform/ 
+55. Getting Started with Google Antigravity, fecha de acceso: marzo 11, 2026, 
+https://codelabs.developers.google.com/getting-started-google-antigravity 
+56. How to Set Up and Use Google Antigravity - Codecademy, fecha de acceso: 
+marzo 11, 2026, 
+https://www.codecademy.com/article/how-to-set-up-and-use-google-antigravit
+y 
+57. fecha de acceso: marzo 11, 2026, 
+https://antigravity.google/docs/home#:~:text=An%20AI%2Dpowered%20IDE%20
+with,Agent%2C%20Tab%2C%20and%20Command.&text=Async hronous%2C% 2
+0local%20agents%20that%20can,on%20all%20of%20your%20workspaces.&text
+=New%20Agent%20Manager%20view%20for,conversation%20UI%2C%20and%
+20artifact%20review. 
+58. Google Antigravity Documentation, fecha de acceso: marzo 11, 2026, 
+https://antigravity.google/docs/home 
+59. Introducing Google Antigravity, a New Era in AI-Assisted Software Development, 
+fecha de acceso: marzo 11, 2026, 
+https://antigravity.google/blog/introducing-google-antigravity 
+60. Tutorial : Getting Started with Google Antigravity Skills, fecha de acceso: marzo 
+----------------Page (16) Break----------------
+11, 2026, 
+https://medium.com/google-cloud/tutorial-getting-started-with-antigravity-skills
+-864041811e0d 
+61. Antigravity NEW Update is HUGE! Agent Skills, Subagents, AI Automation, and 
+More!, fecha de acceso: marzo 11, 2026, 
+https://www.youtube.com/watch?v=oRAeNVx2kqM 
+62. v0-dev | Skills Marketplace - LobeHub, fecha de acceso: marzo 11, 2026, 
+https://lobehub.com/skills/omer-metin-skills-for-antigravity-v0-dev 
+63. Google Antigravity's Top 10 Patterns for Effective AI Prompt, fecha de acceso: 
+marzo 11, 2026, 
+https://www.timesofai.com/industry-insights/top-google-antigravity-prompt-patt
+erns/ 
+----------------Page (17) Break----------------

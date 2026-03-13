@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         .from('providers')
         .insert({
           id: user.id,
-          nombre_empresa: 'Administración JUNTOS',
+          nombre_empresa: 'Administración BANDHA',
           nombre_contacto: user.name || 'Admin',
           email: user.email,
           categoria: 'Oficial',

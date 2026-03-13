@@ -60,7 +60,7 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase">Comandancia Admin</h1>
-          <p className="text-slate-500">Gestión global de la plataforma JUNTOS</p>
+          <p className="text-slate-500">Gestión global de la plataforma BANDHA</p>
         </div>
         <div className="flex gap-4">
           <div className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
@@ -81,13 +81,13 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
           <div className="p-6 border-b border-slate-50 flex items-center justify-between">
             <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 uppercase tracking-tight">
-              <Users className="text-[#0077CC]" size={20} /> Proveedores Pendientes
+              <Users className="text-[#00A650]" size={20} /> Proveedores Pendientes
             </h2>
           </div>
           <div className="p-6">
             <div className="space-y-4">
               {providers.filter(p => !p.verificado).map((provider) => (
-                <div key={provider.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100/50 group hover:border-[#0077CC]/30 transition-all">
+                <div key={provider.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100/50 group hover:border-[#00A650]/30 transition-all">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-slate-400 border border-slate-100 shadow-sm">
                       <span className="text-lg">🏪</span>
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
              <div className="p-6 border-b border-slate-50">
                <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 uppercase tracking-tight">
-                 <ShieldCheck className="text-[#00AEEF]" size={20} /> Actividad del Sistema
+                 <ShieldCheck className="text-[#009EE3]" size={20} /> Actividad del Sistema
                </h2>
              </div>
              <div className="p-6 space-y-6">

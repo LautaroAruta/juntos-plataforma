@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         items: [
           {
             id: deal.product.id,
-            title: `JUNTOS: ${deal.product.nombre}`,
+            title: `BANDHA: ${deal.product.nombre}`,
             quantity: 1,
             unit_price: totalAmount,
             currency_id: 'ARS',

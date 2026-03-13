@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useDebounce } from "@/hooks/useDebounce";
 import { 
   Search, 
   Filter, 
@@ -16,27 +17,39 @@ import {
 import Link from "next/link";
 
 function SearchResultsContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const query = searchParams.get("q") || "";
-  const categoryParam = searchParams.get("categoria") || "";
+  const searchParams = useSearchParams();
   
+  // Parametros iniciales de la URL
+  const initialQuery = searchParams.get("q") || "";
+  const initialCategory = searchParams.get("categoria") || "todas";
+  const initialPrecioMin = searchParams.get("precioMin") || "";
+  const initialPrecioMax = searchParams.get("precioMax") || "";
+  
+  // Estado local de los inputs (lo que el usuario tipea)
+  const [localQuery, setLocalQuery] = useState(initialQuery);
+  const [activeFilters, setActiveFilters] = useState({
+    categoria: initialCategory,
+    precioMin: initialPrecioMin,
+    precioMax: initialPrecioMax,
+    soloOfertas: searchParams.get("soloOfertas") === "true"
+  });
+
+  // Valores debounced (esperan a que el usuario deje de tipear 500ms antes de cambiar)
+  const debouncedQuery = useDebounce(localQuery, 500);
+  const debouncedPrecioMin = useDebounce(activeFilters.precioMin, 500);
+  const debouncedPrecioMax = useDebounce(activeFilters.precioMax, 500);
+
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilters, setActiveFilters] = useState({
-    categoria: categoryParam,
-    precioMin: "",
-    precioMax: "",
-    soloOfertas: false
-  });
   
   const supabase = createClient();
 
+  // 1. Efecto para buscar en Supabase cuando los valores debounced cambian
   useEffect(() => {
     async function fetchResults() {
       setLoading(true);
       
-      // Buscamos productos que coincidan con el nombre o descripción
       let supabaseQuery = supabase
         .from('products')
         .select(`
@@ -44,36 +57,67 @@ function SearchResultsContent() {
           group_deals (*)
         `);
 
-      if (query) {
-        supabaseQuery = supabaseQuery.or(`nombre.ilike.%${query}%,descripcion.ilike.%${query}%`);
+      if (debouncedQuery) {
+        supabaseQuery = supabaseQuery.or(`nombre.ilike.%${debouncedQuery}%,descripcion.ilike.%${debouncedQuery}%`);
       }
 
-      if (categoryParam) {
-        supabaseQuery = supabaseQuery.eq('categoria', categoryParam);
+      if (activeFilters.categoria !== "todas") {
+        supabaseQuery = supabaseQuery.eq('categoria', activeFilters.categoria);
       }
 
       const { data, error } = await supabaseQuery;
 
       if (!error && data) {
-        // Procesamos los resultados para identificar ofertas activas
-        const processedResults = data.map(product => {
+        let processedResults = data.map(product => {
           const activeDeal = product.group_deals?.find((d: any) => d.estado === 'activo');
           return {
             ...product,
             activeDeal
           };
         });
+
+        // Filtrado en cliente de precios y ofertas (ya que requiere calcular el precio actual del deal)
+        if (debouncedPrecioMin) {
+          processedResults = processedResults.filter(p => {
+            const price = p.activeDeal ? p.activeDeal.precio_actual : p.precio_individual;
+            return price >= Number(debouncedPrecioMin);
+          });
+        }
+        
+        if (debouncedPrecioMax) {
+           processedResults = processedResults.filter(p => {
+            const price = p.activeDeal ? p.activeDeal.precio_actual : p.precio_individual;
+            return price <= Number(debouncedPrecioMax);
+          });
+        }
+
+        if (activeFilters.soloOfertas) {
+           processedResults = processedResults.filter(p => !!p.activeDeal);
+        }
+
         setResults(processedResults);
       }
       setLoading(false);
     }
 
     fetchResults();
-  }, [query, categoryParam]);
+  }, [debouncedQuery, activeFilters.categoria, debouncedPrecioMin, debouncedPrecioMax, activeFilters.soloOfertas]);
+
+  // 2. Efecto para sincronizar el estado actual HACIA la URL
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedQuery) params.set("q", debouncedQuery);
+    if (activeFilters.categoria !== "todas") params.set("categoria", activeFilters.categoria);
+    if (debouncedPrecioMin) params.set("precioMin", debouncedPrecioMin);
+    if (debouncedPrecioMax) params.set("precioMax", debouncedPrecioMax);
+    if (activeFilters.soloOfertas) params.set("soloOfertas", "true");
+
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    router.replace(newUrl, { scroll: false }); // replace en vez de push para no llenar el historial
+  }, [debouncedQuery, activeFilters.categoria, debouncedPrecioMin, debouncedPrecioMax, activeFilters.soloOfertas, router]);
 
   const handleFilterChange = (key: string, value: any) => {
     setActiveFilters(prev => ({ ...prev, [key]: value }));
-    // En una implementación real, esto actualizaría los query params
   };
 
   return (
@@ -82,20 +126,20 @@ function SearchResultsContent() {
         {/* Search Info & Controls */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-12 gap-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
-             <div className="flex items-center gap-2 text-[10px] font-black uppercase text-[#00AEEF] tracking-widest mb-1">
-                Buscador JUNTOS
+             <div className="flex items-center gap-2 text-[10px] font-black uppercase text-[#009EE3] tracking-widest mb-1">
+                Buscador BANDHA
              </div>
             <h1 className="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tighter flex items-center gap-3">
-              {query ? `Buscas: "${query}"` : "Explorando productos"}
+              {debouncedQuery ? `Buscas: "${debouncedQuery}"` : "Explorando productos"}
             </h1>
             <p className="text-gray-500 font-medium">{results.length} productos encontrados</p>
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:border-[#00AEEF] hover:bg-gray-50 transition-all shadow-sm">
+            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:border-[#009EE3] hover:bg-gray-50 transition-all shadow-sm">
               <Filter size={18} /> Filtrar
             </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:border-[#00AEEF] hover:bg-gray-50 transition-all shadow-sm">
+            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:border-[#009EE3] hover:bg-gray-50 transition-all shadow-sm">
               <ArrowUpDown size={18} /> Ordenar
             </button>
           </div>
@@ -104,7 +148,7 @@ function SearchResultsContent() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-6">
             <div className="relative">
-              <Loader2 className="animate-spin text-[#00AEEF]" size={64} />
+              <Loader2 className="animate-spin text-[#009EE3]" size={64} />
               <Search className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-300" size={24} />
             </div>
             <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Sincronizando ofertas...</p>
@@ -132,13 +176,13 @@ function SearchResultsContent() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     {discount > 0 && (
-                      <div className="absolute top-4 left-4 bg-[#00AEEF] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
+                      <div className="absolute top-4 left-4 bg-[#009EE3] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
                         {discount}% AHORRO
                       </div>
                     )}
                     {hasDeal && (
                       <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.2 rounded-lg shadow-sm border border-white/50">
-                        <span className="text-[9px] font-black uppercase text-[#0077CC] tracking-tighter flex items-center gap-1">
+                        <span className="text-[9px] font-black uppercase text-[#00A650] tracking-tighter flex items-center gap-1">
                           <Users size={10} /> OFERTA GRUPAL
                         </span>
                       </div>
@@ -148,7 +192,7 @@ function SearchResultsContent() {
                   {/* Content */}
                   <div className="p-6 md:p-8 flex flex-col flex-1">
                     <div className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-2">{item.categoria}</div>
-                    <h3 className="text-lg font-black text-gray-800 leading-tight mb-4 group-hover:text-[#00AEEF] transition-colors line-clamp-2">
+                    <h3 className="text-lg font-black text-gray-800 leading-tight mb-4 group-hover:text-[#009EE3] transition-colors line-clamp-2">
                       {item.nombre}
                     </h3>
                     
@@ -158,7 +202,7 @@ function SearchResultsContent() {
                           ${originalPrice.toLocaleString()}
                         </span>
                       )}
-                      <span className="text-3xl font-black text-[#00AEEF] tracking-tighter">
+                      <span className="text-3xl font-black text-[#009EE3] tracking-tighter">
                         ${price.toLocaleString()}
                       </span>
                     </div>
@@ -176,7 +220,7 @@ function SearchResultsContent() {
 
                         <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner">
                           <div 
-                            className="h-full bg-gradient-to-r from-[#00AEEF] to-[#0077CC] rounded-full transition-all duration-1000"
+                            className="h-full bg-gradient-to-r from-[#009EE3] to-[#00A650] rounded-full transition-all duration-1000"
                             style={{ width: `${Math.min(100, progress)}%` }}
                           />
                         </div>
@@ -185,7 +229,7 @@ function SearchResultsContent() {
                     
                     {!hasDeal && (
                       <div className="mt-auto pt-4 border-t border-gray-50 flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                        <ChevronRight size={14} className="text-[#00AEEF]" /> Ver detalles
+                        <ChevronRight size={14} className="text-[#009EE3]" /> Ver detalles
                       </div>
                     )}
                   </div>
@@ -200,11 +244,11 @@ function SearchResultsContent() {
             </div>
             <h2 className="text-2xl font-black text-gray-800 mb-4 tracking-tighter uppercase">No encontramos resultados</h2>
             <p className="text-gray-500 font-medium mb-10">
-              Intentá con términos más generales como "Electrónica" o revisá que no haya errores de tipeo.
+              Intentá con términos más generales como &quot;Electrónica&quot; o revisá que no haya errores de tipeo.
             </p>
             <Link 
               href="/" 
-              className="inline-flex items-center gap-2 bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black px-10 py-4 rounded-2xl shadow-xl shadow-[#00AEEF]/20 transition-all uppercase tracking-tight active:scale-95"
+              className="inline-flex items-center gap-2 bg-[#009EE3] hover:bg-[#00A650] text-white font-black px-10 py-4 rounded-2xl shadow-xl shadow-[#009EE3]/20 transition-all uppercase tracking-tight active:scale-95"
             >
               Volver al inicio
             </Link>
@@ -219,7 +263,7 @@ export default function SearchPage() {
   return (
     <Suspense fallback={
       <div className="flex flex-col items-center justify-center py-32 bg-[#F5F5F5] min-h-screen">
-        <Loader2 className="animate-spin text-[#00AEEF]" size={64} />
+        <Loader2 className="animate-spin text-[#009EE3]" size={64} />
       </div>
     }>
       <SearchResultsContent />

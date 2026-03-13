@@ -8,9 +8,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#00AEEF',
-        secondary: '#0077CC',
-        'background-soft': '#E8F7FF',
+        primary: '#009EE3', /* Mercado Pago Blue */
+        secondary: '#00A650', /* Green for savings */
+        danger: '#E3242B', /* Red for urgency */
+        'background-soft': '#FFF8E7', /* Butter Yellow */
       }
     },
   },

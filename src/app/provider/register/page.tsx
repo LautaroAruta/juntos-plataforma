@@ -56,19 +56,19 @@ export default function ProviderRegister() {
       <div className="w-full max-w-2xl glass-card rounded-[2rem] p-8 lg:p-12">
         <div className="mb-10">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#0077CC] text-white flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 rounded-2xl bg-[#00A650] text-white flex items-center justify-center shadow-lg">
               <Store size={24} />
             </div>
             <div>
               <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Registro de Proveedores</h1>
-              <p className="text-slate-500 text-sm">Convertite en socio de JUNTOS</p>
+              <p className="text-slate-500 text-sm">Convertite en socio de BANDHA</p>
             </div>
           </div>
           
           {/* Progress Indicator */}
           <div className="flex gap-2 mb-8">
-            <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-[#0077CC]" : "bg-slate-100"}`} />
-            <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-[#0077CC]" : "bg-slate-100"}`} />
+            <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-[#00A650]" : "bg-slate-100"}`} />
+            <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-[#00A650]" : "bg-slate-100"}`} />
           </div>
         </div>
 
@@ -85,7 +85,7 @@ export default function ProviderRegister() {
                     required
                     value={formData.nombre_empresa}
                     onChange={handleChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#0077CC]/20 focus:border-[#0077CC]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00A650]/20 focus:border-[#00A650]"
                     placeholder="Mayorista Central S.A."
                   />
                 </div>
@@ -101,7 +101,7 @@ export default function ProviderRegister() {
                     required
                     value={formData.nombre_contacto}
                     onChange={handleChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#0077CC]/20 focus:border-[#0077CC]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00A650]/20 focus:border-[#00A650]"
                     placeholder="Carlos Rodríguez"
                   />
                 </div>
@@ -117,7 +117,7 @@ export default function ProviderRegister() {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#0077CC]/20 focus:border-[#0077CC]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00A650]/20 focus:border-[#00A650]"
                     placeholder="ventas@empresa.com"
                   />
                 </div>
@@ -126,7 +126,7 @@ export default function ProviderRegister() {
 
             <button
               onClick={nextStep}
-              className="w-full bg-[#0077CC] hover:bg-[#00AEEF] text-white font-black py-4 rounded-xl shadow-xl shadow-[#0077CC]/20 transition-all flex items-center justify-center gap-2 group"
+              className="w-full bg-[#00A650] hover:bg-[#009EE3] text-white font-black py-4 rounded-xl shadow-xl shadow-[#00A650]/20 transition-all flex items-center justify-center gap-2 group"
             >
               Siguiente Paso <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
             </button>
@@ -146,7 +146,7 @@ export default function ProviderRegister() {
                     required
                     value={formData.cuit_rut}
                     onChange={handleChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#0077CC]/20 focus:border-[#0077CC]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00A650]/20 focus:border-[#00A650]"
                     placeholder="30-12345678-9"
                   />
                 </div>
@@ -158,7 +158,7 @@ export default function ProviderRegister() {
                   name="categoria"
                   value={formData.categoria}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-[#0077CC]/20 focus:border-[#0077CC] appearance-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-[#00A650]/20 focus:border-[#00A650] appearance-none"
                 >
                   <option value="">Seleccionar...</option>
                   <option value="tecnologia">Tecnología</option>
@@ -175,7 +175,7 @@ export default function ProviderRegister() {
                   rows={3}
                   value={formData.descripcion}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-[#0077CC]/20 focus:border-[#0077CC]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-[#00A650]/20 focus:border-[#00A650]"
                   placeholder="Contanos qué productos ofrecés..."
                 />
               </div>
@@ -187,7 +187,7 @@ export default function ProviderRegister() {
                 Vincular cuenta de Mercado Pago
               </h3>
               <p className="text-blue-600 text-xs leading-relaxed">
-                Para recibir tus pagos de forma automática y desglosada, necesitás vincular tu cuenta de Mercado Pago. JUNTOS utiliza el sistema de split de pagos oficial.
+                Para recibir tus pagos de forma automática y desglosada, necesitás vincular tu cuenta de Mercado Pago. BANDHA utiliza el sistema de split de pagos oficial.
               </p>
             </div>
 
@@ -200,7 +200,7 @@ export default function ProviderRegister() {
               </button>
               <button
                 onClick={startMPOAuth}
-                className="flex-[2] bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black py-4 rounded-xl shadow-xl shadow-[#00AEEF]/20 transition-all flex items-center justify-center gap-2"
+                className="flex-[2] bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-4 rounded-xl shadow-xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-2"
               >
                 Vincular Mercado Pago y Finalizar
               </button>

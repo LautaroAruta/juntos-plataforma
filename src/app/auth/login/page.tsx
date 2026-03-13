@@ -5,23 +5,50 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const loginSchema = z.object({
+  email: z.string().min(1, { message: "El correo es requerido" }).email({
+    message: "Debe ser un correo electrónico válido",
+  }),
+  password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (values: LoginFormValues) => {
     setLoading(true);
     setError("");
 
     try {
       const res = await signIn("credentials", {
-        email,
-        password,
+        email: values.email,
+        password: values.password,
         redirect: false,
       });
 
@@ -42,8 +69,8 @@ export default function LoginPage() {
     <div className="min-h-[calc(100vh-180px)] flex items-center justify-center p-6 bg-[#F5F5F5]">
       <div className="w-full max-w-md bg-white rounded-lg p-8 md:p-12 shadow-sm border border-gray-200">
         <div className="text-center mb-10">
-          <Link href="/" className="inline-block text-4xl font-black text-[#00AEEF] tracking-tighter mb-8">
-            JUNTOS
+          <Link href="/" className="inline-block text-4xl font-black text-[#009EE3] tracking-tighter mb-8">
+            BANDHA
           </Link>
           <h1 className="text-xl font-bold text-gray-800">¡Hola! Para continuar, ingresá</h1>
         </div>
@@ -70,59 +97,61 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              E-mail
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm focus:outline-none focus:border-[#00AEEF] transition-all shadow-none"
-              placeholder="Ej: usuario@mail.com"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: usuario@mail.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label className="block text-sm font-semibold text-gray-700">
-                Contraseña
-              </label>
-              <Link href="#" className="text-xs font-semibold text-[#00AEEF] hover:text-[#0077CC]">
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-md py-3 px-4 text-sm focus:outline-none focus:border-[#00AEEF] transition-all shadow-none"
-              placeholder="Ingresá tu contraseña"
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex justify-between items-center">
+                    <FormLabel>Contraseña</FormLabel>
+                    <Link href="#" className="text-xs font-semibold text-[#009EE3] hover:text-[#00A650]">
+                      ¿Olvidaste tu contraseña?
+                    </Link>
+                  </div>
+                  <FormControl>
+                    <Input type="password" placeholder="Ingresá tu contraseña" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          {error && (
-            <div className="bg-red-50 text-red-600 text-xs p-3 rounded-md border border-red-100 font-medium text-center">
-              {error}
-            </div>
-          )}
+            {error && (
+              <div className="bg-red-50 text-red-600 text-xs p-3 rounded-md border border-red-100 font-medium text-center">
+                {error}
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#00AEEF] hover:bg-[#0077CC] text-white font-bold py-3.5 rounded-md shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98] mt-4"
-          >
-            {loading ? <Loader2 className="animate-spin" size={20} /> : "Ingresar"}
-          </button>
-        </form>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-bold h-12 rounded-md shadow-sm transition-all active:scale-[0.98] mt-4 text-base"
+            >
+              {loading ? <Loader2 className="animate-spin" size={20} /> : "Ingresar"}
+            </Button>
+          </form>
+        </Form>
 
         <div className="mt-12 text-center border-t border-gray-100 pt-8">
           <p className="text-sm text-gray-500">
             ¿No tenés cuenta?{" "}
-            <Link href="/auth/registro/cliente" className="text-[#00AEEF] font-bold hover:text-[#0077CC]">
+            <Link href="/auth/registro/cliente" className="text-[#009EE3] font-bold hover:text-[#00A650]">
               Registrate
             </Link>
           </p>

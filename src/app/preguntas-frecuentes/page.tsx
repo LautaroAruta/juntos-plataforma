@@ -5,8 +5,8 @@ import { ArrowLeft, Plus, HelpCircle } from "lucide-react";
 export default function FAQsPage() {
   const faqs = [
     {
-      q: "¿Qué es JUNTOS?",
-      a: "JUNTOS es una plataforma de compra grupal que permite a los usuarios unirse para comprar productos a precios mayoristas directamente de proveedores."
+      q: "¿Qué es BANDHA?",
+      a: "BANDHA es una plataforma de compra grupal que permite a los usuarios unirse para comprar productos a precios mayoristas directamente de proveedores."
     },
     {
       q: "¿Cómo se activa una oferta?",
@@ -22,7 +22,7 @@ export default function FAQsPage() {
     },
     {
       q: "¿Los productos tienen garantía?",
-      a: "Sí, todos los productos vendidos en JUNTOS tienen garantía oficial del fabricante o del proveedor, igual que en cualquier tienda oficial."
+      a: "Sí, todos los productos vendidos en BANDHA tienen garantía oficial del fabricante o del proveedor, igual que en cualquier tienda oficial."
     }
   ];
 
@@ -30,11 +30,11 @@ export default function FAQsPage() {
     <div className="min-h-screen bg-[#F5F5F5] pb-24">
       <div className="bg-white border-b border-gray-100 mb-12">
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-[#00AEEF] font-bold text-sm uppercase tracking-widest mb-8 hover:gap-3 transition-all">
+          <Link href="/" className="inline-flex items-center gap-2 text-[#009EE3] font-bold text-sm uppercase tracking-widest mb-8 hover:gap-3 transition-all">
             <ArrowLeft size={16} /> Volver al Inicio
           </Link>
           <div className="flex justify-center mb-6">
-            <div className="p-4 bg-[#E8F7FF] rounded-2xl text-[#00AEEF]">
+            <div className="p-4 bg-[#FFF8E7] rounded-2xl text-[#009EE3]">
               <HelpCircle size={48} />
             </div>
           </div>
@@ -51,7 +51,7 @@ export default function FAQsPage() {
         <div className="space-y-4">
           {faqs.map((faq, i) => (
             <div key={i} className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 group">
-              <h3 className="text-xl font-black text-gray-800 tracking-tight mb-4 flex justify-between items-center group-hover:text-[#00AEEF] transition-colors">
+              <h3 className="text-xl font-black text-gray-800 tracking-tight mb-4 flex justify-between items-center group-hover:text-[#009EE3] transition-colors">
                 {faq.q}
               </h3>
               <p className="text-gray-500 font-medium leading-relaxed">
@@ -65,7 +65,7 @@ export default function FAQsPage() {
           <p className="text-gray-400 font-medium mb-6">¿Tenés otra duda?</p>
           <Link 
             href="#" 
-            className="text-[#00AEEF] font-black uppercase tracking-widest hover:text-[#0077CC] transition-colors border-b-2 border-[#00AEEF]/20 pb-1"
+            className="text-[#009EE3] font-black uppercase tracking-widest hover:text-[#00A650] transition-colors border-b-2 border-[#009EE3]/20 pb-1"
           >
             Contactanos por WhatsApp
           </Link>

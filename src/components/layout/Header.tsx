@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Search, User, Menu, ShoppingCart, LogOut } from "lucide-react";
+import { Search, User, Menu, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -23,7 +24,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 md:gap-8">
         {/* Logo */}
         <Link href="/" className="flex items-center shrink-0">
-          <span className="text-2xl md:text-3xl font-black text-[#00AEEF] tracking-tighter">JUNTOS</span>
+          <span className="text-2xl md:text-3xl font-black text-[#009EE3] tracking-tighter">BANDHA</span>
         </Link>
 
         {/* Search Bar - Mercado Libre Style */}
@@ -37,7 +38,7 @@ export default function Header() {
               placeholder="Buscar productos, categorías y más..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-gray-200 rounded shadow-sm py-2 px-4 shadow-none text-sm focus:border-[#00AEEF] transition-all outline-none pr-10"
+              className="w-full bg-white border border-gray-200 rounded shadow-sm py-2 px-4 shadow-none text-sm focus:border-[#009EE3] transition-all outline-none pr-10"
             />
             <div className="absolute right-0 top-0 h-full flex items-center pr-3 border-l border-gray-100 my-auto pointer-events-none text-gray-400">
               <Search size={18} />
@@ -65,7 +66,7 @@ export default function Header() {
                 href="/dashboard"
                 className="flex items-center gap-2 group"
               >
-                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 overflow-hidden border border-gray-200 group-hover:border-[#00AEEF] transition-all">
+                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 overflow-hidden border border-gray-200 group-hover:border-[#009EE3] transition-all">
                   {session.user.image ? (
                     <img src={session.user.image} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -74,9 +75,7 @@ export default function Header() {
                 </div>
                 <span className="text-xs font-bold text-gray-600 hidden lg:block">{session.user.name?.split(' ')[0]}</span>
               </Link>
-              <Link href="/carrito" className="text-gray-500 hover:text-[#00AEEF] transition-colors">
-                <ShoppingCart size={20} />
-              </Link>
+              <CartDrawer />
               <button 
                 onClick={() => signOut({ callbackUrl: "/" })} 
                 className="text-gray-500 hover:text-red-500 transition-colors ml-2"
@@ -89,13 +88,11 @@ export default function Header() {
             <div className="flex items-center gap-4">
               <Link 
                 href="/auth/login"
-                className="text-xs font-bold text-gray-600 hover:text-[#00AEEF] transition-all whitespace-nowrap"
+                className="text-xs font-bold text-gray-600 hover:text-[#009EE3] transition-all whitespace-nowrap"
               >
                 Ingresar
               </Link>
-              <Link href="/carrito" className="text-gray-500 hover:text-[#00AEEF] transition-colors">
-                <ShoppingCart size={20} />
-              </Link>
+              <CartDrawer />
             </div>
           )}
           

@@ -52,7 +52,7 @@ export default function ProviderLoginPage() {
             <Store size={32} />
           </div>
           <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">Portal Comercios</h1>
-          <p className="text-slate-500 text-sm font-medium">Gestión para Proveedores JUNTOS</p>
+          <p className="text-slate-500 text-sm font-medium">Gestión para Proveedores BANDHA</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -112,7 +112,7 @@ export default function ProviderLoginPage() {
 
         <div className="mt-8 pt-8 border-t border-slate-100 text-center">
           <p className="text-xs text-slate-400 font-medium">
-            ¿Querés vender en JUNTOS?{" "}
+            ¿Querés vender en BANDHA?{" "}
             <Link href="/auth/registro/proveedor" className="text-slate-800 font-black hover:underline uppercase block mt-2">
               Registrar Negocio
             </Link>

@@ -21,7 +21,7 @@ export default async function ProductosPage() {
       {/* Header Section */}
       <div className="bg-white border-b border-gray-100 mb-8 md:mb-12">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-16">
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-[#00AEEF] tracking-widest mb-4">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-[#009EE3] tracking-widest mb-4">
             Ofertas Grupales Activas
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tighter uppercase mb-6">
@@ -56,7 +56,7 @@ export default async function ProductosPage() {
                     />
                     {percentageSaved > 0 && (
                       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white/50">
-                        <span className="text-[#00AEEF] font-black text-[10px] uppercase tracking-widest">{percentageSaved}% AHORRO</span>
+                        <span className="text-[#009EE3] font-black text-[10px] uppercase tracking-widest">{percentageSaved}% AHORRO</span>
                       </div>
                     )}
                   </div>
@@ -64,7 +64,7 @@ export default async function ProductosPage() {
                   {/* Content */}
                   <div className="p-8 flex flex-col flex-1">
                     <div className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-2">{deal.product.categoria}</div>
-                    <h3 className="text-gray-800 font-black text-lg leading-tight mb-4 group-hover:text-[#00AEEF] transition-colors line-clamp-2">
+                    <h3 className="text-gray-800 font-black text-lg leading-tight mb-4 group-hover:text-[#009EE3] transition-colors line-clamp-2">
                       {deal.product.nombre}
                     </h3>
                     
@@ -72,7 +72,7 @@ export default async function ProductosPage() {
                       <p className="text-gray-300 text-sm font-bold line-through">
                         ${deal.product.precio_individual.toLocaleString()}
                       </p>
-                      <p className="text-3xl font-black text-[#00AEEF] tracking-tighter">
+                      <p className="text-3xl font-black text-[#009EE3] tracking-tighter">
                         ${deal.precio_actual.toLocaleString()}
                       </p>
                     </div>
@@ -80,7 +80,7 @@ export default async function ProductosPage() {
                     <div className="mt-auto space-y-4 pt-6 border-t border-gray-50">
                       <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-tighter text-gray-400">
                         <span className="flex items-center gap-1.5">
-                          <Users size={14} className="text-[#00AEEF]" />
+                          <Users size={14} className="text-[#009EE3]" />
                           {deal.participantes_actuales} de {deal.min_participantes} unidades
                         </span>
                         <div className="flex items-center gap-1.5 text-red-500 bg-red-50 px-2 py-0.5 rounded-lg">
@@ -91,14 +91,14 @@ export default async function ProductosPage() {
 
                       <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner flex">
                         <div 
-                          className="h-full bg-gradient-to-r from-[#00AEEF] to-[#0077CC] rounded-full transition-all duration-1000"
+                          className="h-full bg-gradient-to-r from-[#009EE3] to-[#00A650] rounded-full transition-all duration-1000"
                           style={{ width: `${Math.min(100, progress)}%` }}
                         />
                       </div>
 
                       <Link 
                         href={`/productos/${deal.product.id}`}
-                        className="w-full bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 uppercase tracking-tight text-sm shadow-lg shadow-[#00AEEF]/20 active:scale-95"
+                        className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 uppercase tracking-tight text-sm shadow-lg shadow-[#009EE3]/20 active:scale-95"
                       >
                         Ver oferta <ChevronRight size={18} />
                       </Link>
@@ -119,7 +119,7 @@ export default async function ProductosPage() {
             </p>
             <Link 
               href="/" 
-              className="inline-flex items-center gap-2 bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black px-10 py-4 rounded-2xl shadow-xl shadow-[#00AEEF]/20 transition-all uppercase tracking-tight"
+              className="inline-flex items-center gap-2 bg-[#009EE3] hover:bg-[#00A650] text-white font-black px-10 py-4 rounded-2xl shadow-xl shadow-[#009EE3]/20 transition-all uppercase tracking-tight"
             >
               Volver al inicio
             </Link>

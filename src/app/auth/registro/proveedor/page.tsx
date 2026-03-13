@@ -106,14 +106,14 @@ export default function RegisterProveedor() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center">
         <div className="max-w-md bg-white rounded-[3rem] p-12 shadow-2xl shadow-slate-200/50 border border-slate-50">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-50 text-[#00AEEF] mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-50 text-[#009EE3] mb-8">
             <Clock size={48} />
           </div>
           <h1 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">¡Recibido!</h1>
           <p className="text-slate-500 font-medium mb-8">
             Tu cuenta de proveedor está configurada. Ahora podés empezar a cargar tus productos.
           </p>
-          <Link href="/provider/dashboard" className="inline-block bg-[#00AEEF] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#00AEEF]/20 hover:bg-[#0077CC] transition-all uppercase tracking-widest text-sm">
+          <Link href="/provider/dashboard" className="inline-block bg-[#009EE3] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#009EE3]/20 hover:bg-[#00A650] transition-all uppercase tracking-widest text-sm">
             Ir a mi Panel
           </Link>
         </div>
@@ -133,7 +133,7 @@ export default function RegisterProveedor() {
         <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">
           {session ? "Completar Perfil" : "Registro Proveedor"}
         </h1>
-        <p className="text-slate-500 font-medium italic">Impulsá tu negocio con JUNTOS.</p>
+        <p className="text-slate-500 font-medium italic">Impulsá tu negocio con BANDHA.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -148,7 +148,7 @@ export default function RegisterProveedor() {
                 placeholder="Empresa S.A."
                 value={formData.nombreEmpresa}
                 onChange={(e) => setFormData({...formData, nombreEmpresa: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
               />
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function RegisterProveedor() {
                 placeholder="Nombre y Apellido"
                 value={formData.nombreContacto}
                 onChange={(e) => setFormData({...formData, nombreContacto: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
               />
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function RegisterProveedor() {
                     placeholder="XX-XXXXXXXX-X"
                     value={formData.cuit}
                     onChange={(e) => setFormData({...formData, cuit: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all font-mono"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all font-mono"
                   />
                 </div>
              </div>
@@ -191,7 +191,7 @@ export default function RegisterProveedor() {
                     required
                     value={formData.categoria}
                     onChange={(e) => setFormData({...formData, categoria: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all appearance-none"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all appearance-none"
                   >
                     <option value="">Seleccionar...</option>
                     {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -213,7 +213,7 @@ export default function RegisterProveedor() {
                   placeholder="ventas@empresa.com"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
                 />
               </div>
             </div>
@@ -229,7 +229,7 @@ export default function RegisterProveedor() {
                  placeholder="Ej: +54 9 11 ..."
                  value={formData.telefono}
                  onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all font-mono"
+                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all font-mono"
                />
              </div>
           </div>
@@ -245,7 +245,7 @@ export default function RegisterProveedor() {
                   placeholder="Mínimo 8 caracteres"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
                 />
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function RegisterProveedor() {
                   value={formData.descripcion}
                   onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
                   rows={3}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all resize-none"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all resize-none"
                 />
               </div>
            </div>

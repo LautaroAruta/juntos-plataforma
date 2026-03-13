@@ -76,12 +76,12 @@ export const authOptions: NextAuthOptions = {
           .single();
 
         if (!existingUser) {
-          // Determine role - admin or null initially so they can choose
-          const role = email === "aruta839@gmail.com" ? "admin" : null;
+          // Determine role - 'nuevo' initially so they can choose, or 'admin'
+          const role = email === "aruta839@gmail.com" ? "admin" : "nuevo";
           
           // Create new user record
           const { error: createError } = await supabase.from("users").insert({
-            id: randomUUID(), // Generate a valid UUID to satisfy the database schema
+            id: randomUUID(),
             nombre: profile?.name?.split(" ")[0] || "Usuario",
             apellido: profile?.name?.split(" ").slice(1).join(" ") || "Google",
             email: email,
@@ -93,6 +93,9 @@ export const authOptions: NextAuthOptions = {
             console.error("Error creating user in public.users:", createError);
             return false;
           }
+        } else {
+          // User already exists, update their avatar if it changed (optional but good)
+          await supabase.from("users").update({ avatar_url: user.image }).eq("email", email);
         }
         return true;
       }

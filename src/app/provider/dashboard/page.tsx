@@ -9,11 +9,12 @@ import {
   Users, 
   CheckCircle2, 
   AlertCircle,
-  MoreVertical,
-  ExternalLink,
-  Search
+  Search,
+  Trash2,
+  Edit2
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 export default function ProviderDashboard() {
   const [products, setProducts] = useState<any[]>([]);
@@ -42,6 +43,20 @@ export default function ProviderDashboard() {
     fetchProducts();
   }, []);
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`¿Estás seguro que querés eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
+
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error("Error al eliminar");
+      
+      setProducts(products.filter(p => p.id !== id));
+      toast.success("Producto eliminado");
+    } catch (err) {
+      toast.error("No se pudo eliminar el producto");
+    }
+  };
+
   return (
     <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
       {/* Header section with Stats */}
@@ -52,7 +67,7 @@ export default function ProviderDashboard() {
         </div>
         <Link 
           href="/provider/dashboard/new-product"
-          className="bg-[#0077CC] hover:bg-[#00AEEF] text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-[#0077CC]/20 transition-all flex items-center justify-center gap-2"
+          className="bg-[#00A650] hover:bg-[#009EE3] text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-[#00A650]/20 transition-all flex items-center justify-center gap-2"
         >
           <Plus size={20} /> Nuevo Producto
         </Link>
@@ -61,21 +76,21 @@ export default function ProviderDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard title="Ventas Totales" value="$245.000" icon={<TrendingUp className="text-green-500" />} />
         <StatCard title="Participantes Activos" value="128" icon={<Users className="text-blue-500" />} />
-        <StatCard title="Deals Completados" value="14" icon={<CheckCircle2 className="text-[#00AEEF]" />} />
+        <StatCard title="Deals Completados" value="14" icon={<CheckCircle2 className="text-[#009EE3]" />} />
       </div>
 
       {/* Main Content: Products List */}
       <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
         <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Package className="text-[#0077CC]" size={20} /> Mis Productos
+            <Package className="text-[#00A650]" size={20} /> Mis Productos
           </h2>
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text" 
               placeholder="Buscar..." 
-              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#0077CC]/20"
+              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00A650]/20"
             />
           </div>
         </div>
@@ -101,7 +116,7 @@ export default function ProviderDashboard() {
                     <div className="flex flex-col items-center gap-3">
                       <AlertCircle className="text-slate-300" size={48} />
                       <p className="text-slate-500 font-bold">No tenés productos cargados aún.</p>
-                      <Link href="/provider/dashboard/new-product" className="text-[#0077CC] text-sm font-bold">Cargar mi primer producto</Link>
+                      <Link href="/provider/dashboard/new-product" className="text-[#00A650] text-sm font-bold">Cargar mi primer producto</Link>
                     </div>
                   </td>
                 </tr>
@@ -124,7 +139,7 @@ export default function ProviderDashboard() {
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <div className="font-bold text-slate-700">${product.precio_individual}</div>
-                    <div className="text-[#0077CC] font-black text-xs">${product.precio_grupal_minimo}</div>
+                    <div className="text-[#00A650] font-black text-xs">${product.precio_grupal_minimo}</div>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${product.stock > 10 ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}`}>
@@ -136,13 +151,13 @@ export default function ProviderDashboard() {
                       <div className="space-y-1">
                         <div className="flex justify-between text-[10px] font-bold">
                           <span className="text-slate-500">{product.group_deals[0].participantes_actuales}/{product.group_deals[0].min_participantes}</span>
-                          <span className="text-[#00AEEF]">
+                          <span className="text-[#009EE3]">
                             {Math.round((product.group_deals[0].participantes_actuales / product.group_deals[0].min_participantes) * 100)}%
                           </span>
                         </div>
                         <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-[#00AEEF] rounded-full" 
+                            className="h-full bg-[#009EE3] rounded-full" 
                             style={{ width: `${Math.min(100, (product.group_deals[0].participantes_actuales / product.group_deals[0].min_participantes) * 100)}%` }}
                           />
                         </div>
@@ -158,9 +173,22 @@ export default function ProviderDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                      <MoreVertical size={20} />
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link 
+                        href={`/provider/dashboard/edit/${product.id}`}
+                        className="text-slate-400 hover:text-[#009EE3] p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                        title="Editar"
+                      >
+                        <Edit2 size={18} />
+                      </Link>
+                      <button 
+                        onClick={() => handleDelete(product.id, product.nombre)}
+                        className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

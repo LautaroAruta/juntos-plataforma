@@ -56,11 +56,11 @@ export default async function Home() {
       {/* SECCIÓN 1 — Banner hero */}
       <section className="relative w-full overflow-hidden bg-white md:bg-transparent px-4 sm:px-6 md:px-0">
         <div className="max-w-7xl mx-auto md:mt-8">
-          <div className="relative w-full h-[300px] md:h-[450px] rounded-none md:rounded-[3rem] overflow-hidden bg-gradient-to-br from-[#00AEEF] to-[#0077CC] flex items-center shadow-2xl shadow-[#00AEEF]/20">
+          <div className="relative w-full h-[300px] md:h-[450px] rounded-none md:rounded-[3rem] overflow-hidden bg-gradient-to-br from-[#009EE3] to-[#00A650] flex items-center shadow-2xl shadow-[#009EE3]/20">
             {/* Background pattern/elements */}
             <div className="absolute inset-0 overflow-hidden opacity-10">
               <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mt-48 blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#E8F7FF] rounded-full -ml-32 -mb-32 blur-2xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#FFF8E7] rounded-full -ml-32 -mb-32 blur-2xl"></div>
             </div>
 
             <div className="relative z-10 px-8 md:px-20 max-w-2xl">
@@ -72,7 +72,7 @@ export default async function Home() {
               </p>
               <Link 
                 href="/productos"
-                className="inline-flex items-center gap-3 bg-white text-[#0077CC] font-black py-4 px-10 rounded-2xl shadow-xl hover:bg-gray-50 transition-all text-sm md:text-lg uppercase tracking-tight group"
+                className="inline-flex items-center gap-3 bg-white text-[#00A650] font-black py-4 px-10 rounded-2xl shadow-xl hover:bg-gray-50 transition-all text-sm md:text-lg uppercase tracking-tight group"
               >
                 Ver ofertas grupales
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -105,7 +105,7 @@ export default async function Home() {
           {categories.map((cat, i) => (
             <div 
               key={i} 
-              className="group cursor-pointer flex flex-col items-center gap-4 p-5 bg-white rounded-3xl border border-transparent shadow-sm hover:shadow-xl hover:shadow-[#00AEEF]/5 transition-all min-w-[120px] sm:min-w-0"
+              className="group cursor-pointer flex flex-col items-center gap-4 p-5 bg-white rounded-3xl border border-transparent shadow-sm hover:shadow-xl hover:shadow-[#009EE3]/5 transition-all min-w-[120px] sm:min-w-0"
             >
               <div className={`w-12 h-12 flex items-center justify-center transform group-hover:scale-110 transition-transform ${cat.color}`}>
                 {cat.icon}
@@ -122,12 +122,12 @@ export default async function Home() {
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#00AEEF]/10 rounded-2xl flex items-center justify-center text-[#00AEEF]">
+            <div className="w-10 h-10 bg-[#009EE3]/10 rounded-2xl flex items-center justify-center text-[#009EE3]">
               <Timer className="animate-pulse" size={24} />
             </div>
             <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tighter">Ofertas grupales activas</h2>
           </div>
-          <Link href="/productos" className="group text-sm text-[#00AEEF] font-black uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
+          <Link href="/productos" className="group text-sm text-[#009EE3] font-black uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
             Ver todas <ChevronRight size={18} />
           </Link>
         </div>
@@ -158,14 +158,14 @@ export default async function Home() {
                   />
                   {percentageSaved > 0 && (
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm">
-                      <span className="text-[#00AEEF] font-black text-[10px] uppercase tracking-widest">{percentageSaved}% AHORRO</span>
+                      <span className="text-[#009EE3] font-black text-[10px] uppercase tracking-widest">{percentageSaved}% AHORRO</span>
                     </div>
                   )}
                 </div>
 
                 {/* Content */}
                 <div className="p-8 flex flex-col flex-1">
-                  <h3 className="text-gray-800 font-black text-lg leading-tight mb-4 group-hover:text-[#00AEEF] transition-colors line-clamp-2">
+                  <h3 className="text-gray-800 font-black text-lg leading-tight mb-4 group-hover:text-[#009EE3] transition-colors line-clamp-2">
                     {deal.product.nombre}
                   </h3>
                   
@@ -173,7 +173,7 @@ export default async function Home() {
                     <p className="text-gray-300 text-sm font-bold line-through">
                       ${deal.product.precio_individual.toLocaleString()}
                     </p>
-                    <p className="text-3xl font-black text-[#00AEEF] tracking-tighter">
+                    <p className="text-3xl font-black text-[#009EE3] tracking-tighter">
                       ${deal.precio_actual.toLocaleString()}
                     </p>
                   </div>
@@ -187,7 +187,7 @@ export default async function Home() {
                       </div>
                       <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-[#00AEEF] to-[#0077CC] rounded-full transition-all duration-700"
+                          className="h-full bg-gradient-to-r from-[#009EE3] to-[#00A650] rounded-full transition-all duration-700"
                           style={{ width: `${Math.min(100, progress)}%` }}
                         />
                       </div>
@@ -195,7 +195,7 @@ export default async function Home() {
 
                     <Link 
                       href={`/productos/${deal.product.id}`}
-                      className="w-full bg-gray-50 hover:bg-[#00AEEF] text-gray-800 hover:text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center text-sm uppercase tracking-tight group"
+                      className="w-full bg-gray-50 hover:bg-[#009EE3] text-gray-800 hover:text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center text-sm uppercase tracking-tight group"
                     >
                       Ver oferta
                       <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
@@ -226,7 +226,7 @@ export default async function Home() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 />
               </div>
-              <h4 className="font-bold text-gray-800 text-sm mb-2 line-clamp-2 leading-snug group-hover:text-[#00AEEF] transition-colors">{product.nombre}</h4>
+              <h4 className="font-bold text-gray-800 text-sm mb-2 line-clamp-2 leading-snug group-hover:text-[#009EE3] transition-colors">{product.nombre}</h4>
               <p className="font-black text-lg text-gray-900 tracking-tight">${product.precio_individual.toLocaleString()}</p>
               <p className="text-[10px] text-green-500 font-bold uppercase mt-1">Llega gratis mañana</p>
             </Link>
@@ -238,7 +238,7 @@ export default async function Home() {
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
         <div className="bg-white rounded-[3rem] p-10 md:p-20 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1 space-y-8">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-800 leading-tight tracking-tighter uppercase">¿Cómo funciona JUNTOS?</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-gray-800 leading-tight tracking-tighter uppercase">¿Cómo funciona BANDHA?</h2>
             <div className="grid grid-cols-1 gap-6">
               {[
                 { step: "1", title: "Elegí tu oferta", text: "Buscá el producto que necesitás entre cientos de ofertas grupales activas." },
@@ -246,7 +246,7 @@ export default async function Home() {
                 { step: "3", title: "Recibilo en tu casa", text: "Una vez que el grupo se completa, el proveedor envía tu pedido." }
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-6 items-start">
-                  <div className="w-10 h-10 rounded-xl bg-[#00AEEF]/10 flex-shrink-0 flex items-center justify-center text-[#00AEEF] font-black">{item.step}</div>
+                  <div className="w-10 h-10 rounded-xl bg-[#009EE3]/10 flex-shrink-0 flex items-center justify-center text-[#009EE3] font-black">{item.step}</div>
                   <div>
                     <h5 className="font-black text-gray-800 uppercase tracking-tight mb-1">{item.title}</h5>
                     <p className="text-gray-500 text-sm leading-relaxed">{item.text}</p>
@@ -257,8 +257,8 @@ export default async function Home() {
           </div>
           <div className="flex-1 w-full flex justify-center">
             <div className="relative w-full aspect-square max-w-sm bg-gray-50 rounded-[4rem] border-8 border-white shadow-2xl flex items-center justify-center overflow-hidden">
-               <Truck size={120} className="text-[#00AEEF] opacity-20 transform -rotate-12" />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#00AEEF]/10 to-transparent"></div>
+               <Truck size={120} className="text-[#009EE3] opacity-20 transform -rotate-12" />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#009EE3]/10 to-transparent"></div>
             </div>
           </div>
         </div>

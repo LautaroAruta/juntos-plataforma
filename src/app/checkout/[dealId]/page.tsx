@@ -102,7 +102,7 @@ export default function CheckoutPage() {
         
         <Link 
           href={deal?.product ? `/productos/${deal.product.id}` : "/"}
-          className="inline-flex items-center gap-2 text-[#00AEEF] hover:text-[#0077CC] font-bold text-sm mb-6 transition-colors group"
+          className="inline-flex items-center gap-2 text-[#009EE3] hover:text-[#00A650] font-bold text-sm mb-6 transition-colors group"
         >
           <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> Volver al producto
         </Link>
@@ -118,10 +118,10 @@ export default function CheckoutPage() {
 
             {/* SECCION: DOMICILIO / RETIRO */}
             <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 relative overflow-hidden">
-               <div className="absolute top-0 left-0 w-1 h-full bg-[#00AEEF]" />
+               <div className="absolute top-0 left-0 w-1 h-full bg-[#009EE3]" />
                <div className="flex items-start gap-4">
-                 <div className="w-10 h-10 rounded-full bg-[#E8F7FF] flex items-center justify-center shrink-0">
-                   <Store className="text-[#00AEEF]" size={20} />
+                 <div className="w-10 h-10 rounded-full bg-[#FFF8E7] flex items-center justify-center shrink-0">
+                   <Store className="text-[#009EE3]" size={20} />
                  </div>
                  <div className="flex-1">
                    <h3 className="text-lg font-black text-gray-800 mb-1">Retiro en domicilio del vendedor</h3>
@@ -130,9 +130,9 @@ export default function CheckoutPage() {
                      <br />El proveedor es: <strong className="text-gray-700">{deal?.product?.provider?.nombre_empresa || "Proveedor verificado"}</strong>.
                    </p>
                    {/* Opciones (simuladas UI) */}
-                   <div className="border border-[#00AEEF] bg-[#E8F7FF]/50 rounded-2xl p-4 flex items-center justify-between cursor-pointer">
+                   <div className="border border-[#009EE3] bg-[#FFF8E7]/50 rounded-2xl p-4 flex items-center justify-between cursor-pointer">
                       <div className="flex items-center gap-3">
-                        <CheckCircle2 className="text-[#00AEEF]" size={20} />
+                        <CheckCircle2 className="text-[#009EE3]" size={20} />
                         <div>
                            <span className="block font-bold text-gray-800 text-sm">Gratis</span>
                            <span className="block text-xs text-gray-500">A coordinar post-compra</span>
@@ -150,8 +150,8 @@ export default function CheckoutPage() {
             {/* SECCION: PAGO */}
             <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
                <div className="flex items-start gap-4">
-                 <div className="w-10 h-10 rounded-full bg-[#E8F7FF] flex items-center justify-center shrink-0">
-                   <Wallet className="text-[#00AEEF]" size={20} />
+                 <div className="w-10 h-10 rounded-full bg-[#FFF8E7] flex items-center justify-center shrink-0">
+                   <Wallet className="text-[#009EE3]" size={20} />
                  </div>
                  <div className="flex-1">
                    <h3 className="text-lg font-black text-gray-800 mb-1">Mercado Pago</h3>
@@ -189,11 +189,11 @@ export default function CheckoutPage() {
                
                <div className="flex gap-4 mb-6">
                  <div className="w-16 h-16 rounded-xl border border-gray-100 overflow-hidden shrink-0">
-                   <img src={deal?.product?.imagen_principal || "/placeholder.jpg"} className="w-full h-full object-cover" />
+                   <img src={deal?.product?.imagen_principal || "/placeholder.jpg"} className="w-full h-full object-cover" alt="Product image" />
                  </div>
                  <div>
                    <h4 className="font-bold text-sm text-gray-800 leading-snug line-clamp-2 mb-1">{deal?.product?.nombre}</h4>
-                   <span className="text-[10px] font-black bg-[#E8F7FF] text-[#00AEEF] px-2 py-0.5 rounded-md uppercase tracking-widest">
+                   <span className="text-[10px] font-black bg-[#FFF8E7] text-[#009EE3] px-2 py-0.5 rounded-md uppercase tracking-widest">
                      Oferta Grupal
                    </span>
                  </div>
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
                <button
                   onClick={handlePayment}
                   disabled={creatingPreference}
-                  className="w-full bg-[#00AEEF] hover:bg-[#0077CC] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-black py-4 rounded-2xl shadow-lg shadow-[#00AEEF]/20 transition-all flex items-center justify-center gap-2 text-base group mb-6"
+                  className="w-full bg-[#009EE3] hover:bg-[#00A650] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-black py-4 rounded-2xl shadow-lg shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-2 text-base group mb-6"
                 >
                   {creatingPreference ? <Loader2 className="animate-spin" size={20} /> : (
                     <>

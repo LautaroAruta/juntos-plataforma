@@ -12,24 +12,14 @@ export default function ElegirRolPage() {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
-  useEffect(() => {
-    // Si el usuario ya tiene un rol asignado, saltamos esta pantalla
-    if (session?.user?.rol) {
-      if (session.user.rol === "admin") {
-        router.push("/gestion-juntos");
-      } else if (session.user.rol === "cliente") {
-        router.push("/dashboard/cliente");
-      } else if (session.user.rol === "proveedor") {
-        router.push("/proveedor/dashboard");
-      }
-    }
-  }, [session, router]);
-
+  // Borramos el useEffect que redirigía automáticamente
+  
   const handleSelectRole = async (role: "cliente" | "proveedor") => {
     if (!session?.user?.email) return;
     
     setLoading(true);
     try {
+      // 1. Actualizamos el rol en la tabla users
       const { error } = await supabase
         .from("users")
         .update({ rol: role })
@@ -37,15 +27,26 @@ export default function ElegirRolPage() {
 
       if (error) throw error;
 
-      // Actualizamos la sesión para reflejar el nuevo rol
+      // 2. Si elige proveedor, verificamos si ya tiene perfil creado
+      let targetPath = role === "cliente" ? "/dashboard/cliente" : "/auth/registro/proveedor";
+      
+      if (role === "proveedor") {
+        const { data: providerProfile } = await supabase
+          .from("providers")
+          .select("id")
+          .eq("id", session.user.id)
+          .single();
+          
+        if (providerProfile) {
+          targetPath = "/provider/dashboard";
+        }
+      }
+
+      // 3. Actualizamos la sesión para reflejar el nuevo rol
       await update({ rol: role });
 
-      // Redirigimos según la elección
-      if (role === "cliente") {
-        router.push("/dashboard/cliente");
-      } else {
-        router.push("/auth/registro/proveedor");
-      }
+      // 4. Redirigimos
+      router.push(targetPath);
     } catch (err) {
       console.error("Error setting role:", err);
       alert("Hubo un error al guardar tu elección. Por favor intenta de nuevo.");
@@ -61,15 +62,15 @@ export default function ElegirRolPage() {
       <div className="w-full max-w-4xl">
         <div className="text-center mb-16">
           <h1 className="text-3xl md:text-5xl font-black text-gray-800 tracking-tighter uppercase mb-4">
-            ¿Cómo querés usar JUNTOS?
+            ¿Cómo querés usar BANDHA?
           </h1>
           <p className="text-gray-500 text-lg">Elegí tu perfil para continuar</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Card Comprador */}
-          <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-200 flex flex-col items-center text-center group hover:shadow-2xl hover:shadow-[#00AEEF]/5 transition-all">
-            <div className="w-24 h-24 bg-[#E8F7FF] rounded-[2rem] flex items-center justify-center text-[#00AEEF] mb-8 group-hover:scale-110 transition-transform">
+          <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-200 flex flex-col items-center text-center group hover:shadow-2xl hover:shadow-[#009EE3]/5 transition-all">
+            <div className="w-24 h-24 bg-[#FFF8E7] rounded-[2rem] flex items-center justify-center text-[#009EE3] mb-8 group-hover:scale-110 transition-transform">
               <ShoppingCart size={48} />
             </div>
             <h2 className="text-3xl font-black text-gray-800 tracking-tight mb-4">Quiero Comprar</h2>
@@ -79,7 +80,7 @@ export default function ElegirRolPage() {
             <button
               onClick={() => handleSelectRole("cliente")}
               disabled={loading}
-              className="w-full bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50 uppercase tracking-tight"
+              className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50 uppercase tracking-tight"
             >
               {loading ? <Loader2 className="animate-spin" size={24} /> : (
                 <>

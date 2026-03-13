@@ -71,8 +71,8 @@ export default function QRScanner() {
     setScanning(false);
     setLoading(true);
     
-    // Format expected: JUNTOS-ORDER-[PAYMENT_ID]
-    const orderId = data.replace("JUNTOS-ORDER-", "");
+    // Format expected: BANDHA-ORDER-[PAYMENT_ID]
+    const orderId = data.replace("BANDHA-ORDER-", "");
 
     try {
       // 1. Verify and update order in Supabase
@@ -117,19 +117,19 @@ export default function QRScanner() {
             <video ref={videoRef} className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
             <div className="absolute inset-0 border-[40px] border-black/40"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-[#00AEEF] rounded-3xl">
-              <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-[#00AEEF] rounded-tl-xl"></div>
-              <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-[#00AEEF] rounded-tr-xl"></div>
-              <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-[#00AEEF] rounded-bl-xl"></div>
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-[#00AEEF] rounded-br-xl"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-[#009EE3] rounded-3xl">
+              <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-[#009EE3] rounded-tl-xl"></div>
+              <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-[#009EE3] rounded-tr-xl"></div>
+              <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-[#009EE3] rounded-bl-xl"></div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-[#009EE3] rounded-br-xl"></div>
               {/* Scanline Animation */}
-              <div className="w-full h-1.5 bg-[#00AEEF]/50 absolute top-0 left-0 rounded-full animate-scan"></div>
+              <div className="w-full h-1.5 bg-[#009EE3]/50 absolute top-0 left-0 rounded-full animate-scan"></div>
             </div>
           </>
         ) : (
           <div className="w-full h-full bg-slate-800 flex flex-col items-center justify-center p-8 text-center text-white">
             {loading ? (
-              <Loader2 className="animate-spin text-[#00AEEF]" size={64} />
+              <Loader2 className="animate-spin text-[#009EE3]" size={64} />
             ) : result?.success ? (
               <>
                 <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-green-500/20">
@@ -153,7 +153,7 @@ export default function QRScanner() {
                 <p className="text-slate-400 text-sm mb-8 font-medium">{result?.message}</p>
                 <button 
                   onClick={resetScanner}
-                  className="w-full bg-[#00AEEF] text-white font-bold py-4 rounded-2xl hover:bg-[#0077CC] transition-all font-black text-sm uppercase tracking-widest"
+                  className="w-full bg-[#009EE3] text-white font-bold py-4 rounded-2xl hover:bg-[#00A650] transition-all font-black text-sm uppercase tracking-widest"
                 >
                   Reintentar
                 </button>

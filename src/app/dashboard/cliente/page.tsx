@@ -17,9 +17,9 @@ export default async function ClienteDashboard() {
   if (session.user.rol !== "cliente") {
     // Si es proveedor, redirigir a su dashboard
     if (session.user.rol === "proveedor") {
-      redirect("/proveedor/dashboard");
+      redirect("/provider/dashboard");
     } else if (session.user.rol === "admin") {
-      redirect("/gestion-juntos");
+      redirect("/gestion-bandha");
     }
   }
 
@@ -38,16 +38,16 @@ export default async function ClienteDashboard() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-[#00AEEF] flex items-center justify-center overflow-hidden">
+            <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-[#009EE3] flex items-center justify-center overflow-hidden">
                {session.user.image ? (
                  <img src={session.user.image} alt="" className="w-full h-full object-cover" />
                ) : (
-                 <span className="text-3xl font-black text-[#00AEEF]">{session.user.name?.[0]}</span>
+                 <span className="text-3xl font-black text-[#009EE3]">{session.user.name?.[0]}</span>
                )}
             </div>
             <div>
               <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Hola, {session.user.name?.split(' ')[0]}</h1>
-              <p className="text-gray-500 font-medium">Nivel Comprador JUNTOS</p>
+              <p className="text-gray-500 font-medium">Nivel Comprador BANDHA</p>
             </div>
           </div>
           <div className="flex gap-4">
@@ -64,7 +64,7 @@ export default async function ClienteDashboard() {
           <div className="lg:col-span-2 space-y-8">
             <div className="flex items-center justify-between px-2">
               <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight flex items-center gap-3">
-                <ShoppingBag className="text-[#00AEEF]" size={24} /> Mis Compras Grupales
+                <ShoppingBag className="text-[#009EE3]" size={24} /> Mis Compras Grupales
               </h2>
             </div>
             
@@ -88,7 +88,7 @@ export default async function ClienteDashboard() {
                      <span className="text-2xl font-black text-gray-800">${order.price.toLocaleString()}</span>
                      <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full bg-gradient-to-r ${order.status === 'activo' ? 'from-[#00AEEF] to-[#0077CC]' : 'from-green-400 to-green-600'} rounded-full`}
+                          className={`h-full bg-gradient-to-r ${order.status === 'activo' ? 'from-[#009EE3] to-[#00A650]' : 'from-green-400 to-green-600'} rounded-full`}
                           style={{ width: `${(order.participants / order.min) * 100}%` }}
                         />
                      </div>
@@ -102,7 +102,7 @@ export default async function ClienteDashboard() {
 
           {/* Sidebar: Stats / Promos */}
           <div className="space-y-8">
-            <div className="bg-gradient-to-br from-[#00AEEF] to-[#0077CC] rounded-[2.5rem] p-8 text-white shadow-xl shadow-[#00AEEF]/20">
+            <div className="bg-gradient-to-br from-[#009EE3] to-[#00A650] rounded-[2.5rem] p-8 text-white shadow-xl shadow-[#009EE3]/20">
                <h3 className="text-lg font-black uppercase tracking-tight mb-4">Ahorro Acumulado</h3>
                <div className="text-4xl font-black mb-2">$12.500</div>
                <p className="text-white/70 font-medium text-sm">Gracias a comprar en grupo este mes.</p>
@@ -117,10 +117,10 @@ export default async function ClienteDashboard() {
 
             <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
                <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
-                 <Users size={16} className="text-[#00AEEF]" /> Invitá Amigos
+                 <Users size={16} className="text-[#009EE3]" /> Invitá Amigos
                </h3>
                <p className="text-gray-600 text-sm font-medium leading-relaxed mb-6">
-                 Compartí JUNTOS y recibí beneficios exclusivos en tu próxima compra grupal.
+                 Compartí BANDHA y recibí beneficios exclusivos en tu próxima compra grupal.
                </p>
                <button className="w-full py-4 bg-gray-50 hover:bg-gray-100 rounded-2xl text-gray-800 font-black text-sm uppercase tracking-tight transition-all">
                  Obtener mi link

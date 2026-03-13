@@ -61,10 +61,10 @@ export default function CompletarPerfil() {
   if (status === "loading") return <div className="p-20 text-center uppercase font-black text-slate-300">Cargando...</div>;
 
   return (
-    <div className="min-h-screen bg-[#E8F7FF] flex items-center justify-center p-6">
-      <div className="w-full max-w-sm bg-white rounded-[3rem] p-10 shadow-2xl shadow-[#00AEEF]/10">
+    <div className="min-h-screen bg-[#FFF8E7] flex items-center justify-center p-6">
+      <div className="w-full max-w-sm bg-white rounded-[3rem] p-10 shadow-2xl shadow-[#009EE3]/10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#E8F7FF] text-[#00AEEF] mb-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#FFF8E7] text-[#009EE3] mb-6">
             <Phone size={40} />
           </div>
           <h1 className="text-3xl font-black text-slate-800 tracking-tighter uppercase mb-2">¡Hola {session?.user?.name?.split(" ")[0]}!</h1>
@@ -92,7 +92,7 @@ export default function CompletarPerfil() {
                   placeholder="+54 9 11 1234-5678"
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all font-mono"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all font-mono"
                 />
               </div>
               {error && <p className="text-red-500 text-[10px] mt-2 font-bold px-1">⚠️ {error}</p>}
@@ -101,7 +101,7 @@ export default function CompletarPerfil() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black py-4 rounded-2xl shadow-xl shadow-[#00AEEF]/20 transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
+              className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-4 rounded-2xl shadow-xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : "FINALIZAR"}
             </button>

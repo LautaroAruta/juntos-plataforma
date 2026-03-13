@@ -116,7 +116,7 @@ export default function NewProduct() {
       </Link>
 
       <div className="flex items-center gap-4 mb-10">
-        <div className="w-16 h-16 rounded-3xl bg-[#E8F7FF] text-[#00AEEF] flex items-center justify-center shadow-inner">
+        <div className="w-16 h-16 rounded-3xl bg-[#FFF8E7] text-[#009EE3] flex items-center justify-center shadow-inner">
           <Package size={32} />
         </div>
         <div>
@@ -139,7 +139,7 @@ export default function NewProduct() {
                   required
                   value={formData.nombre}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#00AEEF]/10 focus:border-[#00AEEF] transition-all"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all"
                   placeholder="Ej: Auriculares Bluetooth Pro"
                 />
               </div>
@@ -155,7 +155,7 @@ export default function NewProduct() {
                   required
                   value={formData.descripcion}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#00AEEF]/10 focus:border-[#00AEEF] transition-all"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all"
                   placeholder="Contanos más sobre este producto..."
                 />
               </div>
@@ -167,7 +167,7 @@ export default function NewProduct() {
                 name="categoria"
                 value={formData.categoria}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm font-medium focus:ring-4 focus:ring-[#00AEEF]/10 focus:border-[#00AEEF] transition-all appearance-none"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm font-medium focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all appearance-none"
               >
                 <option value="tecnologia">Tecnología</option>
                 <option value="hogar">Hogar</option>
@@ -187,7 +187,7 @@ export default function NewProduct() {
                   min="0"
                   value={formData.stock}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#00AEEF]/10 focus:border-[#00AEEF] transition-all"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all"
                   placeholder="100"
                 />
               </div>
@@ -219,9 +219,9 @@ export default function NewProduct() {
             </div>
 
             <div>
-              <label className="block text-xs font-black text-[#00AEEF] uppercase tracking-widest mb-3 px-1">Precio Grupal (Oferta)</label>
+              <label className="block text-xs font-black text-[#009EE3] uppercase tracking-widest mb-3 px-1">Precio Grupal (Oferta)</label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00AEEF] font-bold">$</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#009EE3] font-bold">$</span>
                 <input
                   type="number"
                   name="precio_grupal_minimo"
@@ -229,7 +229,7 @@ export default function NewProduct() {
                   step="0.01"
                   value={formData.precio_grupal_minimo}
                   onChange={handleChange}
-                  className="w-full bg-[#E8F7FF] border border-[#00AEEF]/20 rounded-2xl py-4 pl-10 pr-4 text-sm font-black focus:ring-4 focus:ring-[#00AEEF]/10 focus:border-[#00AEEF] transition-all text-[#0077CC]"
+                  className="w-full bg-[#FFF8E7] border border-[#009EE3]/20 rounded-2xl py-4 pl-10 pr-4 text-sm font-black focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all text-[#00A650]"
                   placeholder="0.00"
                 />
               </div>
@@ -257,22 +257,23 @@ export default function NewProduct() {
               </div>
             ))}
             
-            {images.length < 4 && (
-              <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-slate-50 hover:border-[#00AEEF] transition-all group">
-                <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#E8F7FF] group-hover:text-[#00AEEF] transition-colors">
+            {images.length < 8 && (
+              <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-slate-50 hover:border-[#009EE3] transition-all group">
+                <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#FFF8E7] group-hover:text-[#009EE3] transition-colors">
                   <Upload size={24} />
                 </div>
-                <span className="text-[10px] font-black uppercase text-slate-400 group-hover:text-[#00AEEF]">Subir Foto</span>
+                <span className="text-[10px] font-black uppercase text-slate-400 group-hover:text-[#009EE3]">Subir Foto</span>
                 <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
               </label>
             )}
           </div>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Máximo 8 imágenes por producto</p>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#0077CC] hover:bg-[#00AEEF] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#0077CC]/30 transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-[#00A650] hover:bg-[#009EE3] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#00A650]/30 transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>

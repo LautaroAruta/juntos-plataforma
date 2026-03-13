@@ -85,7 +85,7 @@ export default function RegisterCliente() {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center">
-        <div className="max-w-md bg-white rounded-[3rem] p-12 shadow-2xl shadow-[#00AEEF]/10 border border-slate-50">
+        <div className="max-w-md bg-white rounded-[3rem] p-12 shadow-2xl shadow-[#009EE3]/10 border border-slate-50">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-50 text-green-500 mb-8">
             <CheckCircle2 size={48} />
           </div>
@@ -94,7 +94,7 @@ export default function RegisterCliente() {
             Enviamos un link de verificación a <span className="font-bold text-slate-800">{formData.email}</span>. 
             Por favor, revisá tu casilla (y la carpeta de spam).
           </p>
-          <Link href="/auth/login" className="inline-block bg-[#00AEEF] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#00AEEF]/20 hover:bg-[#0077CC] transition-all uppercase tracking-widest text-sm">
+          <Link href="/auth/login" className="inline-block bg-[#009EE3] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#009EE3]/20 hover:bg-[#00A650] transition-all uppercase tracking-widest text-sm">
             Ir al Login
           </Link>
         </div>
@@ -110,7 +110,7 @@ export default function RegisterCliente() {
 
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">Crear Cuenta</h1>
-        <p className="text-slate-500 font-medium italic">Unite a JUNTOS y empezá a ahorrar.</p>
+        <p className="text-slate-500 font-medium italic">Unite a BANDHA y empezá a ahorrar.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -125,7 +125,7 @@ export default function RegisterCliente() {
                 placeholder="Juan Pérez"
                 value={formData.nombreCompleto}
                 onChange={(e) => setFormData({...formData, nombreCompleto: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
               />
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function RegisterCliente() {
                 placeholder="juan@email.com"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
               />
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function RegisterCliente() {
                 placeholder="+54 9 11 1234-5678"
                 value={formData.telefono}
                 onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all font-mono"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all font-mono"
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function RegisterCliente() {
                  placeholder="Calle 123, CABA"
                  value={formData.direccion}
                  onChange={(e) => setFormData({...formData, direccion: e.target.value})}
-                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
                />
              </div>
           </div>
@@ -186,7 +186,7 @@ export default function RegisterCliente() {
                 placeholder="Mínimo 8 caracteres y 1 número"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
               />
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function RegisterCliente() {
                 placeholder="Repetí tu contraseña"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#00AEEF]/5 focus:border-[#00AEEF] transition-all"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
               />
             </div>
           </div>
@@ -216,7 +216,7 @@ export default function RegisterCliente() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#00AEEF]/30 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest active:scale-95 disabled:grayscale"
+          className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/30 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest active:scale-95 disabled:grayscale"
         >
           {loading ? <Loader2 className="animate-spin" size={24} /> : "Crear mi cuenta"}
         </button>

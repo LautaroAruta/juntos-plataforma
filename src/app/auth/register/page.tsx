@@ -62,11 +62,11 @@ export default function RegisterPage() {
     <div className="min-h-[calc(100vh-64px)] py-12 px-4 flex items-center justify-center">
       <div className="w-full max-w-lg glass-card rounded-3xl p-8 lg:p-12">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#E8F7FF] text-[#00AEEF] mb-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#FFF8E7] text-[#009EE3] mb-4">
             <UserPlus size={40} />
           </div>
           <h1 className="text-3xl font-black text-slate-800">Crea tu cuenta</h1>
-          <p className="text-slate-500">Únete a JUNTOS y empezá a ahorrar hoy.</p>
+          <p className="text-slate-500">Únete a BANDHA y empezá a ahorrar hoy.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -80,7 +80,7 @@ export default function RegisterPage() {
                 required
                 value={formData.nombre}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF]"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#009EE3]/20 focus:border-[#009EE3]"
                 placeholder="Juan"
               />
             </div>
@@ -96,7 +96,7 @@ export default function RegisterPage() {
                 required
                 value={formData.apellido}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF]"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#009EE3]/20 focus:border-[#009EE3]"
                 placeholder="Pérez"
               />
             </div>
@@ -112,7 +112,7 @@ export default function RegisterPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF]"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#009EE3]/20 focus:border-[#009EE3]"
                 placeholder="tu@email.com"
               />
             </div>
@@ -128,7 +128,7 @@ export default function RegisterPage() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF]"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#009EE3]/20 focus:border-[#009EE3]"
                 placeholder="••••••••"
               />
             </div>
@@ -144,7 +144,7 @@ export default function RegisterPage() {
                 required
                 value={formData.telefono}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF]"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#009EE3]/20 focus:border-[#009EE3]"
                 placeholder="+54 11 ..."
               />
             </div>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                 required
                 value={formData.direccion}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#00AEEF]/20 focus:border-[#00AEEF]"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#009EE3]/20 focus:border-[#009EE3]"
                 placeholder="Calle 123, Ciudad"
               />
             </div>
@@ -176,7 +176,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#00AEEF] to-[#0077CC] text-white font-black py-4 rounded-2xl shadow-xl shadow-[#00AEEF]/20 transition-all flex items-center justify-center gap-2 group"
+              className="w-full bg-gradient-to-r from-[#009EE3] to-[#00A650] text-white font-black py-4 rounded-2xl shadow-xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-2 group"
             >
               {loading ? <Loader2 className="animate-spin" size={24} /> : (
                 <>
@@ -189,7 +189,7 @@ export default function RegisterPage() {
 
         <p className="mt-8 text-center text-sm text-slate-500">
           ¿Ya tenés cuenta?{" "}
-          <Link href="/auth/login" className="text-[#00AEEF] font-bold hover:underline">
+          <Link href="/auth/login" className="text-[#009EE3] font-bold hover:underline">
             Iniciá sesión
           </Link>
         </p>

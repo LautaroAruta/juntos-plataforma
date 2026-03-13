@@ -29,7 +29,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <p className="text-gray-500 mb-8 font-medium">La oferta que buscás ya no está disponible o no existe.</p>
         <Link 
           href="/" 
-          className="bg-[#00AEEF] hover:bg-[#0077CC] text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-[#00AEEF]/20 transition-all uppercase tracking-tight"
+          className="bg-[#009EE3] hover:bg-[#00A650] text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-[#009EE3]/20 transition-all uppercase tracking-tight"
         >
           Volver al inicio
         </Link>
@@ -49,9 +49,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 overflow-x-auto whitespace-nowrap pb-2">
-          <Link href="/" className="hover:text-[#00AEEF] transition-colors">Volver al listado</Link>
+          <Link href="/" className="hover:text-[#009EE3] transition-colors">Volver al listado</Link>
           <ChevronRight size={14} />
-          <Link href={`/buscar?categoria=${product.categoria}`} className="hover:text-[#00AEEF] transition-colors">{product.categoria}</Link>
+          <Link href={`/buscar?categoria=${product.categoria}`} className="hover:text-[#009EE3] transition-colors">{product.categoria}</Link>
           <ChevronRight size={14} />
           <span className="text-gray-600 truncate">{product.nombre}</span>
         </div>
@@ -68,7 +68,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                  className="max-h-full max-w-full object-contain"
                />
                 {discount > 0 && (
-                  <div className="absolute top-6 left-6 md:top-8 md:left-8 bg-[#00AEEF] text-white font-black text-sm md:text-base px-4 py-2 rounded-2xl shadow-xl shadow-[#00AEEF]/20 uppercase tracking-widest">
+                  <div className="absolute top-6 left-6 md:top-8 md:left-8 bg-[#009EE3] text-white font-black text-sm md:text-base px-4 py-2 rounded-2xl shadow-xl shadow-[#009EE3]/20 uppercase tracking-widest">
                     {discount}% AHORRO
                   </div>
                 )}
@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
              
              {/* Thumbnail placeholders (if multiple images were supported) */}
              <div className="flex gap-4 p-6 overflow-x-auto justify-center md:justify-start border-t border-gray-50">
-                <div className="w-16 h-16 rounded-xl border-2 border-[#00AEEF] overflow-hidden p-1 opacity-100 cursor-pointer">
+                <div className="w-16 h-16 rounded-xl border-2 border-[#009EE3] overflow-hidden p-1 opacity-100 cursor-pointer">
                   <img src={product.imagen_principal || "/placeholder-product.jpg"} className="w-full h-full object-cover rounded-lg" alt="thumb 1" />
                 </div>
                 {/* Add more thumbnails here in the future if product model adds array of images */}
@@ -91,8 +91,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 Nuevo | +100 vendidos
               </span>
               <div className="flex gap-3 text-gray-400">
-                <button className="hover:text-[#00AEEF] transition-colors active:scale-95"><Share2 size={20} /></button>
-                <button className="hover:text-[#00AEEF] transition-colors active:scale-95"><Star size={20} /></button>
+                <button className="hover:text-[#009EE3] transition-colors active:scale-95"><Share2 size={20} /></button>
+                <button className="hover:text-[#009EE3] transition-colors active:scale-95"><Star size={20} /></button>
               </div>
             </div>
 
@@ -101,8 +101,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </h1>
             
             <p className="text-sm font-bold text-gray-400 mb-8 flex items-center gap-1.5 uppercase tracking-wide">
-              Vendido por <span className="text-[#00AEEF]">{product.provider?.nombre_empresa || "Proveedor Verificado"}</span>
-              <Award size={14} className="text-[#00AEEF]" />
+              Vendido por <span className="text-[#009EE3]">{product.provider?.nombre_empresa || "Proveedor Verificado"}</span>
+              <Award size={14} className="text-[#009EE3]" />
             </p>
 
             {/* PRECIOS */}
@@ -117,12 +117,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   ${price.toLocaleString()}
                 </span>
                 {activeDeal && (
-                  <span className="text-xs font-black text-white bg-[#00AEEF] px-2 py-1 rounded-lg uppercase tracking-tight mt-1 shadow-sm">
+                  <span className="text-xs font-black text-white bg-[#009EE3] px-2 py-1 rounded-lg uppercase tracking-tight mt-1 shadow-sm">
                     Oferta Grupal
                   </span>
                 )}
               </div>
-              <p className="text-sm text-[#00AEEF] font-bold mt-2 flex items-center gap-1">
+              <p className="text-sm text-[#009EE3] font-bold mt-2 flex items-center gap-1">
                  <Truck size={16} /> Envío coordinado al completar
               </p>
             </div>
@@ -133,7 +133,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 <div className="flex justify-between items-end mb-4 relative z-10">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
-                      <Users size={16} className="text-[#00AEEF]" />
+                      <Users size={16} className="text-[#009EE3]" />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Quórum actual</div>
@@ -152,7 +152,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 
                 <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner relative z-10">
                    <div 
-                      className="h-full bg-gradient-to-r from-[#00AEEF] to-[#0077CC] rounded-full transition-all duration-1000 relative"
+                      className="h-full bg-gradient-to-r from-[#009EE3] to-[#00A650] rounded-full transition-all duration-1000 relative"
                       style={{ width: `${Math.min(100, progress)}%` }}
                     >
                       {/* Brillo en la barra */}
@@ -196,7 +196,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               <div className="flex items-start gap-4">
                 <Award size={24} className="text-gray-300 shrink-0" />
                 <div>
-                  <span className="text-gray-800 font-bold block mb-0.5">Garantía JUNTOS</span>
+                  <span className="text-gray-800 font-bold block mb-0.5">Garantía BANDHA</span>
                   Todo proveedor pasa por un riguroso proceso de validación.
                 </div>
               </div>
@@ -208,7 +208,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         {/* DESCRIPCION EXTENDIDA */}
         <div className="mt-8 bg-white rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 shadow-sm border border-gray-100">
            <h2 className="text-2xl font-black text-gray-800 tracking-tighter uppercase mb-8 flex items-center gap-3">
-             <Info className="text-[#00AEEF]" size={28} />
+             <Info className="text-[#009EE3]" size={28} />
              Descripción del producto
            </h2>
            <div className="prose prose-slate max-w-3xl text-gray-600 font-medium leading-relaxed whitespace-pre-line text-sm md:text-base">
