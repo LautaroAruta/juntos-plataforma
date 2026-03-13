@@ -23,6 +23,7 @@ export default function NewProduct() {
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [images, setImages] = useState<{file?: File, url: string}[]>([]);
   
   const [formData, setFormData] = useState({
@@ -67,6 +68,17 @@ export default function NewProduct() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
+    console.log("1. Boton presionado, valores de formData:", formData);
+
+    if (!formData.nombre.trim() || !formData.descripcion.trim() || !formData.precio_individual || !formData.precio_grupal_minimo || !formData.stock) {
+      console.log("2. Error de validación, faltando campos");
+      setErrorMsg("Por favor completá todos los campos (Nombre, Descripción, Categoría, Stock y Precios) antes de publicar.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    console.log("3. Pasó la validación inicial, setting loading to true...");
     setLoading(true);
 
     try {
@@ -100,7 +112,9 @@ export default function NewProduct() {
       router.refresh();
 
     } catch (err: any) {
-      alert("Error al crear producto: " + err.message);
+      console.error("Error capturado:", err.message);
+      setErrorMsg("Error del servidor: " + err.message + ". (Si dice 'Invalid API key', necesitás la llave ey...)");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setLoading(false);
     }
@@ -115,7 +129,7 @@ export default function NewProduct() {
         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver al Panel
       </Link>
 
-      <div className="flex items-center gap-4 mb-10">
+      <div className="flex items-center gap-4 mb-8">
         <div className="w-16 h-16 rounded-3xl bg-[#E8F7FF] text-[#00AEEF] flex items-center justify-center shadow-inner">
           <Package size={32} />
         </div>
@@ -125,7 +139,19 @@ export default function NewProduct() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      {errorMsg && (
+        <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start justify-between">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-red-800 font-bold text-lg">No se pudo publicar</h3>
+            <p className="text-red-600 font-medium">{errorMsg}</p>
+          </div>
+          <button onClick={() => setErrorMsg(null)} className="text-red-400 hover:text-red-600 transition-colors p-1 bg-white rounded-full shadow-sm hover:shadow">
+            <X size={20} />
+          </button>
+        </div>
+      )}
+
+      <div className="space-y-8">
         {/* Basic Info Card */}
         <div className="glass-card rounded-[2.5rem] p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -136,7 +162,6 @@ export default function NewProduct() {
                 <input
                   type="text"
                   name="nombre"
-                  required
                   value={formData.nombre}
                   onChange={handleChange}
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#00AEEF]/10 focus:border-[#00AEEF] transition-all"
@@ -152,7 +177,6 @@ export default function NewProduct() {
                 <textarea
                   name="descripcion"
                   rows={4}
-                  required
                   value={formData.descripcion}
                   onChange={handleChange}
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#00AEEF]/10 focus:border-[#00AEEF] transition-all"
@@ -183,7 +207,6 @@ export default function NewProduct() {
                 <input
                   type="number"
                   name="stock"
-                  required
                   min="0"
                   value={formData.stock}
                   onChange={handleChange}
@@ -208,7 +231,6 @@ export default function NewProduct() {
                 <input
                   type="number"
                   name="precio_individual"
-                  required
                   step="0.01"
                   value={formData.precio_individual}
                   onChange={handleChange}
@@ -225,7 +247,6 @@ export default function NewProduct() {
                 <input
                   type="number"
                   name="precio_grupal_minimo"
-                  required
                   step="0.01"
                   value={formData.precio_grupal_minimo}
                   onChange={handleChange}
@@ -270,7 +291,8 @@ export default function NewProduct() {
         </div>
 
         <button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           disabled={loading}
           className="w-full bg-[#0077CC] hover:bg-[#00AEEF] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#0077CC]/30 transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -282,7 +304,7 @@ export default function NewProduct() {
             "Publicar Producto"
           )}
         </button>
-      </form>
+      </div>
     </div>
   );
 }

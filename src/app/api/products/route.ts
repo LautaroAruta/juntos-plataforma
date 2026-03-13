@@ -108,7 +108,7 @@ export async function POST(req: Request) {
         precio_grupal_minimo: parseFloat(precio_grupal_minimo),
         stock: parseInt(stock),
         categoria,
-        proveedor_id: providerId,
+        provider_id: providerId,
         imagenes: uploadedUrls,
         imagen_principal: uploadedUrls.length > 0 ? uploadedUrls[0] : null,
         activo: true
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
 
     if (dbError) {
       console.error("Database insert error:", dbError);
-      return NextResponse.json({ message: "Error guardando el producto" }, { status: 500 });
+      return NextResponse.json({ message: "Error en base de datos al guardar: " + dbError.message }, { status: 500 });
     }
 
     return NextResponse.json({ message: "Producto creado exitosamente" }, { status: 201 });

@@ -49,7 +49,7 @@ export default function ProviderDashboard() {
           estado
         )
       `)
-      .eq('proveedor_id', providerId)
+      .eq('provider_id', providerId)
       .order('creado_en', { ascending: false });
 
     if (!error) setProducts(data || []);
