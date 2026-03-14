@@ -1,0 +1,16 @@
+{
+  "name": "JUNTOS | Compras Grupales",
+  "short_name": "JUNTOS",
+  "description": "Ahorramos juntos, compramos mejor. La revolución del ahorro grupal.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F5F5",
+  "theme_color": "#00AEEF",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

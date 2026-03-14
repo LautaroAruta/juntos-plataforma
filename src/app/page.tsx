@@ -17,6 +17,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import CountdownTimer from "@/components/shared/CountdownTimer";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -183,7 +184,7 @@ export default async function Home() {
                     <div>
                       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
                         <span>{deal.participantes_actuales} de {deal.min_participantes} unidos</span>
-                        <span className="text-red-500 flex items-center gap-1"><Timer size={12} /> 2h 30min</span>
+                        <CountdownTimer targetDate={deal.fecha_vencimiento} showIcon={true} className="bg-transparent px-0 py-0" />
                       </div>
                       <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                         <div 

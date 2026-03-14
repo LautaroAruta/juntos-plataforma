@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Users, Timer, Info, Star, Share2, ShieldCheck, Truck, ChevronRight, Award } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import JoinDealButton from "@/components/group-deals/JoinDealButton";
+import CountdownTimer from "@/components/shared/CountdownTimer";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth"; 
 
@@ -143,10 +144,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
-                    <div className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-0.5">Termina en</div>
-                    <div className="flex items-center gap-1 text-red-500 font-black text-sm bg-red-50 px-2 py-1 rounded-lg">
-                      <Timer size={14} /> 23h 59m
-                    </div>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Termina en</div>
+                    <CountdownTimer targetDate={activeDeal.fecha_vencimiento} showIcon={true} />
                   </div>
                 </div>
                 
@@ -179,6 +178,18 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                    </div>
                  )}
               </div>
+              
+              {activeDeal && (
+                 <a 
+                   href={`https://wa.me/?text=${encodeURIComponent(`¡Mirá esta oferta en JUNTOS! 🐧 ${product.nombre} a solo $${price.toLocaleString()}. Si nos unimos, ahorramos todos. Sumate acá: ${process.env.NEXTAUTH_URL || 'https://juntos.com.ar'}/productos/${id}`)}`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="w-full py-4 bg-[#25D366] hover:bg-[#128C7E] text-white font-black rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-sm shadow-xl shadow-[#25D366]/20"
+                 >
+                   Compartir por WhatsApp
+                 </a>
+              )}
+
               <p className="text-[10px] font-bold text-center text-gray-400 uppercase tracking-widest">
                 No se cobrará nada si el grupo no se completa.
               </p>

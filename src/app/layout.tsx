@@ -11,10 +11,34 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "JUNTOS | Compras Grupales",
   description: "Plataforma de comercio grupal. Únete a un grupo y obtén los mejores descuentos directamente de fábrica.",
+  openGraph: {
+    title: "JUNTOS | Compras Grupales",
+    description: "Ahorramos juntos, compramos mejor. Unite a una oferta grupal en tu barrio.",
+    url: "https://juntos.com.ar",
+    siteName: "JUNTOS",
+    images: [
+      {
+        url: "/og-image.png", // We should ensure this exists or use a generic one
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "es_AR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JUNTOS | Compras Grupales",
+    description: "La revolución del ahorro grupal en tu barrio.",
+    images: ["/og-image.png"],
+  },
+  manifest: "/manifest.json",
+  themeColor: "#00AEEF",
 };
 
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import Header from "@/components/layout/Header";
+import PurchaseNotification from "@/components/shared/PurchaseNotification";
 
 export default function RootLayout({
   children,
@@ -31,6 +55,8 @@ export default function RootLayout({
           <main className="flex-1 w-full relative">
             {children}
           </main>
+
+          <PurchaseNotification />
 
           <footer className="bg-white border-t border-gray-200 pt-16 pb-8 px-6 mt-auto">
             <div className="max-w-7xl mx-auto">

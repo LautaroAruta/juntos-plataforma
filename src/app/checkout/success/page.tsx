@@ -15,7 +15,10 @@ function CheckoutSuccessContent() {
     async function generateQR() {
       if (paymentId) {
         try {
-          const url = await QRCode.toDataURL(`JUNTOS-ORDER-${paymentId}`);
+          // In a real production app, we would use a signed JWT or a hash from the server
+          // For now, we'll create a more secure looking payload
+          const secureToken = btoa(`JUNTOS|${paymentId}|${new Date().getTime()}`);
+          const url = await QRCode.toDataURL(secureToken);
           setQrDataUrl(url);
         } catch (err) {
           console.error(err);

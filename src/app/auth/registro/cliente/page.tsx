@@ -4,9 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Lock, Phone, MapPin, ChevronLeft, Loader2, CheckCircle2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function RegisterCliente() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get("ref");
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -63,7 +67,8 @@ export default function RegisterCliente() {
           apellido,
           telefono: formData.telefono,
           direccion: formData.direccion,
-          rol: "cliente"
+          rol: "cliente",
+          referralCode: referralCode
         }),
       });
 
