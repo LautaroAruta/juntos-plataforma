@@ -1,7 +1,34 @@
 "use client";
 
 import Link from "next/link";
+<<<<<<< HEAD
 import { CheckCircle2, Package, ArrowRight, ArrowLeft } from "lucide-react";
+=======
+import { CheckCircle2, QrCode, ArrowRight, Home, ShoppingBag, Download, Loader2 } from "lucide-react";
+import QRCode from 'qrcode';
+
+function CheckoutSuccessContent() {
+  const searchParams = useSearchParams();
+  const paymentId = searchParams.get('payment_id');
+  const [qrDataUrl, setQrDataUrl] = useState("");
+
+  useEffect(() => {
+    async function generateQR() {
+      if (paymentId) {
+        try {
+          // In a real production app, we would use a signed JWT or a hash from the server
+          // For now, we'll create a more secure looking payload
+          const secureToken = btoa(`JUNTOS|${paymentId}|${new Date().getTime()}`);
+          const url = await QRCode.toDataURL(secureToken);
+          setQrDataUrl(url);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+    generateQR();
+  }, [paymentId]);
+>>>>>>> origin/main
 
 export default function CheckoutSuccessPage() {
   return (

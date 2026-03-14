@@ -67,30 +67,116 @@ export default function QRScanner() {
     };
   }, [scanning]);
 
+  const playSuccessSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note
+      oscillator.frequency.exponentialRampToValueAtTime(1320, audioContext.currentTime + 0.1); // E6 note
+
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.3);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (e) {
+      console.error("Audio error:", e);
+    }
+  };
+
+  const triggerHaptic = () => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate([100, 50, 100]);
+    }
+  };
+
   const handleScan = async (data: string) => {
     setScanning(false);
     setLoading(true);
     
+<<<<<<< HEAD
     // Format expected: BANDHA-ORDER-[PAYMENT_ID]
     const orderId = data.replace("BANDHA-ORDER-", "");
 
+=======
+    playSuccessSound();
+    triggerHaptic();
+    
+>>>>>>> origin/main
     try {
-      // 1. Verify and update order in Supabase
-      // In a real app, verify the JWT if signed
-      const { data: updateData, error } = await supabase
+      // Decode the premium format: JUNTOS|{paymentId}|{timestamp}
+      // Or fallback to the old format for compatibility if needed
+      let paymentId = data;
+      if (data.includes("|")) {
+          const decoded = atob(data);
+          const parts = decoded.split("|");
+          if (parts[0] === "JUNTOS") {
+            paymentId = parts[1];
+          }
+      } else {
+        paymentId = data.replace("JUNTOS-ORDER-", "");
+      }
+
+      // 1. Fetch order details with product info
+      const { data: orderData, error: fetchError } = await supabase
         .from('orders')
-        .update({ estado: 'entregado', qr_escaneado: true, qr_escaneado_en: new Date().toISOString() })
-        // .eq('qr_code', data) // We'd ideally match specific QR content
-        .select()
+        .select(`
+          *,
+          users (nombre, apellido),
+          group_deals (
+            precio_actual,
+            products (nombre, imagen_principal)
+          )
+        `)
+        .eq('id', paymentId)
         .single();
 
-      if (error) {
-          setResult({ success: false, message: "Pedido no encontrado o ya entregado." });
-      } else {
-          setResult({ success: true, message: "¡Pedido entregado con éxito!", order: updateData });
+      if (fetchError || !orderData) {
+        setResult({ success: false, message: "Pedido no encontrado." });
+        return;
       }
+
+      if (orderData.estado === 'entregado') {
+        setResult({ success: false, message: "Este pedido ya fue entregado.", order: orderData });
+        return;
+      }
+
+      // 2. Update order in Supabase
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ 
+          estado: 'entregado', 
+          qr_escaneado: true, 
+          qr_escaneado_en: new Date().toISOString() 
+        })
+        .eq('id', paymentId);
+
+      if (updateError) {
+        setResult({ success: false, message: "Error al registrar la entrega." });
+        return;
+      }
+
+      // 3. Process Gamification Rewards (Atomic User + Neighborhood updates)
+      await supabase.rpc('process_delivery_rewards', { 
+        target_user_id: orderData.user_id,
+        saved_amount: 1500, // Estimated saving
+        zone: 'Caballito/Almagro'
+      });
+
+      setResult({ 
+          success: true, 
+          message: "¡Entrega Exitosa!", 
+          order: orderData 
+      });
     } catch (err) {
-      setResult({ success: false, message: "Error al procesar el código." });
+      setResult({ success: false, message: "Formato de código inválido." });
     } finally {
       setLoading(false);
     }
@@ -132,16 +218,34 @@ export default function QRScanner() {
               <Loader2 className="animate-spin text-[#009EE3]" size={64} />
             ) : result?.success ? (
               <>
-                <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-green-500/20">
+                <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-green-500/20 relative">
                   <CheckCircle2 size={56} />
+                  <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-20"></div>
                 </div>
-                <h2 className="text-2xl font-black mb-2 tracking-tight">{result.message}</h2>
-                <p className="text-slate-400 text-sm mb-8 font-medium">El stock ha sido actualizado automáticamente.</p>
+                
+                <h2 className="text-2xl font-black mb-1 tracking-tight">{result.message}</h2>
+                <p className="text-slate-400 text-xs mb-6 font-bold uppercase tracking-widest">Validado por JUNTOS</p>
+                
+                {result.order && (
+                  <div className="w-full bg-white/10 backdrop-blur-md rounded-3xl p-4 mb-8 flex items-center gap-4 text-left border border-white/10">
+                    <img 
+                      src={result.order.group_deals?.products?.imagen_principal || "/placeholder-product.jpg"} 
+                      alt="Producto"
+                      className="w-16 h-16 rounded-2xl object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-black text-[#00AEEF] uppercase tracking-widest mb-0.5">Producto Entregado</p>
+                      <h4 className="font-bold text-sm line-clamp-1">{result.order.group_deals?.products?.nombre}</h4>
+                      <p className="text-sm font-black text-white mt-0.5">${result.order.group_deals?.precio_actual?.toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+
                 <button 
                   onClick={resetScanner}
                   className="w-full bg-white text-slate-900 font-bold py-4 rounded-2xl hover:bg-slate-100 transition-all font-black text-sm uppercase tracking-widest"
                 >
-                  Continuar Escaneando
+                  Siguiente Cliente
                 </button>
               </>
             ) : (

@@ -19,6 +19,8 @@ export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [providers, setProviders] = useState<any[]>([]);
+  const [stats, setStats] = useState({ gmv: 0, savings: 0, users: 0 });
+  const [activity, setActivity] = useState<any[]>([]);
   const [commission, setCommission] = useState(0.5);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -33,8 +35,33 @@ export default function AdminDashboard() {
     }
 
     async function fetchData() {
-      const { data } = await supabase.from('providers').select('*').order('creado_en', { ascending: false });
-      setProviders(data || []);
+      // 1. Fetch Providers
+      const { data: pData } = await supabase.from('providers').select('*').order('creado_en', { ascending: false });
+      setProviders(pData || []);
+      
+      // 2. Fetch Stats
+      const { data: pments } = await supabase.from('payments').select('monto_total').eq('estado', 'approved');
+      const gmv = pments?.reduce((acc, p) => acc + Number(p.monto_total), 0) || 0;
+      
+      const { data: uData } = await supabase.from('users').select('total_saved');
+      const savings = uData?.reduce((acc, u) => acc + Number(u.total_saved), 0) || 0;
+      const userCount = uData?.length || 0;
+      
+      setStats({ gmv, savings, users: userCount });
+
+      // 3. Fetch Activity (Latest 5 payments with user names)
+      const { data: actData } = await supabase
+        .from('payments')
+        .select(`
+          creado_en,
+          monto_total,
+          orders (
+            users (nombre, apellido)
+          )
+        `)
+        .order('creado_en', { ascending: false })
+        .limit(5);
+      setActivity(actData || []);
       
       const { data: config } = await supabase.from('commission_config').select('porcentaje').eq('activo', true).single();
       if (config) setCommission(config.porcentaje);
@@ -64,14 +91,29 @@ export default function AdminDashboard() {
         </div>
         <div className="flex gap-4">
           <div className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+             <div className="flex flex-col">
+               <span className="text-[10px] font-black uppercase text-slate-400 text-center">Usuarios</span>
+               <span className="text-lg font-black text-slate-800 text-center">{stats.users}</span>
+             </div>
+          </div>
+          <div className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+             <div className="flex flex-col">
+               <span className="text-[10px] font-black uppercase text-slate-400 text-center">GMV Total</span>
+               <span className="text-lg font-black text-slate-800 text-center">${stats.gmv.toLocaleString()}</span>
+             </div>
+          </div>
+          <div className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+             <div className="flex flex-col">
+               <span className="text-[10px] font-black uppercase text-slate-400 text-center">Ahorro Social</span>
+               <span className="text-lg font-black text-slate-800 text-center">${stats.savings.toLocaleString()}</span>
+             </div>
+          </div>
+          <div className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
             <TrendingUp className="text-green-500" size={20} />
             <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase text-slate-400">Comisión Base</span>
+              <span className="text-[10px] font-black uppercase text-slate-400">Comisión</span>
               <span className="text-lg font-black text-slate-800">{commission}%</span>
             </div>
-            <button className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 transition-colors">
-              <Settings size={16} />
-            </button>
           </div>
         </div>
       </div>
@@ -125,22 +167,23 @@ export default function AdminDashboard() {
                </h2>
              </div>
              <div className="p-6 space-y-6">
-                {[
-                  { text: 'Nuevo producto cargado: Auriculares Pro', time: 'hace 5 min', icon: '📦' },
-                  { text: 'Pago recibido: Order #4829', time: 'hace 12 min', icon: '💰' },
-                  { text: 'Nuevo usuario registrado: aruta39@gmail.com', time: 'hace 1 h', icon: '👤' },
-                ].map((log, i) => (
+                {activity.map((log, i) => (
                   <div key={i} className="flex gap-4 items-start pb-4 border-b border-slate-50 last:border-0 last:pb-0">
-                    <span className="text-xl">{log.icon}</span>
+                    <span className="text-xl">💰</span>
                     <div className="flex-1">
-                       <p className="text-sm font-bold text-slate-700">{log.text}</p>
+                       <p className="text-sm font-bold text-slate-700">
+                         Pago de ${log.monto_total.toLocaleString()} de {log.orders?.users?.nombre} {log.orders?.users?.apellido}
+                       </p>
                        <span className="text-[10px] font-black uppercase text-slate-300 flex items-center gap-1 mt-1">
-                         <Clock size={10} /> {log.time}
+                         <Clock size={10} /> {new Date(log.creado_en).toLocaleTimeString()}
                        </span>
                     </div>
                     <ChevronRight size={16} className="text-slate-300" />
                   </div>
                 ))}
+                {activity.length === 0 && (
+                  <div className="py-8 text-center text-slate-400 text-sm italic">No hay actividad reciente.</div>
+                )}
              </div>
         </div>
       </div>

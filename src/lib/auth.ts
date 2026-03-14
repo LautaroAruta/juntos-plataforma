@@ -18,6 +18,7 @@ declare module "next-auth" {
       image?: string | null;
       rol?: string;
       perfilCompleto?: boolean;
+      referral_code?: string;
     };
   }
 }
@@ -108,6 +109,8 @@ export const authOptions: NextAuthOptions = {
         session.user.rol = token.rol as string;
         // @ts-ignore
         session.user.perfilCompleto = token.perfilCompleto as boolean;
+        // @ts-ignore
+        session.user.referral_code = token.referral_code as string;
       }
       return session;
     },
@@ -126,7 +129,7 @@ export const authOptions: NextAuthOptions = {
       if (token.email) {
         const { data: dbUser } = await supabase
           .from("users")
-          .select("id, rol, telefono")
+          .select("id, rol, telefono, referral_code")
           .eq("email", token.email)
           .single();
         
@@ -134,6 +137,8 @@ export const authOptions: NextAuthOptions = {
           token.id = dbUser.id;
           token.rol = dbUser.rol || null; // Null means they need to pick a role
           token.perfilCompleto = !!dbUser.telefono;
+          // @ts-ignore
+          token.referral_code = dbUser.referral_code;
         } else {
           // If user exists in auth but not in public.users (Edge case)
           token.rol = null;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
   Package, 
   Plus, 
@@ -9,9 +10,17 @@ import {
   Users, 
   CheckCircle2, 
   AlertCircle,
+<<<<<<< HEAD
   Search,
   Trash2,
   Edit2
+=======
+  MoreVertical,
+  ExternalLink,
+  Search,
+  Edit,
+  Trash2
+>>>>>>> origin/main
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -20,29 +29,13 @@ export default function ProviderDashboard() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
-    async function fetchProducts() {
-      // In a real app, filter by actual provider_id from session
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          group_deals (
-            id,
-            participantes_actuales,
-            min_participantes,
-            estado
-          )
-        `)
-        .order('creado_en', { ascending: false });
-
-      if (!error) setProducts(data || []);
-      setLoading(false);
-    }
     fetchProducts();
   }, []);
 
+<<<<<<< HEAD
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`¿Estás seguro que querés eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
 
@@ -54,6 +47,49 @@ export default function ProviderDashboard() {
       toast.success("Producto eliminado");
     } catch (err) {
       toast.error("No se pudo eliminar el producto");
+=======
+  async function fetchProducts() {
+    setLoading(true);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const providerId = sessionData.session?.user.id;
+
+    if (!providerId) {
+       setLoading(false);
+       return;
+    }
+
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        group_deals (
+          id,
+          participantes_actuales,
+          min_participantes,
+          estado
+        )
+      `)
+      .eq('provider_id', providerId)
+      .order('creado_en', { ascending: false });
+
+    if (!error) setProducts(data || []);
+    setLoading(false);
+  }
+
+  const handleDelete = async (productId: string) => {
+    if (confirm("¿Estás seguro de que querés eliminar este producto?")) {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+        
+      if (error) {
+        console.error("Error al eliminar:", error);
+        alert("No se pudo eliminar el producto. Es posible que tenga compras asociadas.");
+      } else {
+        setProducts(products.filter(p => p.id !== productId));
+      }
+>>>>>>> origin/main
     }
   };
 
@@ -104,7 +140,7 @@ export default function ProviderDashboard() {
                 <th className="px-6 py-4">Stock</th>
                 <th className="px-6 py-4">Oferta Grupal</th>
                 <th className="px-6 py-4">Estado</th>
-                <th className="px-6 py-4"></th>
+                <th className="px-6 py-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -132,7 +168,7 @@ export default function ProviderDashboard() {
                         )}
                       </div>
                       <div>
-                        <div className="font-bold text-slate-800 text-sm">{product.nombre}</div>
+                        <div className="font-bold text-slate-800 text-sm leading-tight mb-1">{product.nombre}</div>
                         <div className="text-slate-400 text-xs truncate max-w-[150px]">{product.categoria}</div>
                       </div>
                     </div>
@@ -173,6 +209,7 @@ export default function ProviderDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
+<<<<<<< HEAD
                     <div className="flex items-center justify-end gap-2">
                       <Link 
                         href={`/provider/dashboard/edit/${product.id}`}
@@ -185,6 +222,20 @@ export default function ProviderDashboard() {
                         onClick={() => handleDelete(product.id, product.nombre)}
                         className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-slate-100 transition-colors"
                         title="Eliminar"
+=======
+                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => router.push(`/provider/dashboard/edit-product/${product.id}`)}
+                        className="text-slate-400 hover:text-[#0077CC] p-2 rounded-lg hover:bg-[#0077CC]/10 transition-colors"
+                        title="Editar Producto"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(product.id)}
+                        className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                        title="Eliminar Producto"
+>>>>>>> origin/main
                       >
                         <Trash2 size={18} />
                       </button>

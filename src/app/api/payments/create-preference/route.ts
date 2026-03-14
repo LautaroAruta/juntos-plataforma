@@ -6,13 +6,10 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN!
 
 export async function POST(req: Request) {
   try {
-    const { dealId } = await req.json();
+    const { dealId, pickupPointId, useRewards, rewardsAmount } = await req.json();
     const supabase = await createClient();
     
-    // 1. Get user session
-    // (Actual auth check would go here)
-    
-    // 2. Fetch deal and product info
+    // 1. Fetch deal and product info
     const { data: deal, error } = await supabase
       .from('group_deals')
       .select(`
@@ -24,7 +21,7 @@ export async function POST(req: Request) {
 
     if (error || !deal) throw new Error("Deal no encontrado");
 
-    // 3. Get platform commission
+    // 2. Get platform commission
     const { data: config } = await supabase
       .from('commission_config')
       .select('porcentaje')
@@ -32,10 +29,10 @@ export async function POST(req: Request) {
       .single();
       
     const commissionPercent = config?.porcentaje || 0.50; // Default 0.5%
-    const totalAmount = deal.precio_actual;
+    const totalAmount = deal.precio_actual - (useRewards ? Number(rewardsAmount) : 0);
     const marketplaceFee = totalAmount * (commissionPercent / 100);
 
-    // 4. Create MP Preference with split payment (Marketplace fee)
+    // 3. Create MP Preference
     const preference = new Preference(client);
     const result = await preference.create({
       body: {
@@ -57,10 +54,11 @@ export async function POST(req: Request) {
         auto_return: 'approved',
         notification_url: `${process.env.NEXTAUTH_URL}/api/webhooks/mercadopago`,
         external_reference: deal.id,
-        // In MP Marketplace, the payment goes to the collector (provider)
-        // We need to use the collector_id from the provider's connected account
-        // but for initial integration we use the platform's credentials.
-        // marketplace_fee only works if the app is configured as a Marketplace.
+        metadata: {
+          pickup_point_id: pickupPointId,
+          deal_id: deal.id,
+          rewards_amount: useRewards ? rewardsAmount : 0
+        }
       }
     });
 

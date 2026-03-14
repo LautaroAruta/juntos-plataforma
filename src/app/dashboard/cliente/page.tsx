@@ -5,6 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ShoppingBag, Users, Clock, Package, ChevronRight, Settings } from "lucide-react";
 import Link from "next/link";
+import ReferralWidget from "@/components/shared/ReferralWidget";
+import StreakWidget from "@/components/shared/StreakWidget";
+import ImpactStats from "@/components/shared/ImpactStats";
 
 export default async function ClienteDashboard() {
   const session = await getServerSession(authOptions);
@@ -25,16 +28,42 @@ export default async function ClienteDashboard() {
 
   const supabase = await createClient();
 
-  // Fetch user's participations (mocked data for now to ensure professional look)
-  // In a real app we would query 'participants' or similar table
+  // Fetch user's participations
   const orders = [
     { id: "1", product: "Auriculares Galaxy Buds FE", status: "activo", participants: 4, min: 10, price: 59000, date: "Hoy" },
     { id: "2", product: "Zapatillas Urban Pro", status: "completado", participants: 15, min: 15, price: 42000, date: "Ayer" }
   ];
 
+  // Fetch Referral Stats
+  const { data: referralData } = await supabase
+    .from('referrals')
+    .select('status, reward_amount')
+    .eq('referrer_id', session.user.id);
+
+  // Fetch User Stats (Streak & Total Saved)
+  const { data: userData } = await supabase
+    .from('users')
+    .select('savings_streak, total_saved')
+    .eq('id', session.user.id)
+    .single();
+
+  // Fetch Neighborhood Impact (Default zone for now)
+  const { data: impactData } = await supabase
+    .from('neighborhood_impact')
+    .select('*')
+    .eq('zone_name', 'Caballito/Almagro')
+    .single();
+
+  const referralStats = {
+    totalReferrals: referralData?.length || 0,
+    pendingReferrals: referralData?.filter(r => r.status === 'pending').length || 0,
+    totalEarned: referralData?.filter(r => r.status === 'completed' || r.status === 'paid')
+      .reduce((acc, curr) => acc + (Number(curr.reward_amount) || 0), 0) || 0
+  };
+
   return (
     <div className="min-h-screen bg-[#F5F5F5] pb-24">
-      {/* User Header */}
+      {/* ... header ... */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
@@ -115,6 +144,7 @@ export default async function ClienteDashboard() {
                </div>
             </div>
 
+<<<<<<< HEAD
             <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
                <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
                  <Users size={16} className="text-[#009EE3]" /> Invitá Amigos
@@ -126,6 +156,23 @@ export default async function ClienteDashboard() {
                  Obtener mi link
                </button>
             </div>
+=======
+            {/* Widget de Racha */}
+            <StreakWidget streak={userData?.savings_streak || 0} />
+
+            {/* Componente de Referidos */}
+            <ReferralWidget 
+              referralCode={session.user.referral_code || ''} 
+              referralStats={referralStats}
+            />
+
+            {/* Impacto Barrial */}
+            <ImpactStats 
+                zone={impactData?.zone_name || 'Tu Barrio'}
+                totalSaved={impactData?.total_collective_savings || 0}
+                activeUsers={impactData?.active_users_count || 0}
+            />
+>>>>>>> origin/main
           </div>
         </div>
       </div>
