@@ -129,13 +129,8 @@ export default function NewProduct() {
         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver al Panel
       </Link>
 
-<<<<<<< HEAD
       <div className="flex items-center gap-4 mb-10">
-        <div className="w-16 h-16 rounded-3xl bg-[#FFF8E7] text-[#009EE3] flex items-center justify-center shadow-inner">
-=======
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-16 h-16 rounded-3xl bg-[#E8F7FF] text-[#00AEEF] flex items-center justify-center shadow-inner">
->>>>>>> origin/main
+        <div className="w-16 h-16 rounded-3xl bg-[#E8F7FF] text-[#009EE3] flex items-center justify-center shadow-inner">
           <Package size={32} />
         </div>
         <div>

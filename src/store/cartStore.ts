@@ -2,21 +2,22 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface CartItem {
-  id: string; // Puede ser product_id o deal_id dependiendo de si es oferta o no
+  id: string; // ID original del producto o deal
+  uniqueId: string; // ID compuesto (id + variante) para diferenciar en el carrito
   name: string;
   price: number;
   quantity: number;
   image?: string;
-  imageUrl?: string;
   stock: number;
-  isGroupDeal?: boolean; // Para saber estadísticamente si viene de compra grupal
+  isGroupDeal?: boolean;
+  variant?: string; // Ejemplo: "Rojo - Talle M"
 }
 
 interface CartState {
   items: CartItem[];
-  addItem: (item: CartItem) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  addItem: (item: Omit<CartItem, 'uniqueId'>) => void;
+  removeItem: (uniqueId: string) => void;
+  updateQuantity: (uniqueId: string, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -29,32 +30,53 @@ export const useCartStore = create<CartState>()(
 
       addItem: (newItem) => {
         set((state) => {
+          // Creamos el ID único basado en el ID base y su variante si existe
+          const cartUniqueId = newItem.variant
+            ? `${newItem.id}-${newItem.variant}`
+            : newItem.id;
+
           const existingItemIndex = state.items.findIndex(
-            (item) => item.id === newItem.id
+            (item) => item.uniqueId === cartUniqueId
           );
 
           if (existingItemIndex > -1) {
-            // El item ya existe, actualizamos la cantidad
             const updatedItems = [...state.items];
-            updatedItems[existingItemIndex].quantity += newItem.quantity;
+            const current = updatedItems[existingItemIndex];
+            const newQty = current.quantity + newItem.quantity;
+
+            updatedItems[existingItemIndex] = {
+              ...current,
+              quantity: Math.min(newQty, current.stock),
+            };
+
             return { items: updatedItems };
           }
 
           // Es un item nuevo
-          return { items: [...state.items, newItem] };
+          const itemToInsert: CartItem = {
+            ...newItem,
+            uniqueId: cartUniqueId,
+            quantity: Math.min(newItem.quantity, newItem.stock),
+          };
+
+          return {
+            items: [...state.items, itemToInsert],
+          };
         });
       },
 
-      removeItem: (id) => {
+      removeItem: (uniqueId) => {
         set((state) => ({
-          items: state.items.filter((item) => item.id !== id),
+          items: state.items.filter((item) => item.uniqueId !== uniqueId),
         }));
       },
 
-      updateQuantity: (id, quantity) => {
+      updateQuantity: (uniqueId, quantity) => {
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
+            item.uniqueId === uniqueId
+              ? { ...item, quantity: Math.min(Math.max(1, quantity), item.stock) }
+              : item
           ),
         }));
       },
@@ -75,8 +97,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: 'bandha-cart-storage', // nombre de la clave en localStorage
-      // getStorage: () => localStorage, (por defecto usa localStorage en web)
+      name: 'bandha-cart-storage',
     }
   )
 );

@@ -60,14 +60,31 @@ export default function CheckoutPage() {
   const onSubmit = async (values: CheckoutFormValues) => {
     setIsProcessing(true);
     
-    // Simulate API call to backend to generate MercadoPago Preference ID
     try {
+      // ✅ ESTRUCTURA DE SEGURIDAD (Enterprise-level):
+      // Nunca envíes el precio desde el cliente. Un usuario malintencionado podría 
+      // interceptar la petición y enviar `price: 1`. 
+      // Aquí mapeamos estrictamente lo que necesita el backend para buscar el precio real.
+      const securePayload = items.map(item => ({
+        id: item.id,
+        variant: item.variant,
+        quantity: item.quantity
+      }));
+      
+      // Llamada real (Comentada para pruebas locales):
+      /*
+      const response = await fetch('/api/payments/create-preference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: securePayload, shippingData: values })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error("Error en el pago");
+      window.location.href = data.init_point; // Redirige a Mercado Pago
+      */
+
+      // Simulación de carga (Mock):
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      // In a real app, we'd redirect to the MercadoPago URL returned by our backend
-      // `window.location.href = data.init_point;`
-      
-      // For this mock, we'll simulate a successful payment and clear the cart
       clearCart();
       router.push("/checkout/success");
       
@@ -242,12 +259,21 @@ export default function CheckoutPage() {
               <ScrollArea className="h-[250px] pr-4 mb-4">
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex gap-3">
+                    <div key={item.uniqueId} className="flex gap-3">
                       <div className="relative w-16 h-16 rounded border bg-gray-50 flex-shrink-0 overflow-hidden">
-                        <Image src={item.image || "/images/placeholder.jpg"} alt={item.name} fill className="object-cover" />
+                        <Image 
+                           src={item.image || "/placeholder.svg"} 
+                           alt={item.name} 
+                           fill 
+                           className="object-cover" 
+                           onError={(e) => { e.currentTarget.src = "/placeholder.svg" }}
+                        />
                       </div>
                       <div className="flex-1 flex flex-col justify-between py-1">
-                        <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-tight">{item.name}</p>
+                        <div>
+                           <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-tight">{item.name}</p>
+                           {item.variant && <p className="text-[10px] text-gray-400 mt-0.5">{item.variant}</p>}
+                        </div>
                         <div className="flex justify-between items-center mt-1">
                           <span className="text-xs text-gray-500">Cant: {item.quantity}</span>
                           <span className="text-sm font-bold text-[#009EE3]">{formatCurrency(item.price * item.quantity)}</span>
