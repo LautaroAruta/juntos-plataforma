@@ -1,0 +1,14 @@
+# Reglas del Proyecto BANDHA (LautaroAruta/juntos-plataforma)
+
+## Control de Versiones (Git)
+- **Regla Crítica:** NO subir cambios al repositorio (git push/commit) de forma automática.
+- Siempre pedir confirmación explícita al usuario antes de realizar cualquier operación de `git commit` o `git push`.
+
+## Marca y Naming
+- Usar siempre **BANDHA** en lugar de "JUNTOS" para cualquier comunicación externa o UI.
+- Los dominios de correo en notificaciones deben ser `@bandha.com.ar`.
+
+## Tecnología
+- Framework: Next.js 15 (App Router).
+- Estilos: Tailwind CSS v4.
+- Base de datos: Supabase.

@@ -28,11 +28,45 @@ export default async function ClienteDashboard() {
 
   const supabase = await createClient();
 
-  // Fetch user's participations
-  const orders = [
-    { id: "1", product: "Auriculares Galaxy Buds FE", status: "activo", participants: 4, min: 10, price: 59000, date: "Hoy" },
-    { id: "2", product: "Zapatillas Urban Pro", status: "completado", participants: 15, min: 15, price: 42000, date: "Ayer" }
-  ];
+  // Fetch real orders with deal and product details
+  const { data: realOrders } = await supabase
+    .from('orders')
+    .select(`
+      id,
+      total,
+      estado,
+      creado_en,
+      group_deal:group_deals (
+        id,
+        participantes_actuales,
+        min_participantes,
+        estado,
+        product:products (
+          nombre,
+          imagen_principal
+        )
+      )
+    `)
+    .eq('user_id', session.user.id)
+    .order('creado_en', { ascending: false });
+
+  // Map database results to the format expected by the UI
+  const orders = (realOrders || []).map(order => {
+    // Supabase returns related objects as objects OR arrays depending on complexity
+    const deal = (Array.isArray(order.group_deal) ? order.group_deal[0] : order.group_deal) as any;
+    const product = (deal && Array.isArray(deal.product) ? deal.product[0] : deal?.product) as any;
+
+    return {
+      id: order.id,
+      product: product?.nombre || "Producto desconocido",
+      status: deal?.estado || "desconocido",
+      participants: deal?.participantes_actuales || 0,
+      min: deal?.min_participantes || 1,
+      price: Number(order.total),
+      date: new Date(order.creado_en).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }),
+      image: product?.imagen_principal
+    };
+  });
 
   // Fetch Referral Stats
   const { data: referralData } = await supabase
