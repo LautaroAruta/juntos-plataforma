@@ -26,5 +26,5 @@ Debemos mantenerlo actualizado y tachar (`[x]`) los hitos a medida que se comple
 ## 🚀 Fase 4: Notificaciones y Entrega
 - [ ] Creación de Código QR para validar entregas.
 - [ ] Escaneo de código QR y cambio de estado del producto a "Entregado".
-- [ ] Emails transaccionales con Resend (Confirmación de compra, oferta completada, retiro listo).
-- [ ] Cierre automático o reembolso si no se llega al objetivo de la oferta grupal.
+- [x] Emails transaccionales con Resend (Confirmación de compra, oferta completada, retiro listo).
+- [x] Cierre automático o reembolso si no se llega al objetivo de la oferta grupal.
