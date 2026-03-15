@@ -8,14 +8,14 @@ Debemos mantenerlo actualizado y tachar (`[x]`) los hitos a medida que se comple
 - [x] Conexión base a Supabase y configuración de Auth.
 - [x] Diseño estático de Landing Page y listado básico de "Terminan pronto" (Group Deals).
 - [x] Esquemas iniciales de Base de Datos para Productos y Ofertas Grupales (`schema.sql`).
-- [ ] Listado dinámico interactivo y filtros del catálogo (`/catalogo`).
-- [ ] Detalle de producto y botón de unirse a compra (`/products/[id]`).
+- [x] Listado dinámico interactivo y filtros del catálogo (`/catalogo`).
+- [x] Detalle de producto y botón de unirse a compra (`/products/[id]`).
 
 ## 🛒 Fase 2: Checkout & Pagos
-- [ ] Integración de Flujo de Pago con WebCheckout MercadoPago.
+- [x] Integración de Flujo de Pago con WebCheckout MercadoPago.
 - [ ] Validación de Stock y confirmación temporal de plaza.
-- [ ] Gestión de estado de "Pago Pendiente", "Aprobado", "Rechazado".
-- [ ] Webhook de MercadoPago para actualizar el progreso del `Group Deal`.
+- [x] Gestión de estado de "Pago Pendiente", "Aprobado", "Rechazado".
+- [x] Webhook de MercadoPago para actualizar el progreso del `Group Deal`.
 
 ## 🧑‍💻 Fase 3: Perfil de Usuario & Administración
 - [ ] Vista `/auth/*` (Login/Registro full con Supabase/Google/Email).

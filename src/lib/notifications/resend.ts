@@ -24,7 +24,7 @@ export async function sendDealUpdateEmail(to: string, dealName: string, status: 
   const isSuccess = status === 'finalizado';
   try {
     await resend.emails.send({
-      from: 'JUNTOS <comunidad@juntos.com.ar>',
+      from: 'BANDHA <comunidad@bandha.com.ar>',
       to: [to],
       subject: isSuccess ? `¡Buenas noticias! Se completó el grupo de ${dealName}` : `La oferta de ${dealName} ha sido cancelada`,
       html: `
@@ -44,9 +44,9 @@ export async function sendDealUpdateEmail(to: string, dealName: string, status: 
 export async function sendRewardEmail(to: string, amount: number) {
   try {
     await resend.emails.send({
-      from: 'JUNTOS <premios@juntos.com.ar>',
+      from: 'BANDHA <premios@bandha.com.ar>',
       to: [to],
-      subject: '¡Ganaste una recompensa en JUNTOS!',
+      subject: '¡Ganaste una recompensa en BANDHA!',
       html: `
         <h1 style="color: #F59E0B; font-family: sans-serif;">🎉 ¡Nuevos créditos disponibles!</h1>
         <p>Tu amigo ya realizó su primera compra y ganaste <strong>$${amount}</strong>.</p>

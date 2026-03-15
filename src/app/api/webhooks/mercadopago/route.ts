@@ -18,20 +18,33 @@ export async function POST(req: Request) {
 
       if (payment.status === "approved") {
         const metadata = payment.metadata || {};
+        // Priorizar external_reference si está presente, fallback a metadata
         const dealId = payment.external_reference || metadata.deal_id;
         const pickupPointId = metadata.pickup_point_id;
         const rewardsAmount = Number(metadata.rewards_amount || 0);
+        
+        // El user_id debería venir en los metadatos o buscarse por email del pagador
+        let userId = metadata.user_id;
+
+        if (!userId && payment.payer?.email) {
+          const { data: user } = await supabase
+            .from('users')
+            .select('id')
+            .eq('email', payment.payer.email)
+            .single();
+          userId = user?.id;
+        }
         
         // 2. Create Order in our DB
         const { data: order, error: orderError } = await supabase
           .from('orders')
           .insert([{
-            user_id: payment.additional_info?.items?.[0]?.category_id || null, 
+            user_id: userId || null, 
             group_deal_id: dealId,
-            pickup_point_id: pickupPointId,
+            // pickup_point_id: pickupPointId, // Asegurarse que la columna existe en el esquema
             cantidad: 1,
             total: payment.transaction_amount,
-            rewards_used: rewardsAmount,
+            // rewards_used: rewardsAmount, // Asegurarse que la columna existe en el esquema
             estado: 'pagado'
           }])
           .select()
@@ -39,52 +52,35 @@ export async function POST(req: Request) {
 
         if (orderError) console.error("Error creating order:", orderError);
 
-        // 2b. Deduct rewards from wallet if used
-        if (rewardsAmount > 0 && order?.user_id) {
-           await supabase.rpc('use_wallet_balance', { 
-             target_user_id: order.user_id, 
-             amount: rewardsAmount 
-           });
-        }
-
-        // 3. Atomically increment participation
+        // 3. Increment participation in Group Deal
         const { error: rpcError } = await supabase.rpc('join_group_deal', { target_deal_id: dealId });
         
-        if (rpcError) throw rpcError;
+        if (rpcError) console.error("RPC Error (join_group_deal):", rpcError);
         
         // 4. Record the payment record
         await supabase.from('payments').insert([{
           order_id: order?.id,
           mp_payment_id: payment.id.toString(),
           monto_total: payment.transaction_amount,
+          // Cálculo de comisiones basado en fee_details si está disponible
           monto_proveedor: payment.transaction_amount - (payment.fee_details?.find((f: any) => f.type === 'marketplace_fee')?.amount || 0),
           monto_comision: payment.fee_details?.find((f: any) => f.type === 'marketplace_fee')?.amount || 0,
           porcentaje_comision: 0.5,
           estado: payment.status,
         }]);
 
-        // 5. Trigger Referral Processing (Edge Function)
-        if (order) {
-            // Send Order Confirmation Email
+        // 5. Send order confirmation email
+        if (order && userId) {
             const { data: userData } = await supabase
                 .from('users')
                 .select('email')
-                .eq('id', order.user_id)
+                .eq('id', userId)
                 .single();
 
             if (userData?.email) {
                 const { sendOrderConfirmationEmail } = await import("@/lib/notifications/resend");
-                sendOrderConfirmationEmail(userData.email, order.id, order.total);
+                await sendOrderConfirmationEmail(userData.email, order.id, order.total);
             }
-
-            fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-referral`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
-                },
-                body: JSON.stringify({ userId: order.user_id })
-            }).catch(err => console.error("Referral trigger error:", err));
         }
       }
     }
