@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-<<<<<<< HEAD
-import { CheckCircle2, Package, ArrowRight, ArrowLeft } from "lucide-react";
-=======
-import { CheckCircle2, QrCode, ArrowRight, Home, ShoppingBag, Download, Loader2 } from "lucide-react";
+import { CheckCircle2, Package, QrCode, ArrowRight, ArrowLeft, Home, ShoppingBag, Download, Loader2 } from "lucide-react";
 import QRCode from 'qrcode';
+import { useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
@@ -17,8 +16,7 @@ function CheckoutSuccessContent() {
       if (paymentId) {
         try {
           // In a real production app, we would use a signed JWT or a hash from the server
-          // For now, we'll create a more secure looking payload
-          const secureToken = btoa(`JUNTOS|${paymentId}|${new Date().getTime()}`);
+          const secureToken = btoa(`BANDHA|${paymentId}|${new Date().getTime()}`);
           const url = await QRCode.toDataURL(secureToken);
           setQrDataUrl(url);
         } catch (err) {
@@ -28,9 +26,7 @@ function CheckoutSuccessContent() {
     }
     generateQR();
   }, [paymentId]);
->>>>>>> origin/main
 
-export default function CheckoutSuccessPage() {
   return (
     <div className="min-h-screen bg-[#F5F7FA] flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 text-center mt-[-3rem]">
@@ -46,6 +42,20 @@ export default function CheckoutSuccessPage() {
         <p className="text-gray-600 text-base mb-8">
           Tu orden fue procesada correctamente a través de Mercado Pago. Te enviamos un comprobante y los detalles de envío a tu e-mail.
         </p>
+
+        {qrDataUrl && (
+          <div className="bg-white border-2 border-[#009EE3]/20 rounded-2xl p-6 mb-8 flex flex-col items-center gap-4 shadow-inner">
+            <h3 className="font-black text-slate-800 text-sm uppercase tracking-wider flex items-center gap-2">
+              <QrCode className="text-[#009EE3]" size={18} /> Tu Código de Retiro
+            </h3>
+            <div className="bg-white p-3 rounded-xl border-4 border-slate-50 shadow-sm">
+              <img src={qrDataUrl} alt="QR de Retiro" className="w-48 h-48" />
+            </div>
+            <p className="text-[10px] text-slate-400 font-bold uppercase text-center max-w-[200px]">
+              Presentá este código al retirar o recibir tu pedido
+            </p>
+          </div>
+        )}
         
         <div className="bg-gray-50 border rounded-lg p-6 mb-8 text-left">
           <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-2">
@@ -68,5 +78,17 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="w-10 h-10 text-[#009EE3] animate-spin" />
+      </div>
+    }>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }

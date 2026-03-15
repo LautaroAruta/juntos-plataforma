@@ -101,15 +101,10 @@ export default function QRScanner() {
     setScanning(false);
     setLoading(true);
     
-<<<<<<< HEAD
-    // Format expected: BANDHA-ORDER-[PAYMENT_ID]
-    const orderId = data.replace("BANDHA-ORDER-", "");
-
-=======
     playSuccessSound();
     triggerHaptic();
     
->>>>>>> origin/main
+    // Format expected: BANDHA|{paymentId}|{timestamp} o BANDHA-ORDER-{paymentId}
     try {
       // Decode the premium format: JUNTOS|{paymentId}|{timestamp}
       // Or fallback to the old format for compatibility if needed

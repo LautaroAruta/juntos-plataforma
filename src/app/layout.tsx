@@ -38,15 +38,11 @@ export const metadata: Metadata = {
 
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import Header from "@/components/layout/Header";
-<<<<<<< HEAD
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-=======
 import PurchaseNotification from "@/components/shared/PurchaseNotification";
->>>>>>> origin/main
+
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 export default function RootLayout({
   children,

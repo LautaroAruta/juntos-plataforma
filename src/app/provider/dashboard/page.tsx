@@ -10,17 +10,11 @@ import {
   Users, 
   CheckCircle2, 
   AlertCircle,
-<<<<<<< HEAD
   Search,
   Trash2,
-  Edit2
-=======
+  Edit2,
   MoreVertical,
   ExternalLink,
-  Search,
-  Edit,
-  Trash2
->>>>>>> origin/main
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -35,19 +29,6 @@ export default function ProviderDashboard() {
     fetchProducts();
   }, []);
 
-<<<<<<< HEAD
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Estás seguro que querés eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
-
-    try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error("Error al eliminar");
-      
-      setProducts(products.filter(p => p.id !== id));
-      toast.success("Producto eliminado");
-    } catch (err) {
-      toast.error("No se pudo eliminar el producto");
-=======
   async function fetchProducts() {
     setLoading(true);
     const { data: sessionData } = await supabase.auth.getSession();
@@ -76,20 +57,27 @@ export default function ProviderDashboard() {
     setLoading(false);
   }
 
-  const handleDelete = async (productId: string) => {
-    if (confirm("¿Estás seguro de que querés eliminar este producto?")) {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId);
-        
-      if (error) {
-        console.error("Error al eliminar:", error);
-        alert("No se pudo eliminar el producto. Es posible que tenga compras asociadas.");
-      } else {
-        setProducts(products.filter(p => p.id !== productId));
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`¿Estás seguro que querés eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
+
+    try {
+      // Intenta vía API primero para manejar lógica de negocio si existe
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      
+      if (!res.ok) {
+        // Fallback or handle error
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
       }
->>>>>>> origin/main
+      
+      setProducts(products.filter(p => p.id !== id));
+      toast.success("Producto eliminado");
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      toast.error("No se pudo eliminar el producto. Verifique si tiene órdenes activas.");
     }
   };
 
@@ -209,8 +197,7 @@ export default function ProviderDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-<<<<<<< HEAD
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Link 
                         href={`/provider/dashboard/edit/${product.id}`}
                         className="text-slate-400 hover:text-[#009EE3] p-2 rounded-lg hover:bg-slate-100 transition-colors"
@@ -222,20 +209,6 @@ export default function ProviderDashboard() {
                         onClick={() => handleDelete(product.id, product.nombre)}
                         className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-slate-100 transition-colors"
                         title="Eliminar"
-=======
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => router.push(`/provider/dashboard/edit-product/${product.id}`)}
-                        className="text-slate-400 hover:text-[#0077CC] p-2 rounded-lg hover:bg-[#0077CC]/10 transition-colors"
-                        title="Editar Producto"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(product.id)}
-                        className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                        title="Eliminar Producto"
->>>>>>> origin/main
                       >
                         <Trash2 size={18} />
                       </button>

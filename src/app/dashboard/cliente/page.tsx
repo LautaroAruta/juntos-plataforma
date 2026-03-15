@@ -144,25 +144,12 @@ export default async function ClienteDashboard() {
                </div>
             </div>
 
-<<<<<<< HEAD
-            <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
-               <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
-                 <Users size={16} className="text-[#009EE3]" /> Invitá Amigos
-               </h3>
-               <p className="text-gray-600 text-sm font-medium leading-relaxed mb-6">
-                 Compartí BANDHA y recibí beneficios exclusivos en tu próxima compra grupal.
-               </p>
-               <button className="w-full py-4 bg-gray-50 hover:bg-gray-100 rounded-2xl text-gray-800 font-black text-sm uppercase tracking-tight transition-all">
-                 Obtener mi link
-               </button>
-            </div>
-=======
             {/* Widget de Racha */}
             <StreakWidget streak={userData?.savings_streak || 0} />
 
             {/* Componente de Referidos */}
             <ReferralWidget 
-              referralCode={session.user.referral_code || ''} 
+              referralCode={session?.user?.referral_code || ''} 
               referralStats={referralStats}
             />
 
@@ -172,7 +159,6 @@ export default async function ClienteDashboard() {
                 totalSaved={impactData?.total_collective_savings || 0}
                 activeUsers={impactData?.active_users_count || 0}
             />
->>>>>>> origin/main
           </div>
         </div>
       </div>

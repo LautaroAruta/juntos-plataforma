@@ -12,11 +12,7 @@ export default async function DashboardRedirect() {
   const role = session.user.rol;
 
   if (role === "admin") {
-<<<<<<< HEAD
     redirect("/gestion-bandha");
-=======
-    redirect("/gestion-juntos/dashboard");
->>>>>>> origin/main
   } else if (role === "proveedor") {
     redirect("/provider/dashboard");
   } else if (role === "cliente") {
