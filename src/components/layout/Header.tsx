@@ -7,10 +7,21 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 
+import { useCartStore } from "@/store/cartStore";
+import { useEffect } from "react";
+
 export default function Header() {
   const { data: session } = useSession();
+  const loadFromCloud = useCartStore(state => state.loadFromCloud);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+
+  // Cargar carrito de la nube cuando el usuario inicia sesión
+  useEffect(() => {
+    if (session) {
+      loadFromCloud();
+    }
+  }, [session, loadFromCloud]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

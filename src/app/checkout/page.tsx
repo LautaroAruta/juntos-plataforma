@@ -8,6 +8,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreditCard, ShieldCheck, ChevronLeft, Truck, PackageCheck, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { useCartStore } from "@/store/cartStore";
 import { formatCurrency } from "@/lib/utils";
@@ -62,34 +63,36 @@ export default function CheckoutPage() {
     
     try {
       // ✅ ESTRUCTURA DE SEGURIDAD (Enterprise-level):
-      // Nunca envíes el precio desde el cliente. Un usuario malintencionado podría 
-      // interceptar la petición y enviar `price: 1`. 
-      // Aquí mapeamos estrictamente lo que necesita el backend para buscar el precio real.
       const securePayload = items.map(item => ({
         id: item.id,
         variant: item.variant,
         quantity: item.quantity
       }));
       
-      // Llamada real (Comentada para pruebas locales):
-      /*
-      const response = await fetch('/api/payments/create-preference', {
+      const response = await fetch('/api/payments/checkout-multi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: securePayload, shippingData: values })
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error("Error en el pago");
-      window.location.href = data.init_point; // Redirige a Mercado Pago
-      */
 
-      // Simulación de carga (Mock):
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      clearCart();
-      router.push("/checkout/success");
+      const data = await response.json();
       
-    } catch (error) {
+      if (!response.ok) {
+        throw new Error(data.message || "Error al procesar el pago");
+      }
+
+      // Redirigir a Mercado Pago (URL de producción o sandbox)
+      if (data.init_point) {
+        window.location.href = data.init_point;
+      } else {
+        // Fallback local: si no hay MP configurado o es un mock exitoso
+        clearCart();
+        router.push("/checkout/success");
+      }
+      
+    } catch (error: any) {
       console.error("Error processing payment", error);
+      toast.error(error.message || "No se pudo iniciar el pago");
     } finally {
       setIsProcessing(false);
     }
