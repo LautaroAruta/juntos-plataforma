@@ -28,7 +28,7 @@ export default async function ClienteDashboard() {
 
   const supabase = await createClient();
 
-  // Fetch real orders with deal and product details
+  // Fetch real orders with deal and product details (Support for both Group Deals and Multi-cart)
   const { data: realOrders } = await supabase
     .from('orders')
     .select(`
@@ -36,11 +36,10 @@ export default async function ClienteDashboard() {
       total,
       estado,
       creado_en,
-      group_deal:group_deals (
+      group_deal_id,
+      order_items (
         id,
-        participantes_actuales,
-        min_participantes,
-        estado,
+        quantity,
         product:products (
           nombre,
           imagen_principal
@@ -52,19 +51,20 @@ export default async function ClienteDashboard() {
 
   // Map database results to the format expected by the UI
   const orders = (realOrders || []).map(order => {
-    // Supabase returns related objects as objects OR arrays depending on complexity
-    const deal = (Array.isArray(order.group_deal) ? order.group_deal[0] : order.group_deal) as any;
-    const product = (deal && Array.isArray(deal.product) ? deal.product[0] : deal?.product) as any;
+    // Para multicarrito, mostramos el primer item y un "+X" si hay más
+    const firstItem = order.order_items?.[0] as any;
+    const productCount = order.order_items?.length || 0;
+    const productName = firstItem?.product?.nombre || "Pedido BANDHA";
+    const displayName = productCount > 1 ? `${productName} + ${productCount - 1}` : productName;
 
     return {
       id: order.id,
-      product: product?.nombre || "Producto desconocido",
-      status: deal?.estado || "desconocido",
-      participants: deal?.participantes_actuales || 0,
-      min: deal?.min_participantes || 1,
+      product: displayName,
+      status: order.estado,
       price: Number(order.total),
       date: new Date(order.creado_en).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }),
-      image: product?.imagen_principal
+      image: firstItem?.product?.imagen_principal,
+      isGroupDeal: !!order.group_deal_id
     };
   });
 
@@ -132,32 +132,47 @@ export default async function ClienteDashboard() {
             </div>
             
             <div className="space-y-4">
-              {orders.map((order) => (
-                <div key={order.id} className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-50 flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:shadow-xl hover:shadow-gray-200 transition-all">
-                  <div className="w-24 h-24 bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center text-gray-300">
-                    <Package size={40} />
+              {orders.length === 0 ? (
+                <div className="bg-white rounded-[2.5rem] p-16 text-center border-2 border-dashed border-gray-100 shadow-sm">
+                  <Package className="mx-auto text-gray-200 mb-6" size={64} />
+                  <h3 className="text-lg font-black text-gray-400 uppercase tracking-widest">Aún no tienes compras</h3>
+                  <p className="text-gray-400 text-sm mt-2 mb-8">¡Explora las ofertas increíbles que tenemos para vos!</p>
+                  <Link href="/productos" className="bg-[#009EE3] text-white px-8 py-3 rounded-2xl font-black text-xs uppercase shadow-lg shadow-[#009EE3]/20 hover:scale-105 transition-transform inline-block">
+                    Ver Oportunidades
+                  </Link>
+                </div>
+              ) : orders.map((order) => (
+                <div key={order.id} className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-6 group hover:shadow-xl hover:shadow-[#009EE3]/5 transition-all">
+                  <div className="w-20 h-20 bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-50">
+                    {order.image ? (
+                        <img src={order.image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                        <Package className="text-gray-300" size={32} />
+                    )}
                   </div>
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className="text-xl font-black text-gray-800 mb-1">{order.product}</h3>
-                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">
-                      <span className="flex items-center gap-1.5"><Clock size={14} /> {order.date}</span>
-                      <span className={`flex items-center gap-1.5 ${order.status === 'activo' ? 'text-blue-500' : 'text-green-500'}`}>
-                        <div className={`w-2 h-2 rounded-full ${order.status === 'activo' ? 'bg-blue-500 animate-pulse' : 'bg-green-500'}`} />
-                        {order.status}
+                  <div className="flex-1 text-center md:text-left min-w-0">
+                    <h4 className="text-lg font-black text-gray-800 mb-1 truncate tracking-tight">{order.product}</h4>
+                    <div className="flex flex-wrap justify-center md:justify-start gap-3 text-[10px] font-bold uppercase tracking-widest mt-2">
+                      <span className="flex items-center gap-1.5 text-gray-400">
+                        <Clock size={12} /> {order.date}
                       </span>
+                      <span className={`px-2.5 py-0.5 rounded-lg border ${
+                        order.status === 'pagado' ? 'bg-green-50 text-green-600 border-green-100' : 
+                        order.status === 'pendiente_pago' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                        'bg-blue-50 text-blue-600 border-blue-100'
+                      }`}>
+                        {order.status.replace('_', ' ')}
+                      </span>
+                      {order.isGroupDeal && (
+                        <span className="bg-[#009EE3]/10 text-[#009EE3] px-2.5 py-0.5 rounded-lg border border-[#009EE3]/10">Grupal</span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex flex-col items-center md:items-end gap-2">
-                     <span className="text-2xl font-black text-gray-800">${order.price.toLocaleString()}</span>
-                     <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full bg-gradient-to-r ${order.status === 'activo' ? 'from-[#009EE3] to-[#00A650]' : 'from-green-400 to-green-600'} rounded-full`}
-                          style={{ width: `${(order.participants / order.min) * 100}%` }}
-                        />
-                     </div>
-                     <span className="text-[10px] font-black text-gray-400">{order.participants}/{order.min} unidos</span>
+                  <div className="flex flex-col items-center md:items-end gap-1 px-4 min-w-[120px]">
+                     <span className="text-2xl font-black text-gray-900 leading-none">${order.price.toLocaleString()}</span>
+                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Total Pedido</span>
                   </div>
-                  <ChevronRight className="text-gray-300 hidden md:block" />
+                  <ChevronRight className="text-gray-200 group-hover:text-[#009EE3] group-hover:translate-x-1 transition-all" />
                 </div>
               ))}
             </div>

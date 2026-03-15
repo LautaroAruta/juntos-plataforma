@@ -1,93 +1,96 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { MercadoPagoConfig, Payment } from "mercadopago";
 
+// Configuración de Mercado Pago
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
+
+/**
+ * WEBHOOK: Mercado Pago IPN / Notifications
+ * 
+ * Este endpoint recibe las notificaciones de cambio de estado de los pagos.
+ * Aquí es donde completamos el ciclo:
+ * 1. Verificamos el pago en MP.
+ * 2. Marcamos la orden como 'pagada' en nuestra DB.
+ * 3. Descontamos el stock de los productos vendidos.
+ */
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { type, data } = body;
-    const supabase = await createClient();
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type");
+    const id = searchParams.get("data.id");
 
-    if (type === "payment" && data.id) {
-      // 1. Fetch payment details from Mercado Pago
-      const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${data.id}`, {
-        headers: {
-          'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`
-        }
-      });
-      const payment = await mpResponse.json();
-
-      if (payment.status === "approved") {
-        const metadata = payment.metadata || {};
-        // Priorizar external_reference si está presente, fallback a metadata
-        const dealId = payment.external_reference || metadata.deal_id;
-        const pickupPointId = metadata.pickup_point_id;
-        const rewardsAmount = Number(metadata.rewards_amount || 0);
-        
-        // El user_id debería venir en los metadatos o buscarse por email del pagador
-        let userId = metadata.user_id;
-
-        if (!userId && payment.payer?.email) {
-          const { data: user } = await supabase
-            .from('users')
-            .select('id')
-            .eq('email', payment.payer.email)
-            .single();
-          userId = user?.id;
-        }
-        
-        // 2. Create Order in our DB
-        const { data: order, error: orderError } = await supabase
-          .from('orders')
-          .insert([{
-            user_id: userId || null, 
-            group_deal_id: dealId,
-            // pickup_point_id: pickupPointId, // Asegurarse que la columna existe en el esquema
-            cantidad: 1,
-            total: payment.transaction_amount,
-            // rewards_used: rewardsAmount, // Asegurarse que la columna existe en el esquema
-            estado: 'pagado'
-          }])
-          .select()
-          .single();
-
-        if (orderError) console.error("Error creating order:", orderError);
-
-        // 3. Increment participation in Group Deal
-        const { error: rpcError } = await supabase.rpc('join_group_deal', { target_deal_id: dealId });
-        
-        if (rpcError) console.error("RPC Error (join_group_deal):", rpcError);
-        
-        // 4. Record the payment record
-        await supabase.from('payments').insert([{
-          order_id: order?.id,
-          mp_payment_id: payment.id.toString(),
-          monto_total: payment.transaction_amount,
-          // Cálculo de comisiones basado en fee_details si está disponible
-          monto_proveedor: payment.transaction_amount - (payment.fee_details?.find((f: any) => f.type === 'marketplace_fee')?.amount || 0),
-          monto_comision: payment.fee_details?.find((f: any) => f.type === 'marketplace_fee')?.amount || 0,
-          porcentaje_comision: 0.5,
-          estado: payment.status,
-        }]);
-
-        // 5. Send order confirmation email
-        if (order && userId) {
-            const { data: userData } = await supabase
-                .from('users')
-                .select('email')
-                .eq('id', userId)
-                .single();
-
-            if (userData?.email) {
-                const { sendOrderConfirmationEmail } = await import("@/lib/notifications/resend");
-                await sendOrderConfirmationEmail(userData.email, order.id, order.total);
-            }
-        }
-      }
+    // Solo procesamos notificaciones de tipo 'payment'
+    if (type !== "payment" || !id) {
+      return NextResponse.json({ received: true });
     }
 
-    return NextResponse.json({ received: true });
-  } catch (error) {
-    console.error("Webhook error:", error);
-    return NextResponse.json({ message: "Internal Error" }, { status: 500 });
+    const supabase = await createClient();
+
+    // 1. Consultar el pago detallado en Mercado Pago para mayor seguridad
+    const mpPayment = new Payment(client);
+    const paymentData = await mpPayment.get({ id });
+
+    // 2. Extraer el external_reference (que es nuestro ORDER_ID)
+    const orderId = paymentData.external_reference;
+    const status = paymentData.status;
+
+    if (!orderId) {
+      console.warn("⚠️ Webhook MP: No se encontró external_reference en el pago", id);
+      return NextResponse.json({ received: true });
+    }
+
+    // 3. Si el pago está aprobado, actualizamos nuestra base de datos
+    if (status === "approved") {
+      console.log(`✅ Pago Aprobado: Orden ${orderId}. Procesando stock y estado...`);
+
+      // A. Cambiar estado de la orden
+      const { error: orderError } = await supabase
+        .from('orders')
+        .update({ estado: 'pagado' })
+        .eq('id', orderId);
+
+      if (orderError) throw new Error(`Error actualizando orden: ${orderError.message}`);
+
+      // B. Obtener ítems de la orden para descontar stock
+      const { data: items, error: itemsError } = await supabase
+        .from('order_items')
+        .select('product_id, quantity')
+        .eq('order_id', orderId);
+
+      if (itemsError || !items) throw new Error("Error obteniendo ítems de la orden");
+
+      // C. Descontar stock (Batch update simulado con loops por ahora)
+      // Nota: En producción masiva, se recomienda usar una RPC o Stored Procedure para evitar race conditions.
+      for (const item of items) {
+        const { error: stockError } = await supabase.rpc('decrement_stock', {
+          row_id: item.product_id,
+          count: item.quantity
+        });
+        
+        if (stockError) {
+          console.error(`❌ Error descontando stock para ${item.product_id}:`, stockError);
+          // Opcional: registrar en tabla de errores pero continuar
+        }
+      }
+      
+      // D. Registrar pago en tabla payments
+      await supabase.from('payments').insert({
+        order_id: orderId,
+        mp_payment_id: id,
+        monto_total: paymentData.transaction_amount,
+        // Calcular comisiones si es necesario aquí o usar info de metadata
+        monto_proveedor: paymentData.transaction_amount, 
+        monto_comision: 0, 
+        porcentaje_comision: 0,
+        estado: status
+      });
+    }
+
+    return NextResponse.json({ success: true });
+
+  } catch (error: any) {
+    console.error("❌ Webhook Mercado Pago Error:", error.message);
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
