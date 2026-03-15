@@ -115,8 +115,33 @@ export const useCartStore = create<CartState>()(
           const res = await fetch('/api/cart/sync');
           if (res.ok) {
             const cloudItems = await res.json();
+            const localItems = get().items;
+
             if (cloudItems && cloudItems.length > 0) {
-               set({ items: cloudItems });
+               // 🧠 SMART MERGE LOGIC:
+               // Combinamos lo que tiene en la nube con lo que acaba de agregar localmente
+               const mergedItems = [...cloudItems];
+
+               localItems.forEach(localItem => {
+                 const existingIdx = mergedItems.findIndex(ci => ci.uniqueId === localItem.uniqueId);
+                 
+                 if (existingIdx > -1) {
+                   // Si existe en ambos, sumamos cantidades respetando el stock
+                   const cloudItem = mergedItems[existingIdx];
+                   mergedItems[existingIdx] = {
+                     ...cloudItem,
+                     quantity: Math.min(cloudItem.quantity + localItem.quantity, cloudItem.stock)
+                   };
+                 } else {
+                   // Si solo está en local, lo agregamos al set de la nube
+                   mergedItems.push(localItem);
+                 }
+               });
+
+               set({ items: mergedItems });
+               
+               // Persistimos el resultado final del merge de vuelta a la nube
+               get().syncWithCloud();
             }
           }
         } catch (e) {

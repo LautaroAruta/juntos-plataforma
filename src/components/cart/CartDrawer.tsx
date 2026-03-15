@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingCart, Trash2, X, Plus, Minus, PackageOpen, AlertCircle, ArrowRight, Info } from "lucide-react";
+import { ShoppingCart, Trash2, X, Plus, Minus, PackageOpen, AlertCircle, ArrowRight, Info, ShoppingBag } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
@@ -18,6 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 // Monto mínimo hipotético para la regla de negocio
 const MIN_ORDER_AMOUNT = 15000;
@@ -52,25 +55,43 @@ export function CartDrawer() {
       <SheetTrigger className="relative group inline-flex shrink-0 items-center justify-center rounded-lg h-8 w-8 hover:bg-[#F2FBFF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-[#009EE3] transition-colors" />
         {isMounted && totalItems > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm animate-in zoom-in">
+          <motion.span 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            key={totalItems}
+            className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm"
+          >
             {totalItems}
-          </span>
+          </motion.span>
         )}
       </SheetTrigger>
       
-      <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
-        <SheetHeader className="p-6 pb-4 border-b bg-white relative z-10 shadow-sm">
-          <SheetTitle className="flex items-center gap-2 text-xl text-gray-800">
-            <ShoppingCart className="w-5 h-5 text-[#009EE3]" />
-            Tu Compra
+      <SheetContent className="w-full sm:max-w-md flex flex-col p-0 border-l-0">
+        <SheetHeader className="p-6 pb-4 border-b bg-white/80 backdrop-blur-xl sticky top-0 z-30 transition-all">
+          <SheetTitle className="flex items-center gap-3 text-2xl font-black text-gray-900 tracking-tight">
+            <div className="bg-[#009EE3]/10 p-2 rounded-xl">
+              <ShoppingBag className="w-5 h-5 text-[#009EE3]" />
+            </div>
+            Tu Carrito
           </SheetTitle>
         </SheetHeader>
 
         {!isMounted ? (
-          // Skeleton/Loader de estado de hidratación
-          <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-4">
-             <div className="w-8 h-8 rounded-full border-4 border-[#009EE3] border-t-transparent animate-spin"></div>
-             <p className="text-sm text-gray-400 font-medium">Cargando tu carrito...</p>
+          // Skeleton Loader Premium
+          <div className="flex-1 flex flex-col p-6 space-y-6 bg-slate-50/30">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-4 p-3 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <Skeleton className="w-24 h-24 rounded-xl" />
+                <div className="flex-1 space-y-3 py-1">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <div className="flex justify-between items-end mt-auto">
+                    <Skeleton className="h-7 w-20 rounded-lg" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : items.length === 0 ? (
           // Empty State persuasivo
@@ -94,110 +115,136 @@ export function CartDrawer() {
         ) : (
           // Listado de Ítems
           <>
-            <ScrollArea className="flex-1 px-6 bg-slate-50/50">
+            <ScrollArea className="flex-1 px-6 bg-slate-50/30">
               <div className="space-y-4 py-6">
-                {items.map((item) => (
-                  <div key={item.uniqueId} className="flex gap-4 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:border-[#009EE3]/30 transition-colors group">
-                    {/* Contenedor de Imagen con Overlay si hay poco stock */}
-                    <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
-                      <Image
-                        src={item.image || "/placeholder.svg"} 
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 96px) 100vw, 96px"
-                        onError={(e) => { e.currentTarget.src = "/placeholder.svg" }}
-                      />
-                      {item.stock <= 5 && (
-                         <div className="absolute bottom-0 left-0 right-0 bg-red-500/90 text-white text-[9px] font-bold text-center py-1 backdrop-blur-sm">
-                           ¡Últimas {item.stock}!
-                         </div>
-                      )}
-                    </div>
-                    
-                    {/* Contenedor de Información */}
-                    <div className="flex flex-col flex-1 min-w-0 py-0.5">
-                      <div className="flex justify-between items-start gap-2 mb-1">
-                        <div>
-                           <h4 className="font-semibold text-gray-800 line-clamp-2 text-sm leading-tight pr-2">
-                             {item.name}
-                           </h4>
-                           {item.variant && (
-                              <p className="text-xs text-gray-500 mt-1">{item.variant}</p>
-                           )}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-gray-400 hover:text-red-500 hover:bg-red-50 flex-shrink-0 -mr-1 -mt-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => {
-                             removeItem(item.uniqueId);
-                             toast("Producto eliminado del carrito");
-                          }}
-                          aria-label="Eliminar producto"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {items.map((item) => (
+                    <motion.div
+                      key={item.uniqueId}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, x: -10 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 400, 
+                        damping: 30 
+                      }}
+                      className="flex gap-4 p-3 bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-[#009EE3]/30 hover:shadow-md transition-all group overflow-hidden relative"
+                    >
+                      {/* Contenedor de Imagen con Overlay si hay poco stock */}
+                      <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-50 group-hover:scale-105 transition-transform duration-500">
+                        <Image
+                          src={item.image || "/placeholder.svg"} 
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 96px) 100vw, 96px"
+                          onError={(e) => { e.currentTarget.src = "/placeholder.svg" }}
+                        />
+                        {item.stock <= 5 && (
+                           <div className="absolute top-0 left-0 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-br-lg shadow-sm">
+                             ¡STOCK CRÍTICO!
+                           </div>
+                        )}
                       </div>
                       
-                      {/* Controles y Precio en la parte inferior */}
-                      <div className="mt-auto flex items-end justify-between items-center gap-2">
-                        <div className="flex items-center border border-gray-200 rounded-md h-8 w-fit bg-white overflow-hidden shadow-sm">
+                      {/* Contenedor de Información */}
+                      <div className="flex flex-col flex-1 min-w-0 py-0.5">
+                        <div className="flex justify-between items-start gap-2 mb-1">
+                          <div>
+                             <h4 className="font-bold text-gray-800 line-clamp-2 text-sm leading-tight pr-4">
+                               {item.name}
+                             </h4>
+                             {item.variant && (
+                                <p className="text-[10px] text-[#009EE3] font-bold uppercase tracking-widest mt-1.5 bg-[#009EE3]/5 px-2 py-0.5 rounded-full w-fit">
+                                  {item.variant}
+                                </p>
+                             )}
+                          </div>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-full w-8 rounded-none hover:bg-gray-100 active:bg-gray-200"
-                            onClick={() => handleUpdateQuantity(item.uniqueId, item.quantity, item.stock, Math.max(1, item.quantity - 1))}
-                            disabled={item.quantity <= 1}
-                            aria-label="Disminuir cantidad"
+                            className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-50 flex-shrink-0 -mr-1 -mt-1 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
+                            onClick={() => {
+                               removeItem(item.uniqueId);
+                               toast.success("Producto removido");
+                            }}
                           >
-                            <Minus className="w-3 h-3" />
-                          </Button>
-                          <span className="w-8 flex items-center justify-center text-sm font-bold text-gray-700 select-none">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-full w-8 rounded-none hover:bg-gray-100 active:bg-gray-200"
-                            onClick={() => handleUpdateQuantity(item.uniqueId, item.quantity, item.stock, item.quantity + 1)}
-                            disabled={item.quantity >= item.stock}
-                            aria-label="Aumentar cantidad"
-                          >
-                            <Plus className="w-3 h-3" />
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                         
-                        <div className="flex flex-col items-end">
-                          <p className="font-black text-gray-900 text-[15px] whitespace-nowrap">
-                            {formatCurrency(item.price * item.quantity)}
-                          </p>
-                          {item.quantity > 1 && (
-                            <p className="text-[10px] text-gray-500 font-medium whitespace-nowrap">
-                              {formatCurrency(item.price)} c/u
+                        {/* Controles y Precio en la parte inferior */}
+                        <div className="mt-auto flex items-end justify-between gap-3">
+                          <div className="flex items-center bg-gray-50/80 rounded-xl p-1 border border-gray-100 shadow-inner">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 rounded-lg hover:bg-white hover:text-[#009EE3] hover:shadow-sm"
+                              onClick={() => handleUpdateQuantity(item.uniqueId, item.quantity, item.stock, Math.max(1, item.quantity - 1))}
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </Button>
+                            <span className="w-7 text-center text-xs font-black text-gray-700">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 rounded-lg hover:bg-white hover:text-[#009EE3] hover:shadow-sm"
+                              onClick={() => handleUpdateQuantity(item.uniqueId, item.quantity, item.stock, item.quantity + 1)}
+                              disabled={item.quantity >= item.stock}
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                          
+                          <div className="flex flex-col items-end">
+                            <p className="font-black text-gray-900 text-base leading-none">
+                              {formatCurrency(item.price * item.quantity)}
                             </p>
-                          )}
+                            {item.quantity > 1 && (
+                              <p className="text-[10px] text-gray-400 font-medium mt-1">
+                                {formatCurrency(item.price)} c/u
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             </ScrollArea>
             
-            {/* Lógica de Compra Mínima */}
-            <div className="px-6 py-4 bg-white border-t border-gray-100 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)] relative z-20">
+            {/* Resumen Final con Glassmorphism */}
+            <div className="px-6 py-6 bg-white/90 backdrop-blur-2xl border-t border-gray-100 shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.1)] relative z-20">
                {!isMinOrderMet && (
-                  <div className="mb-4 bg-orange-50 border border-orange-100 rounded-lg p-3">
-                     <div className="flex items-center gap-2 mb-2 text-orange-800">
-                        <AlertCircle className="w-4 h-4 shrink-0" />
-                        <span className="font-semibold text-xs">Faltan {formatCurrency(MIN_ORDER_AMOUNT - subtotal)} para el mínimo</span>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-6 bg-orange-50/50 border border-orange-100 rounded-2xl p-4 backdrop-blur-sm"
+                  >
+                     <div className="flex items-center gap-3 mb-3 text-orange-800">
+                        <div className="bg-orange-100 p-1.5 rounded-lg">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                        </div>
+                        <span className="font-bold text-sm tracking-tight">Faltan {formatCurrency(MIN_ORDER_AMOUNT - subtotal)} para el envío</span>
                      </div>
-                     <div className="w-full bg-orange-200/50 rounded-full h-1.5 overflow-hidden">
-                        <div className="bg-orange-500 h-1.5 rounded-full transition-all duration-500" style={{ width: `${progressToMinOrder}%` }}></div>
+                     <div className="w-full bg-orange-200/30 rounded-full h-2 overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progressToMinOrder}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="bg-gradient-to-r from-orange-400 to-orange-600 h-2 rounded-full"
+                        ></motion.div>
                      </div>
-                     <p className="text-[10px] text-orange-600/80 mt-1.5 font-medium">Mínimo mayorista: {formatCurrency(MIN_ORDER_AMOUNT)}</p>
-                  </div>
+                     <p className="text-[11px] text-orange-600 font-bold mt-2.5 flex items-center gap-1.5 uppercase tracking-wider">
+                       <Info size={12} /> Compra Mínima: {formatCurrency(MIN_ORDER_AMOUNT)}
+                     </p>
+                  </motion.div>
                )}
 
               <div className="space-y-2 mb-4">
