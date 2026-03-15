@@ -37,6 +37,7 @@ export const metadata: Metadata = {
 };
 
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
+import CartSyncProvider from "@/components/providers/CartSyncProvider";
 import Header from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
@@ -53,14 +54,15 @@ export default function RootLayout({
     <html lang="es" className={cn("font-sans", geist.variable)}>
       <body className={`${inter.variable} font-sans antialiased text-slate-800 bg-[#F5F5F5] min-h-screen flex flex-col`}>
         <NextAuthProvider>
-          <Header />
+          <CartSyncProvider>
+            <Header />
 
-          {/* Contenido principal */}
-          <main className="flex-1 w-full relative">
-            {children}
-          </main>
+            {/* Contenido principal */}
+            <main className="flex-1 w-full relative">
+              {children}
+            </main>
 
-          <PurchaseNotification />
+            <PurchaseNotification />
 
           <footer className="bg-white border-t border-gray-200 pt-16 pb-8 px-6 mt-auto">
             <div className="max-w-7xl mx-auto">
@@ -93,7 +95,6 @@ export default function RootLayout({
                   <h4 className="font-bold text-gray-800 mb-6 uppercase tracking-wider text-xs">Redes Sociales</h4>
                   <div className="flex gap-4">
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-[#009EE3] hover:text-white transition-all cursor-pointer">
-                      {/* Social icons would go here, using placeholders for now */}
                       <span className="text-[10px] font-bold">IG</span>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-[#009EE3] hover:text-white transition-all cursor-pointer">
@@ -115,8 +116,9 @@ export default function RootLayout({
             </div>
           </footer>
           <Toaster />
-        </NextAuthProvider>
-      </body>
-    </html>
-  );
+        </CartSyncProvider>
+      </NextAuthProvider>
+    </body>
+  </html>
+);
 }

@@ -6,22 +6,25 @@ import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { CartDrawer } from "@/components/cart/CartDrawer";
-
+import NotificationCenter from "@/components/shared/NotificationCenter";
 import { useCartStore } from "@/store/cartStore";
+import { useNotificationStore } from "@/store/notificationStore";
 import { useEffect } from "react";
 
 export default function Header() {
   const { data: session } = useSession();
   const loadFromCloud = useCartStore(state => state.loadFromCloud);
+  const fetchNotifications = useNotificationStore(state => state.fetchNotifications);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  // Cargar carrito de la nube cuando el usuario inicia sesión
+  // Cargar carrito y notificaciones de la nube cuando el usuario inicia sesión
   useEffect(() => {
     if (session) {
       loadFromCloud();
+      fetchNotifications();
     }
-  }, [session, loadFromCloud]);
+  }, [session, loadFromCloud, fetchNotifications]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,7 +89,10 @@ export default function Header() {
                 </div>
                 <span className="text-xs font-bold text-gray-600 hidden lg:block">{session.user.name?.split(' ')[0]}</span>
               </Link>
-              <CartDrawer />
+              <div className="flex items-center gap-1">
+                <NotificationCenter />
+                <CartDrawer />
+              </div>
               <button 
                 onClick={() => signOut({ callbackUrl: "/" })} 
                 className="text-gray-500 hover:text-red-500 transition-colors ml-2"

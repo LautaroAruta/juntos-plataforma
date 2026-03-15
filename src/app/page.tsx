@@ -14,10 +14,12 @@ import {
   Sparkles,
   Puzzle,
   MoreHorizontal,
-  ArrowRight
+  ArrowRight,
+  MapPin
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import CountdownTimer from "@/components/shared/CountdownTimer";
+import SmartRecommendations from "@/components/shared/SmartRecommendations";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -119,6 +121,30 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* SECCIÓN 2.5 — CTA Mapa de Cercanía */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
+        <Link href="/explorar/mapa">
+          <div className="relative w-full h-40 md:h-48 rounded-[2.5rem] overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#00AEEF] to-[#009EE3] group-hover:scale-105 transition-transform duration-700"></div>
+            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+            
+            <div className="relative h-full flex items-center justify-between px-8 md:px-12">
+              <div className="max-w-md">
+                <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter mb-2">Descubrí tu barrio JUNTOS</h3>
+                <p className="text-white/80 text-xs md:text-sm font-medium">Encontrá los Puntos JUNTOS más cercanos y ahorrá en grupo sin moverte de tu barrio.</p>
+              </div>
+              <div className="hidden md:flex items-center gap-4 bg-white/20 backdrop-blur-md p-4 rounded-3xl border border-white/30 text-white">
+                <MapPin size={32} />
+                <div className="text-left">
+                  <p className="text-[10px] font-black uppercase tracking-widest">Ver Mapa</p>
+                  <p className="text-lg font-black tracking-tight">Cercanía</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </section>
+
       {/* SECCIÓN 3 — Ofertas grupales activas */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
         <div className="flex items-center justify-between mb-10">
@@ -209,6 +235,9 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* SECCIÓN 3.5 — Recomendaciones Inteligentes */}
+      <SmartRecommendations />
+
       {/* SECCIÓN 4 — Productos destacados */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
         <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tighter mb-10">Más productos destacados</h2>
@@ -229,7 +258,7 @@ export default async function Home() {
               </div>
               <h4 className="font-bold text-gray-800 text-sm mb-2 line-clamp-2 leading-snug group-hover:text-[#009EE3] transition-colors">{product.nombre}</h4>
               <p className="font-black text-lg text-gray-900 tracking-tight">${product.precio_individual.toLocaleString()}</p>
-              <p className="text-[10px] text-green-500 font-bold uppercase mt-1">Llega gratis mañana</p>
+              <p className="text-[10px] text-[#009EE3] font-bold uppercase mt-1">Retiro en local gratis</p>
             </Link>
           ))}
         </div>
@@ -239,12 +268,12 @@ export default async function Home() {
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
         <div className="bg-white rounded-[3rem] p-10 md:p-20 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1 space-y-8">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-800 leading-tight tracking-tighter uppercase">¿Cómo funciona BANDHA?</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-gray-800 leading-tight tracking-tighter uppercase">¿Cómo funciona JUNTOS?</h2>
             <div className="grid grid-cols-1 gap-6">
               {[
                 { step: "1", title: "Elegí tu oferta", text: "Buscá el producto que necesitás entre cientos de ofertas grupales activas." },
                 { step: "2", title: "Unite al grupo", text: "Sumate a otros compradores para llegar al precio mayorista." },
-                { step: "3", title: "Recibilo en tu casa", text: "Una vez que el grupo se completa, el proveedor envía tu pedido." }
+                { step: "3", title: "Retiralo en tu barrio", text: "Una vez que el grupo se completa, retirá tu pedido en el local del proveedor." }
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-6 items-start">
                   <div className="w-10 h-10 rounded-xl bg-[#009EE3]/10 flex-shrink-0 flex items-center justify-center text-[#009EE3] font-black">{item.step}</div>
@@ -258,7 +287,7 @@ export default async function Home() {
           </div>
           <div className="flex-1 w-full flex justify-center">
             <div className="relative w-full aspect-square max-w-sm bg-gray-50 rounded-[4rem] border-8 border-white shadow-2xl flex items-center justify-center overflow-hidden">
-               <Truck size={120} className="text-[#009EE3] opacity-20 transform -rotate-12" />
+               <MapPin size={120} className="text-[#009EE3] opacity-20 transform -rotate-12" />
                <div className="absolute inset-0 bg-gradient-to-t from-[#009EE3]/10 to-transparent"></div>
             </div>
           </div>

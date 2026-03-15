@@ -1,16 +1,28 @@
 {
-  "name": "JUNTOS | Compras Grupales",
-  "short_name": "JUNTOS",
-  "description": "Ahorramos juntos, compramos mejor. La revolución del ahorro grupal.",
+  "name": "BANDHA | La Revolución del Ahorro Grupal",
+  "short_name": "BANDHA",
+  "description": "Plataforma de comercio colaborativo. Ahorramos juntos, compramos directo de fábrica.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F5F5",
-  "theme_color": "#00AEEF",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#009EE3",
   "icons": [
     {
       "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

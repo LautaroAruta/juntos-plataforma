@@ -43,7 +43,7 @@ export default function CheckoutPage() {
 
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = getTotalPrice();
-  const shippingCost = subtotal > 50000 ? 0 : 3500; // Envío gratis sobre 50k
+  const shippingCost = 0; // Retiro en local sin costo adicional
   const total = subtotal + shippingCost;
 
   const form = useForm<CheckoutFormValues>({
@@ -132,7 +132,7 @@ export default function CheckoutPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <Truck className="text-[#009EE3] w-5 h-5" />
-                Datos de Envío
+                Datos del Cliente
               </h2>
               
               <Form {...form}>
@@ -295,7 +295,7 @@ export default function CheckoutPage() {
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-500 text-sm">
-                  <span>Costo de Envío</span>
+                  <span>Costo de Retiro</span>
                   <span className={shippingCost === 0 ? "text-green-600 font-medium" : ""}>
                     {shippingCost === 0 ? "Gratis" : formatCurrency(shippingCost)}
                   </span>

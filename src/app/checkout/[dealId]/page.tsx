@@ -234,7 +234,7 @@ export default function CheckoutPage() {
                     <span className="text-slate-800">${deal?.precio_actual?.toLocaleString() || 0}</span>
                   </div>
                   <div className="flex justify-between items-center text-slate-500 font-bold">
-                    <span>Envío</span>
+                    <span>Retiro</span>
                     <span className="text-green-500 uppercase text-[10px] font-black tracking-widest bg-green-50 px-2 py-1 rounded-md">GRATIS</span>
                   </div>
                </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Users, Timer, ChevronRight, ShoppingBag } from "lucide-react";
+import { Users, Timer, ChevronRight, ShoppingBag, MapPin } from "lucide-react";
 
 export default async function ProductosPage() {
   const supabase = await createClient();
@@ -21,15 +21,38 @@ export default async function ProductosPage() {
       {/* Header Section */}
       <div className="bg-white border-b border-gray-100 mb-8 md:mb-12">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-16">
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-[#009EE3] tracking-widest mb-4">
-            Ofertas Grupales Activas
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 text-[10px] font-black uppercase text-[#009EE3] tracking-widest mb-4">
+                Ofertas Grupales Activas
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tighter uppercase mb-6">
+                Comprá en grupo y <br className="hidden md:block" /> pagá mucho menos
+              </h1>
+              <p className="text-gray-500 text-lg md:text-xl font-medium max-w-2xl leading-relaxed">
+                Unite a otros compradores para alcanzar el volumen mayorista y desbloquear el mejor precio del mercado.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <div className="relative group">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-[#009EE3]" size={18} />
+                <select className="bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-10 text-xs font-black uppercase tracking-widest text-slate-600 appearance-none focus:outline-none focus:ring-4 focus:ring-[#009EE3]/10 w-full sm:w-64 cursor-pointer">
+                  <option>Mi Barrio: Todos</option>
+                  <option>Caballito</option>
+                  <option>Almagro</option>
+                  <option>Villa Crespo</option>
+                  <option>Palermo</option>
+                </select>
+              </div>
+              <Link 
+                href="/explorar/mapa"
+                className="bg-white border-2 border-[#009EE3]/10 text-[#009EE3] px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#009EE3]/5 transition-all shadow-sm"
+              >
+                 <MapPin size={18} /> Ver Mapa
+              </Link>
+            </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tighter uppercase mb-6">
-            Comprá en grupo y <br className="hidden md:block" /> pagá mucho menos
-          </h1>
-          <p className="text-gray-500 text-lg md:text-xl font-medium max-w-2xl leading-relaxed">
-            Unite a otros compradores para alcanzar el volumen mayorista y desbloquear el mejor precio del mercado.
-          </p>
         </div>
       </div>
 

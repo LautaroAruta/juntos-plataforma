@@ -1,13 +1,61 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, Users, Timer, Info, Star, Share2, ShieldCheck, Truck, ChevronRight, Award } from "lucide-react";
+import { ArrowLeft, Users, Timer, Info, Star, Share2, ShieldCheck, MapPin, ChevronRight, Award } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import JoinDealButton from "@/components/group-deals/JoinDealButton";
 import CountdownTimer from "@/components/shared/CountdownTimer";
+import ProductReviews from "@/components/shared/ProductReviews";
+import SavingsPredictor from "@/components/shared/SavingsPredictor";
+import ProductActionWrapper from "@/components/group-deals/ProductActionWrapper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth"; 
+import type { Metadata, ResolvingMetadata } from "next";
 
-export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: product } = await supabase
+    .from("products")
+    .select("nombre, descripcion, imagen_principal, categoria")
+    .eq("id", id)
+    .single();
+
+  if (!product) {
+    return {
+      title: "Producto no encontrado | BANDHA",
+    };
+  }
+
+  const previousImages = (await parent).openGraph?.images || [];
+
+  return {
+    title: `${product.nombre} | JUNTOS`,
+    description: product.descripcion?.substring(0, 160) || `Compra ${product.nombre} en grupo y ahorrá.`,
+    openGraph: {
+      title: `${product.nombre} | Ahorro Grupal en BANDHA`,
+      description: product.descripcion?.substring(0, 160),
+      images: [product.imagen_principal || "/og-image.png", ...previousImages],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.nombre,
+      description: product.descripcion?.substring(0, 160),
+      images: [product.imagen_principal || "/og-image.png"],
+    },
+  };
+}
+
+export default async function ProductPage({ params }: Props) {
   const supabase = await createClient();
   const { id } = await params;
   const session = await getServerSession(authOptions);
@@ -101,10 +149,26 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               {product.nombre}
             </h1>
             
-            <p className="text-sm font-bold text-gray-400 mb-8 flex items-center gap-1.5 uppercase tracking-wide">
-              Vendido por <span className="text-[#009EE3]">{product.provider?.nombre_empresa || "Proveedor Verificado"}</span>
-              <Award size={14} className="text-[#009EE3]" />
-            </p>
+            <div className="flex flex-wrap items-center gap-3 mb-8">
+              <p className="text-sm font-bold text-gray-400 flex items-center gap-1.5 uppercase tracking-wide">
+                Vendido por <span className="text-[#009EE3]">{product.provider?.nombre_empresa || "Proveedor Verificado"}</span>
+              </p>
+              
+              <div className="flex items-center gap-1 bg-green-50 text-green-600 px-2 py-0.5 rounded-lg border border-green-100 shadow-sm animate-in fade-in zoom-in duration-500">
+                <ShieldCheck size={12} />
+                <span className="text-[10px] font-black uppercase tracking-tighter">Verificado</span>
+              </div>
+
+              <div className="flex items-center gap-1 bg-blue-50 text-[#009EE3] px-2 py-0.5 rounded-lg border border-blue-100 shadow-sm">
+                <Star size={12} className="fill-[#009EE3]" />
+                <span className="text-[10px] font-black uppercase tracking-tighter">4.9 Reputación</span>
+              </div>
+
+              <div className="flex items-center gap-1 bg-slate-50 text-slate-500 px-2 py-0.5 rounded-lg border border-slate-100 shadow-sm">
+                <Award size={12} />
+                <span className="text-[10px] font-black uppercase tracking-tighter">1.2tn CO2 evitado</span>
+              </div>
+            </div>
 
             {/* PRECIOS */}
             <div className="mb-8">
@@ -124,7 +188,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 )}
               </div>
               <p className="text-sm text-[#009EE3] font-bold mt-2 flex items-center gap-1">
-                 <Truck size={16} /> Envío coordinado al completar
+                 <MapPin size={16} /> Retiro coordinado al completar
               </p>
             </div>
 
@@ -163,37 +227,29 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 )}
               </div>
             )}
-
-            {/* BOTONES DE ACCION (Desktop) */}
-            <div className="hidden md:flex flex-col gap-3 mb-10 w-full mt-auto">
-              <div className="flex gap-3">
-                 <button className="flex-1 py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 font-black rounded-xl transition-all active:scale-95 flex flex-col items-center justify-center leading-none border border-gray-200">
-                   <span className="text-[10px] uppercase tracking-widest mb-1">Comprar Seguro</span>
-                   <span className="text-base">${originalPrice.toLocaleString()}</span>
-                 </button>
-                 
-                 {activeDeal && (
-                   <div className="flex-[2]">
-                     <JoinDealButton dealId={activeDeal.id} />
-                   </div>
-                 )}
+            {/* PREDICTIVE SAVINGS WIDGET */}
+            {activeDeal && (
+              <div className="mb-10">
+                <SavingsPredictor 
+                  currentParticipants={activeDeal.participantes_actuales}
+                  minParticipants={activeDeal.min_participantes}
+                  individualPrice={product.precio_individual}
+                  dealPrice={activeDeal.precio_actual}
+                  productName={product.nombre}
+                />
               </div>
-              
-              {activeDeal && (
-                 <a 
-                   href={`https://wa.me/?text=${encodeURIComponent(`¡Mirá esta oferta en JUNTOS! 🐧 ${product.nombre} a solo $${price.toLocaleString()}. Si nos unimos, ahorramos todos. Sumate acá: ${process.env.NEXTAUTH_URL || 'https://juntos.com.ar'}/productos/${id}`)}`}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="w-full py-4 bg-[#25D366] hover:bg-[#128C7E] text-white font-black rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-sm shadow-xl shadow-[#25D366]/20"
-                 >
-                   Compartir por WhatsApp
-                 </a>
-              )}
+            )}
 
-              <p className="text-[10px] font-bold text-center text-gray-400 uppercase tracking-widest">
-                No se cobrará nada si el grupo no se completa.
-              </p>
-            </div>
+            {/* INTERACTIVE ACTIONS WRAPPER (Suscripción + Compra) */}
+            {activeDeal && (
+              <ProductActionWrapper 
+                dealId={activeDeal.id}
+                productId={id}
+                individualPrice={product.precio_individual}
+                dealPrice={activeDeal.precio_actual}
+                productName={product.nombre}
+              />
+            )}
 
             {/* TRUST BADGES */}
             <div className="space-y-4 pt-8 border-t border-gray-100 text-sm font-medium text-gray-500">
@@ -227,21 +283,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
            </div>
         </div>
 
+        {/* REVIEWS SECTION */}
+        <ProductReviews productId={id} />
       </div>
 
-      {/* FIXED ACTION BAR (Mobile) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md p-4 pb-8 border-t border-gray-100 flex items-center gap-3 z-50 shadow-[0_-20px_50px_rgba(0,0,0,0.05)]">
-        <button className="flex-1 max-w-[120px] h-14 bg-gray-100 text-gray-600 font-black rounded-xl active:scale-95 flex flex-col items-center justify-center leading-none border border-gray-200">
-           <span className="text-[9px] uppercase tracking-widest mb-1">Seguro</span>
-           <span className="text-sm">${originalPrice.toLocaleString()}</span>
-        </button>
-        {activeDeal && (
-           <div className="flex-[2] h-14 relative group">
-             {/* Necesitamos ajustar el JoinDealButton o crear uno custom para mobile que encaje en el layout fijo */}
-             <JoinDealButton dealId={activeDeal.id} />
-           </div>
-        )}
-      </div>
     </div>
   );
 }

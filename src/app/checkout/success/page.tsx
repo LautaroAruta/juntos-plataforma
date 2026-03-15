@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Package, QrCode, ArrowRight, ArrowLeft, Home, ShoppingBag, Download, Loader2 } from "lucide-react";
+import { CheckCircle2, Package, QrCode, ArrowRight, ArrowLeft, Home, ShoppingBag, Download, Loader2, Leaf } from "lucide-react";
 import QRCode from 'qrcode';
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
@@ -13,19 +13,21 @@ function CheckoutSuccessContent() {
 
   useEffect(() => {
     async function generateQR() {
-      if (paymentId) {
+      const orderIdFromUrl = searchParams.get('order_id');
+      const idToUse = orderIdFromUrl || paymentId;
+
+      if (idToUse) {
         try {
-          // In a real production app, we would use a signed JWT or a hash from the server
-          const secureToken = btoa(`BANDHA|${paymentId}|${new Date().getTime()}`);
-          const url = await QRCode.toDataURL(secureToken);
+          // Format for our Provider Scanner: BANDHA_ORDER_<id>
+          const url = await QRCode.toDataURL(`BANDHA_ORDER_${idToUse}`);
           setQrDataUrl(url);
         } catch (err) {
-          console.error(err);
+          console.error("QR Generation error:", err);
         }
       }
     }
     generateQR();
-  }, [paymentId]);
+  }, [paymentId, searchParams]);
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] flex flex-col items-center justify-center p-6">
@@ -40,8 +42,21 @@ function CheckoutSuccessContent() {
         </h1>
         
         <p className="text-gray-600 text-base mb-8">
-          Tu orden fue procesada correctamente a través de Mercado Pago. Te enviamos un comprobante y los detalles de envío a tu e-mail.
+          Tu orden fue procesada correctamente. Te enviamos un comprobante y los detalles para coordinar el retiro a tu e-mail.
         </p>
+
+        {/* ECO IMPACT MESSAGE */}
+        <div className="bg-[#00A650]/5 border border-[#00A650]/20 rounded-2xl p-4 mb-8 flex items-center gap-4 text-left">
+          <div className="w-10 h-10 rounded-xl bg-[#00A650]/10 flex items-center justify-center text-[#00A650] shrink-0">
+            <Leaf size={24} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-[#00A650] uppercase tracking-widest leading-none mb-1">Impacto Eco</p>
+            <p className="text-xs font-bold text-slate-700 leading-tight">
+              Con esta compra de cercanía evitaste la emisión de <span className="text-[#00A650]">~0.5kg de CO2</span>. ¡Gracias por cuidar el barrio!
+            </p>
+          </div>
+        </div>
 
         {qrDataUrl && (
           <div className="bg-white border-2 border-[#009EE3]/20 rounded-2xl p-6 mb-8 flex flex-col items-center gap-4 shadow-inner">
@@ -59,7 +74,7 @@ function CheckoutSuccessContent() {
         
         <div className="bg-gray-50 border rounded-lg p-6 mb-8 text-left">
           <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-2">
-            <Package className="w-5 h-5 text-[#009EE3]" /> Preparando tu envío
+            <ShoppingBag className="w-5 h-5 text-[#009EE3]" /> Preparando tu retiro
           </h3>
           <p className="text-sm text-gray-500">
             Los proveedores de tu orden ya fueron notificados y están empacando tus productos.

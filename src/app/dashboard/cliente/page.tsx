@@ -3,11 +3,19 @@ import { createClient } from "@/lib/supabase/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { ShoppingBag, Users, Clock, Package, ChevronRight, Settings } from "lucide-react";
+import { ShoppingBag, Users, Clock, Package, ChevronRight, Settings, Leaf } from "lucide-react";
 import Link from "next/link";
 import ReferralWidget from "@/components/shared/ReferralWidget";
 import StreakWidget from "@/components/shared/StreakWidget";
 import ImpactStats from "@/components/shared/ImpactStats";
+import LevelBadge from "@/components/dashboard/LevelBadge";
+import BadgeGallery from "@/components/dashboard/BadgeGallery";
+import ImpactDashboard from "@/components/dashboard/ImpactDashboard";
+import NeighborhoodPulse from "@/components/dashboard/NeighborhoodPulse";
+import NeighborhoodChallenge from "@/components/dashboard/NeighborhoodChallenge";
+import NeighborhoodInsights from "@/components/dashboard/NeighborhoodInsights";
+import SubscriptionManager from "@/components/dashboard/SubscriptionManager";
+import { calculateLevel } from "@/lib/gamification";
 
 export default async function ClienteDashboard() {
   const session = await getServerSession(authOptions);
@@ -77,16 +85,40 @@ export default async function ClienteDashboard() {
   // Fetch User Stats (Streak & Total Saved)
   const { data: userData } = await supabase
     .from('users')
-    .select('savings_streak, total_saved')
+    .select('savings_streak, total_saved, experience_points, current_level, carbon_saved, neighborhood')
     .eq('id', session.user.id)
     .single();
 
-  // Fetch Neighborhood Impact (Default zone for now)
+  // ... (userBadges fetch remains unchanged)
+  const { data: userBadges } = await supabase
+    .from('user_badges')
+    .select(`
+      id,
+      creado_en,
+      badge:badges (
+        id,
+        nombre,
+        descripcion,
+        icon_name
+      )
+    `)
+    .eq('user_id', session.user.id);
+
+  const formattedBadges = (userBadges || []).map((ub: any) => ({
+    ...ub.badge,
+    creado_en: ub.creado_en
+  }));
+
+  const userXp = userData?.experience_points || 0;
+  const currentLevel = calculateLevel(userXp);
+
+  // Fetch Neighborhood Impact (Use user's neighborhood if available)
+  const userNeighborhood = userData?.neighborhood || 'Caballito';
   const { data: impactData } = await supabase
     .from('neighborhood_impact')
     .select('*')
-    .eq('zone_name', 'Caballito/Almagro')
-    .single();
+    .eq('zone_name', userNeighborhood)
+    .maybeSingle();
 
   const referralStats = {
     totalReferrals: referralData?.length || 0,
@@ -97,7 +129,7 @@ export default async function ClienteDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] pb-24">
-      {/* ... header ... */}
+      {/* Header Section */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
@@ -110,7 +142,13 @@ export default async function ClienteDashboard() {
             </div>
             <div>
               <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Hola, {session.user.name?.split(' ')[0]}</h1>
-              <p className="text-gray-500 font-medium">Nivel Comprador BANDHA</p>
+              <div className="flex items-center gap-3 mt-1">
+                <p className="text-[#009EE3] font-bold uppercase tracking-widest text-xs">{currentLevel.name}</p>
+                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+                <p className="text-[#00A650] font-bold uppercase tracking-widest text-[10px] flex items-center gap-1">
+                   <Leaf size={10} /> Eco-Activo
+                </p>
+              </div>
             </div>
           </div>
           <div className="flex gap-4">
@@ -121,7 +159,7 @@ export default async function ClienteDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 mt-12">
+      <div className="max-w-7xl mx-auto px-6 mt-12 space-y-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content: Purchases */}
           <div className="lg:col-span-2 space-y-8">
@@ -176,40 +214,56 @@ export default async function ClienteDashboard() {
                 </div>
               ))}
             </div>
+
+            {/* NEIGHBORHOOD INTELLIGENCE */}
+            <div className="mt-12 mb-12 py-8 border-t border-gray-100">
+               <NeighborhoodInsights neighborhoodId="Palermo" />
+            </div>
+
+            {/* SUBSCRIPTION MANAGEMENT (MIS FIJOS) */}
+            <div className="pt-8 border-t border-gray-100">
+               <SubscriptionManager />
+            </div>
           </div>
 
           {/* Sidebar: Stats / Promos */}
           <div className="space-y-8">
-            <div className="bg-gradient-to-br from-[#009EE3] to-[#00A650] rounded-[2.5rem] p-8 text-white shadow-xl shadow-[#009EE3]/20">
-               <h3 className="text-lg font-black uppercase tracking-tight mb-4">Ahorro Acumulado</h3>
-               <div className="text-4xl font-black mb-2">$12.500</div>
-               <p className="text-white/70 font-medium text-sm">Gracias a comprar en grupo este mes.</p>
-               <div className="mt-8 pt-8 border-t border-white/10 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                  <span>Próximo Rango</span>
-                  <span>75%</span>
-               </div>
-               <div className="h-1.5 w-full bg-white/20 rounded-full mt-2 overflow-hidden">
-                  <div className="h-full bg-white w-3/4 rounded-full" />
-               </div>
-            </div>
+            {/* Widget de Nivel */}
+            <LevelBadge xp={userXp} />
+
+            {/* Galería de Medallas */}
+            <BadgeGallery badges={formattedBadges} />
+
+            {/* Componente de Referidos */}
+            <Link href="/dashboard/cliente/referidos" className="block transition-transform hover:scale-[1.02]">
+              <ReferralWidget 
+                referralCode={session?.user?.referral_code || ''} 
+                referralStats={referralStats}
+              />
+            </Link>
 
             {/* Widget de Racha */}
             <StreakWidget streak={userData?.savings_streak || 0} />
 
-            {/* Componente de Referidos */}
-            <ReferralWidget 
-              referralCode={session?.user?.referral_code || ''} 
-              referralStats={referralStats}
-            />
-
-            {/* Impacto Barrial */}
-            <ImpactStats 
-                zone={impactData?.zone_name || 'Tu Barrio'}
-                totalSaved={impactData?.total_collective_savings || 0}
-                activeUsers={impactData?.active_users_count || 0}
-            />
+            {/* Pulso Barrial */}
+            <NeighborhoodPulse />
+            
+            {/* NEIGHBORHOOD CHALLENGE */}
+            <div className="mt-6">
+              <NeighborhoodChallenge neighborhoodId="Palermo" /> 
+            </div>
           </div>
         </div>
+
+        {/* Sección de Impacto Social & Eco (Full Width) */}
+        <section className="pt-8 border-t border-gray-100">
+          <ImpactDashboard 
+            userCarbonSaved={Number(userData?.carbon_saved) || 0}
+            neighborhoodName={userNeighborhood}
+            neighborhoodCarbonTotal={Number(impactData?.carbon_saved_total) || 0}
+            neighborhoodSavingsTotal={Number(impactData?.total_collective_savings) || 0}
+          />
+        </section>
       </div>
     </div>
   );

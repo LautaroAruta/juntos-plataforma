@@ -15,6 +15,8 @@ export default async function DashboardRedirect() {
     redirect("/gestion-bandha");
   } else if (role === "proveedor") {
     redirect("/provider/dashboard");
+  } else if (role === "hub") {
+    redirect("/dashboard/hub");
   } else if (role === "cliente") {
     redirect("/dashboard/cliente");
   } else {

@@ -18,7 +18,7 @@ export default function ComoFuncionaPage() {
     },
     {
       title: "Recibilo en tu casa",
-      description: "Una vez que el grupo llega al mínimo de participantes, el proveedor procesa el envío y lo recibís en la puerta de tu casa.",
+      description: "Una vez que el grupo llega al mínimo de participantes, el pedido queda listo para que lo retires por el local del proveedor en tu zona.",
       icon: <Truck className="text-gray-800" size={32} />,
       color: "bg-gray-100"
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingCart, Trash2, X, Plus, Minus, PackageOpen, AlertCircle, ArrowRight, Info, ShoppingBag } from "lucide-react";
+import { ShoppingCart, Trash2, X, Plus, Minus, PackageOpen, AlertCircle, ArrowRight, Info, ShoppingBag, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,13 +26,31 @@ import { Badge } from "@/components/ui/badge";
 const MIN_ORDER_AMOUNT = 15000;
 
 export function CartDrawer() {
-  const { items, removeItem, updateQuantity, getTotalPrice } = useCartStore();
+  const { items, removeItem, updateQuantity, getTotalPrice, verifyItems } = useCartStore();
   const [isMounted, setIsMounted] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Evitar problemas de hidratación (Next.js SSR vs Zustand persist)
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Verificar ítems al montar o cuando cambian los ítems significativamente
+  useEffect(() => {
+    if (isMounted && items.length > 0) {
+      const runVerification = async () => {
+        setIsVerifying(true);
+        const { changed, messages } = await verifyItems();
+        if (changed) {
+          messages.forEach(msg => toast.info(msg, { duration: 5000 }));
+        }
+        setIsVerifying(false);
+      };
+      
+      // Corremos una verificación suave al abrir (podríamos dispararlo en el Sheet open)
+      runVerification();
+    }
+  }, [isMounted, items.length, verifyItems]);
 
   // Cálculos seguros
   const totalItems = isMounted ? items.reduce((acc, item) => acc + item.quantity, 0) : 0;
@@ -40,7 +58,7 @@ export function CartDrawer() {
   const isMinOrderMet = subtotal >= MIN_ORDER_AMOUNT;
   const progressToMinOrder = Math.min((subtotal / MIN_ORDER_AMOUNT) * 100, 100);
 
-  const handleUpdateQuantity = (uniqueId: string, currentQty: number, maxStock: number, newQty: number) => {
+  const handleUpdateQuantity = async (uniqueId: string, currentQty: number, maxStock: number, newQty: number) => {
     if (newQty > maxStock) {
       toast.error(`Solo quedan ${maxStock} unidades disponibles.`, {
         description: "No es posible añadir más de este producto."
@@ -48,6 +66,12 @@ export function CartDrawer() {
       return;
     }
     updateQuantity(uniqueId, newQty);
+    
+    // Verificación rápida tras cambio manual
+    const { changed, messages } = await verifyItems();
+    if (changed) {
+       messages.forEach(msg => toast.info(msg));
+    }
   };
 
   return (
@@ -68,11 +92,20 @@ export function CartDrawer() {
       
       <SheetContent className="w-full sm:max-w-md flex flex-col p-0 border-l-0">
         <SheetHeader className="p-6 pb-4 border-b bg-white/80 backdrop-blur-xl sticky top-0 z-30 transition-all">
-          <SheetTitle className="flex items-center gap-3 text-2xl font-black text-gray-900 tracking-tight">
-            <div className="bg-[#009EE3]/10 p-2 rounded-xl">
-              <ShoppingBag className="w-5 h-5 text-[#009EE3]" />
+          <SheetTitle className="flex items-center justify-between gap-3 text-2xl font-black text-gray-900 tracking-tight">
+            <div className="flex items-center gap-3">
+              <div className="bg-[#009EE3]/10 p-2 rounded-xl">
+                <ShoppingBag className="w-5 h-5 text-[#009EE3]" />
+              </div>
+              Tu Carrito
             </div>
-            Tu Carrito
+            
+            {isVerifying && (
+              <Badge variant="secondary" className="bg-blue-50 text-[#009EE3] border-blue-100 flex items-center gap-1.5 animate-pulse">
+                <Loader2 size={12} className="animate-spin" />
+                <span className="text-[10px] uppercase tracking-wider font-black">Sincronizando</span>
+              </Badge>
+            )}
           </SheetTitle>
         </SheetHeader>
 
@@ -231,7 +264,7 @@ export function CartDrawer() {
                         <div className="bg-orange-100 p-1.5 rounded-lg">
                           <AlertCircle className="w-4 h-4 shrink-0" />
                         </div>
-                        <span className="font-bold text-sm tracking-tight">Faltan {formatCurrency(MIN_ORDER_AMOUNT - subtotal)} para el envío</span>
+                        <span className="font-bold text-sm tracking-tight">Faltan {formatCurrency(MIN_ORDER_AMOUNT - subtotal)} para habilitar el retiro</span>
                      </div>
                      <div className="w-full bg-orange-200/30 rounded-full h-2 overflow-hidden">
                         <motion.div 
@@ -253,8 +286,8 @@ export function CartDrawer() {
                   <span className="font-medium text-gray-700">{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-500 text-sm">
-                  <span className="flex items-center gap-1">Envío <Info className="w-3 h-3 text-gray-400" /></span>
-                  <span className="font-medium text-green-600">Calculado en checkout</span>
+                  <span className="flex items-center gap-1">Punto de Retiro <Info className="w-3 h-3 text-gray-400" /></span>
+                  <span className="font-medium text-green-600">Local del Proveedor</span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between font-black text-gray-900 text-xl items-end">

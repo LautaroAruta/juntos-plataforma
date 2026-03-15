@@ -18,7 +18,7 @@ export default function FAQsPage() {
     },
     {
       q: "¿Cómo recibo mi producto?",
-      a: "Una vez completado el grupo, el proveedor despacha el producto a la dirección que cargaste en tu perfil. El envío suele tardar entre 48 y 72 horas hábiles."
+      a: "Una vez completado el grupo, coordinas el retiro directamente con el proveedor en su local o punto de entrega en el barrio. No más esperas interminables de fletes externos."
     },
     {
       q: "¿Los productos tienen garantía?",

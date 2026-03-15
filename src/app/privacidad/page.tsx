@@ -11,13 +11,6 @@ export default function PrivacidadPage() {
         </Link>
         <h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase mb-12">Política de Privacidad</h1>
         <div className="prose prose-slate max-w-none text-gray-600 font-medium space-y-6">
-<<<<<<< HEAD
-          <p>En BANDHA, nos tomamos muy en serio tu privacidad. Estos son los datos que recolectamos...</p>
-          <h2 className="text-xl font-bold text-gray-800 mt-8">1. Datos recolectados</h2>
-          <p>Recopilamos información básica para procesar tus compras y envíos.</p>
-          <h2 className="text-xl font-bold text-gray-800 mt-8">2. Seguridad</h2>
-          <p>Tus datos están protegidos con los más altos estándares de seguridad y cifrado.</p>
-=======
           <p>
             En <strong>JUNTOS</strong>, operado por Juntos Plataforma SA (en formación), nos tomamos muy en serio la protección de tus datos personales. 
             Esta política cumple con la Ley 25.326 de Protección de Datos Personales de la República Argentina.
@@ -54,7 +47,6 @@ export default function PrivacidadPage() {
             Podés solicitar el acceso, rectificación o supresión de tus datos en cualquier momento enviando un correo a 
             <a href="mailto:privacidad@juntos.com.ar" className="text-[#00AEEF]"> privacidad@juntos.com.ar</a>.
           </p>
->>>>>>> origin/main
         </div>
       </div>
     </div>

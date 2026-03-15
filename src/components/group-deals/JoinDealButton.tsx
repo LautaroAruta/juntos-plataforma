@@ -7,7 +7,15 @@ import { ShoppingCart, Users, Loader2, Share2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 
-export default function JoinDealButton({ dealId }: { dealId: string }) {
+export default function JoinDealButton({ 
+  dealId, 
+  productId, 
+  isSubscription 
+}: { 
+  dealId: string; 
+  productId: string; 
+  isSubscription?: boolean; 
+}) {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -21,15 +29,30 @@ export default function JoinDealButton({ dealId }: { dealId: string }) {
 
     setLoading(true);
     try {
+      if (isSubscription) {
+        // Create the subscription first
+        const { error: subError } = await supabase
+          .from('subscriptions')
+          .insert([{
+            user_id: session.user.id,
+            product_id: productId,
+            frequency: 'weekly', // Default frequency
+            status: 'active'
+          }]);
+        
+        if (subError) throw subError;
+        toast.success("¡Suscripción activada!");
+      }
+
       // Call the RPC to join the deal
       const { error } = await supabase.rpc('join_group_deal', { target_deal_id: dealId });
       
       if (error) throw error;
       
       // Navigate to checkout or success
-      router.push(`/checkout/${dealId}`);
+      router.push(`/checkout/${dealId}${isSubscription ? '?subscription=true' : ''}`);
     } catch (err: any) {
-      alert("Error: " + err.message);
+      toast.error("Error: " + err.message);
     } finally {
       setLoading(false);
     }
