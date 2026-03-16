@@ -23,6 +23,14 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     .eq('id', id)
     .single();
 
+  // Fetch related products (same category, excluding current)
+  const { data: relatedProducts } = await supabase
+    .from('products')
+    .select('*')
+    .eq('categoria', product?.categoria)
+    .neq('id', id)
+    .limit(4);
+
   if (error || !product) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
@@ -226,6 +234,35 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
              {product.descripcion}
            </div>
         </div>
+
+        {/* PRODUCTOS RELACIONADOS */}
+        {relatedProducts && relatedProducts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tighter mb-8 px-2">Quienes vieron esto también compraron</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {relatedProducts.map((p: any) => (
+                <Link 
+                  href={`/productos/${p.id}`}
+                  key={p.id}
+                  className="bg-white rounded-3xl p-4 md:p-6 shadow-sm hover:shadow-xl hover:shadow-gray-200 transition-all border border-gray-50 group flex flex-col"
+                >
+                  <div className="aspect-square bg-gray-50 rounded-2xl mb-4 overflow-hidden">
+                    <img 
+                      src={p.imagen_principal || "/placeholder-product.jpg"} 
+                      alt={p.nombre}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                  </div>
+                  <h4 className="font-bold text-gray-800 text-xs md:text-sm mb-2 line-clamp-2 leading-snug group-hover:text-[#009EE3] transition-colors">{p.nombre}</h4>
+                  <div className="mt-auto">
+                    <p className="font-black text-base md:text-lg text-gray-900 tracking-tight">${p.precio_individual.toLocaleString()}</p>
+                    <p className="text-[9px] text-[#00A650] font-black uppercase mt-1 tracking-widest">Oferta disponible</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
 

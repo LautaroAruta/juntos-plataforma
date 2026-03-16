@@ -8,44 +8,43 @@ import {
   Search, 
   Filter, 
   ArrowUpDown, 
-  Users, 
-  Timer, 
-  ChevronRight,
   Loader2,
-  ShoppingBag
+  ShoppingBag,
+  X,
+  ChevronDown
 } from "lucide-react";
 import Link from "next/link";
+import ProductCard from "@/components/home/ProductCard";
+
+const CATEGORIES = [
+  "Electrónica", "Ropa", "Alimentos", "Hogar", "Deportes", "Belleza", "Juguetes"
+];
 
 function SearchResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Parametros iniciales de la URL
   const initialQuery = searchParams.get("q") || "";
   const initialCategory = searchParams.get("categoria") || "todas";
   const initialPrecioMin = searchParams.get("precioMin") || "";
   const initialPrecioMax = searchParams.get("precioMax") || "";
   
-  // Estado local de los inputs (lo que el usuario tipea)
   const [localQuery, setLocalQuery] = useState(initialQuery);
   const [activeFilters, setActiveFilters] = useState({
     categoria: initialCategory,
     precioMin: initialPrecioMin,
     precioMax: initialPrecioMax,
-    soloOfertas: searchParams.get("soloOfertas") === "true"
+    soloOfertas: searchParams.get("soloOfertas") === "true",
+    orden: searchParams.get("orden") || "relevancia"
   });
 
-  // Valores debounced (esperan a que el usuario deje de tipear 500ms antes de cambiar)
   const debouncedQuery = useDebounce(localQuery, 500);
-  const debouncedPrecioMin = useDebounce(activeFilters.precioMin, 500);
-  const debouncedPrecioMax = useDebounce(activeFilters.precioMax, 500);
-
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   
   const supabase = createClient();
 
-  // 1. Efecto para buscar en Supabase cuando los valores debounced cambian
   useEffect(() => {
     async function fetchResults() {
       setLoading(true);
@@ -76,23 +75,38 @@ function SearchResultsContent() {
           };
         });
 
-        // Filtrado en cliente de precios y ofertas (ya que requiere calcular el precio actual del deal)
-        if (debouncedPrecioMin) {
+        // Client-side filtering
+        if (activeFilters.precioMin) {
           processedResults = processedResults.filter(p => {
             const price = p.activeDeal ? p.activeDeal.precio_actual : p.precio_individual;
-            return price >= Number(debouncedPrecioMin);
+            return price >= Number(activeFilters.precioMin);
           });
         }
         
-        if (debouncedPrecioMax) {
+        if (activeFilters.precioMax) {
            processedResults = processedResults.filter(p => {
             const price = p.activeDeal ? p.activeDeal.precio_actual : p.precio_individual;
-            return price <= Number(debouncedPrecioMax);
+            return price <= Number(activeFilters.precioMax);
           });
         }
 
         if (activeFilters.soloOfertas) {
            processedResults = processedResults.filter(p => !!p.activeDeal);
+        }
+
+        // Sorting
+        if (activeFilters.orden === "precio-asc") {
+          processedResults.sort((a, b) => {
+            const pA = a.activeDeal ? a.activeDeal.precio_actual : a.precio_individual;
+            const pB = b.activeDeal ? b.activeDeal.precio_actual : b.precio_individual;
+            return pA - pB;
+          });
+        } else if (activeFilters.orden === "precio-desc") {
+          processedResults.sort((a, b) => {
+            const pA = a.activeDeal ? a.activeDeal.precio_actual : a.precio_individual;
+            const pB = b.activeDeal ? b.activeDeal.precio_actual : b.precio_individual;
+            return pB - pA;
+          });
         }
 
         setResults(processedResults);
@@ -101,160 +115,212 @@ function SearchResultsContent() {
     }
 
     fetchResults();
-  }, [debouncedQuery, activeFilters.categoria, debouncedPrecioMin, debouncedPrecioMax, activeFilters.soloOfertas]);
+  }, [debouncedQuery, activeFilters.categoria, activeFilters.precioMin, activeFilters.precioMax, activeFilters.soloOfertas, activeFilters.orden]);
 
-  // 2. Efecto para sincronizar el estado actual HACIA la URL
   useEffect(() => {
     const params = new URLSearchParams();
     if (debouncedQuery) params.set("q", debouncedQuery);
     if (activeFilters.categoria !== "todas") params.set("categoria", activeFilters.categoria);
-    if (debouncedPrecioMin) params.set("precioMin", debouncedPrecioMin);
-    if (debouncedPrecioMax) params.set("precioMax", debouncedPrecioMax);
+    if (activeFilters.precioMin) params.set("precioMin", activeFilters.precioMin);
+    if (activeFilters.precioMax) params.set("precioMax", activeFilters.precioMax);
     if (activeFilters.soloOfertas) params.set("soloOfertas", "true");
+    if (activeFilters.orden !== "relevancia") params.set("orden", activeFilters.orden);
 
     const newUrl = `${window.location.pathname}?${params.toString()}`;
-    router.replace(newUrl, { scroll: false }); // replace en vez de push para no llenar el historial
-  }, [debouncedQuery, activeFilters.categoria, debouncedPrecioMin, debouncedPrecioMax, activeFilters.soloOfertas, router]);
+    router.replace(newUrl, { scroll: false });
+  }, [debouncedQuery, activeFilters, router]);
 
-  const handleFilterChange = (key: string, value: any) => {
-    setActiveFilters(prev => ({ ...prev, [key]: value }));
+  const removeFilter = (key: string, defaultValue: any) => {
+    setActiveFilters(prev => ({ ...prev, [key]: defaultValue }));
   };
 
+  const Sidebar = () => (
+    <div className="flex flex-col gap-8">
+      {/* Category Filter */}
+      <div>
+        <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-4">Categorías</h3>
+        <ul className="flex flex-col gap-2">
+          <li>
+            <button 
+              onClick={() => setActiveFilters(prev => ({ ...prev, categoria: "todas" }))}
+              className={`text-sm font-medium ${activeFilters.categoria === "todas" ? "text-[#009EE3] font-bold" : "text-gray-500 hover:text-gray-800"} transition-colors`}
+            >
+              Todas las categorías
+            </button>
+          </li>
+          {CATEGORIES.map(cat => (
+            <li key={cat}>
+              <button 
+                onClick={() => setActiveFilters(prev => ({ ...prev, categoria: cat }))}
+                className={`text-sm font-medium ${activeFilters.categoria === cat ? "text-[#009EE3] font-bold" : "text-gray-500 hover:text-gray-800"} transition-colors`}
+              >
+                {cat}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Price Filter */}
+      <div>
+        <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-4">Precio</h3>
+        <div className="flex items-center gap-2">
+          <input 
+            type="number" 
+            placeholder="Mínimo"
+            value={activeFilters.precioMin}
+            onChange={(e) => setActiveFilters(prev => ({ ...prev, precioMin: e.target.value }))}
+            className="w-full bg-white border border-gray-200 rounded-lg p-2 text-xs focus:border-[#009EE3] outline-none"
+          />
+          <span className="text-gray-300">-</span>
+          <input 
+            type="number" 
+            placeholder="Máximo"
+            value={activeFilters.precioMax}
+            onChange={(e) => setActiveFilters(prev => ({ ...prev, precioMax: e.target.value }))}
+            className="w-full bg-white border border-gray-200 rounded-lg p-2 text-xs focus:border-[#009EE3] outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Group Deals Only */}
+      <div>
+        <button 
+          onClick={() => setActiveFilters(prev => ({ ...prev, soloOfertas: !prev.soloOfertas }))}
+          className="flex items-center gap-3 group"
+        >
+          <div className={`w-5 h-5 rounded border ${activeFilters.soloOfertas ? "bg-[#009EE3] border-[#009EE3]" : "bg-white border-gray-200"} flex items-center justify-center transition-all`}>
+            {activeFilters.soloOfertas && <X size={12} className="text-white" />}
+          </div>
+          <span className="text-sm font-black text-gray-800 uppercase tracking-tighter">Solo ofertas grupales</span>
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[#F5F5F5] pb-20">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
-        {/* Search Info & Controls */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-12 gap-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <div>
-             <div className="flex items-center gap-2 text-[10px] font-black uppercase text-[#009EE3] tracking-widest mb-1">
-                Buscador BANDHA
-             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tighter flex items-center gap-3">
-              {debouncedQuery ? `Buscas: "${debouncedQuery}"` : "Explorando productos"}
-            </h1>
-            <p className="text-gray-500 font-medium">{results.length} productos encontrados</p>
+    <div className="min-h-screen bg-[#F5F5F5] pb-20 pt-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        
+        {/* Header de Búsqueda */}
+        <div className="flex flex-col gap-2 mb-8">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 tracking-widest">
+            <Link href="/" className="hover:text-[#009EE3]">Inicio</Link>
+            <span>/</span>
+            <span className="text-gray-800">Búsqueda</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-gray-800 uppercase tracking-tighter">
+            {debouncedQuery ? `Resultados para "${debouncedQuery}"` : "Explorar catálogo"}
+          </h1>
+          <p className="text-gray-500 font-medium">{results.length} productos encontrados</p>
+        </div>
+
+        {/* Action Bar (Sorting and Mobile Toggle) */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between mb-8 sticky top-20 z-30">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+             {/* Applied Filters Tags */}
+             {activeFilters.categoria !== "todas" && (
+                <span className="bg-[#009EE3]/10 text-[#009EE3] px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                  {activeFilters.categoria} <X size={14} className="cursor-pointer" onClick={() => removeFilter("categoria", "todas")} />
+                </span>
+             )}
+             {(activeFilters.precioMin || activeFilters.precioMax) && (
+                <span className="bg-[#009EE3]/10 text-[#009EE3] px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                  Precio: {activeFilters.precioMin || 0} - {activeFilters.precioMax || "Max"} <X size={14} className="cursor-pointer" onClick={() => { removeFilter("precioMin", ""); removeFilter("precioMax", ""); }} />
+                </span>
+             )}
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:border-[#009EE3] hover:bg-gray-50 transition-all shadow-sm">
-              <Filter size={18} /> Filtrar
-            </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:border-[#009EE3] hover:bg-gray-50 transition-all shadow-sm">
-              <ArrowUpDown size={18} /> Ordenar
-            </button>
+             <button 
+                onClick={() => setIsMobileFiltersOpen(true)}
+                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 font-bold text-xs"
+             >
+                <Filter size={16} /> Filtros
+             </button>
+             
+             <div className="relative group">
+                <select 
+                  value={activeFilters.orden}
+                  onChange={(e) => setActiveFilters(prev => ({ ...prev, orden: e.target.value }))}
+                  className="appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 pr-10 text-xs font-bold text-gray-800 outline-none focus:border-[#009EE3] cursor-pointer"
+                >
+                  <option value="relevancia">Relevancia</option>
+                  <option value="precio-asc">Menor precio</option>
+                  <option value="precio-desc">Mayor precio</option>
+                </select>
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
+             </div>
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-6">
-            <div className="relative">
-              <Loader2 className="animate-spin text-[#009EE3]" size={64} />
-              <Search className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-300" size={24} />
-            </div>
-            <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Sincronizando ofertas...</p>
-          </div>
-        ) : results.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-            {results.map((item) => {
-              const hasDeal = !!item.activeDeal;
-              const price = hasDeal ? item.activeDeal.precio_actual : item.precio_individual;
-              const originalPrice = item.precio_individual;
-              const discount = hasDeal ? Math.round((1 - price / originalPrice) * 100) : 0;
-              const progress = hasDeal ? (item.activeDeal.participantes_actuales / item.activeDeal.min_participantes) * 100 : 0;
+        <div className="flex flex-col lg:flex-row gap-10">
+          {/* Desktop Sidebar */}
+          <aside className="hidden lg:block w-64 shrink-0">
+            <Sidebar />
+          </aside>
 
-              return (
-                <Link 
-                  href={`/productos/${item.id}`}
-                  key={item.id}
-                  className="group bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-gray-200 transition-all duration-500 flex flex-col relative"
+          {/* Results Grid */}
+          <main className="flex-1">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-32 gap-6">
+                <Loader2 className="animate-spin text-[#009EE3]" size={48} />
+                <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Sincronizando catálogo...</p>
+              </div>
+            ) : results.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+                {results.map((item) => {
+                  const dealProp = item.activeDeal 
+                    ? { ...item.activeDeal, product: item } 
+                    : { 
+                        product: item, 
+                        precio_actual: item.precio_individual, 
+                        participantes_actuales: 0, 
+                        min_participantes: 1, 
+                        fecha_vencimiento: new Date(Date.now() + 86400000).toISOString() // 1 day from now
+                      };
+                  return <ProductCard key={item.id} deal={dealProp} />;
+                })}
+              </div>
+            ) : (
+              <div className="bg-white rounded-[3rem] p-12 md:p-20 text-center border border-gray-100 shadow-sm max-w-2xl mx-auto">
+                <ShoppingBag size={48} className="mx-auto text-gray-200 mb-6" />
+                <h2 className="text-2xl font-black text-gray-800 mb-4 tracking-tighter uppercase">No hay resultados</h2>
+                <p className="text-gray-500 font-medium mb-10">Intentá con otros filtros o términos de búsqueda.</p>
+                <button 
+                  onClick={() => setActiveFilters({ categoria: "todas", precioMin: "", precioMax: "", soloOfertas: false, orden: "relevancia" })}
+                  className="bg-[#009EE3] text-white font-black px-10 py-4 rounded-2xl uppercase tracking-widest text-xs"
                 >
-                  {/* Image Container */}
-                  <div className="relative aspect-square overflow-hidden bg-white border-b border-gray-50">
-                     <img 
-                      src={item.imagen_principal || "/placeholder-product.jpg"} 
-                      alt={item.nombre}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    {discount > 0 && (
-                      <div className="absolute top-4 left-4 bg-[#009EE3] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
-                        {discount}% AHORRO
-                      </div>
-                    )}
-                    {hasDeal && (
-                      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.2 rounded-lg shadow-sm border border-white/50">
-                        <span className="text-[9px] font-black uppercase text-[#00A650] tracking-tighter flex items-center gap-1">
-                          <Users size={10} /> OFERTA GRUPAL
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6 md:p-8 flex flex-col flex-1">
-                    <div className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mb-2">{item.categoria}</div>
-                    <h3 className="text-lg font-black text-gray-800 leading-tight mb-4 group-hover:text-[#009EE3] transition-colors line-clamp-2">
-                      {item.nombre}
-                    </h3>
-                    
-                    <div className="flex flex-col mb-6">
-                      {hasDeal && (
-                        <span className="text-xs text-gray-300 line-through font-bold">
-                          ${originalPrice.toLocaleString()}
-                        </span>
-                      )}
-                      <span className="text-3xl font-black text-[#009EE3] tracking-tighter">
-                        ${price.toLocaleString()}
-                      </span>
-                    </div>
-
-                    {hasDeal && (
-                      <div className="mt-auto space-y-3 pt-4 border-t border-gray-50">
-                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-tighter text-gray-400">
-                          <span className="flex items-center gap-1">
-                            {item.activeDeal.participantes_actuales}/{item.activeDeal.min_participantes} unidos
-                          </span>
-                          <span className="flex items-center gap-1 text-red-500">
-                            <Timer size={12} /> 23h 59m
-                          </span>
-                        </div>
-
-                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner">
-                          <div 
-                            className="h-full bg-gradient-to-r from-[#009EE3] to-[#00A650] rounded-full transition-all duration-1000"
-                            style={{ width: `${Math.min(100, progress)}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                    
-                    {!hasDeal && (
-                      <div className="mt-auto pt-4 border-t border-gray-50 flex items-center gap-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                        <ChevronRight size={14} className="text-[#009EE3]" /> Ver detalles
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="bg-white rounded-[3rem] p-12 md:p-20 text-center border border-gray-100 shadow-sm max-w-2xl mx-auto">
-            <div className="w-24 h-24 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
-              <ShoppingBag size={48} className="text-gray-200" />
-            </div>
-            <h2 className="text-2xl font-black text-gray-800 mb-4 tracking-tighter uppercase">No encontramos resultados</h2>
-            <p className="text-gray-500 font-medium mb-10">
-              Intentá con términos más generales como &quot;Electrónica&quot; o revisá que no haya errores de tipeo.
-            </p>
-            <Link 
-              href="/" 
-              className="inline-flex items-center gap-2 bg-[#009EE3] hover:bg-[#00A650] text-white font-black px-10 py-4 rounded-2xl shadow-xl shadow-[#009EE3]/20 transition-all uppercase tracking-tight active:scale-95"
-            >
-              Volver al inicio
-            </Link>
-          </div>
-        )}
+                  Limpiar filtros
+                </button>
+              </div>
+            )}
+          </main>
+        </div>
       </div>
+
+      {/* Mobile Filters Modal */}
+      {isMobileFiltersOpen && (
+        <div className="fixed inset-0 z-[100] bg-white flex flex-col">
+          <div className="flex items-center justify-between p-6 border-b border-gray-100">
+            <h2 className="text-xl font-black text-gray-800 uppercase tracking-tighter">Filtros</h2>
+            <button onClick={() => setIsMobileFiltersOpen(false)} className="p-2 bg-gray-50 rounded-xl">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-6">
+            <Sidebar />
+          </div>
+          <div className="p-6 border-t border-gray-100">
+             <button 
+              onClick={() => setIsMobileFiltersOpen(false)}
+              className="w-full bg-[#009EE3] text-white font-black py-4 rounded-2xl uppercase tracking-widest"
+             >
+                Aplicar filtros
+             </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

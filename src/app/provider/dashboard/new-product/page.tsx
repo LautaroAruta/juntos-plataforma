@@ -13,7 +13,8 @@ import {
   FileText,
   X,
   Loader2,
-  Trash2
+  Trash2,
+  Users
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -33,6 +34,8 @@ export default function NewProduct() {
     precio_grupal_minimo: "",
     stock: "",
     categoria: "tecnologia",
+    min_participantes: "5",
+    max_participantes: "50",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -71,9 +74,9 @@ export default function NewProduct() {
     setErrorMsg(null);
     console.log("1. Boton presionado, valores de formData:", formData);
 
-    if (!formData.nombre.trim() || !formData.descripcion.trim() || !formData.precio_individual || !formData.precio_grupal_minimo || !formData.stock) {
+    if (!formData.nombre.trim() || !formData.descripcion.trim() || !formData.precio_individual || !formData.precio_grupal_minimo || !formData.stock || !formData.min_participantes || !formData.max_participantes) {
       console.log("2. Error de validación, faltando campos");
-      setErrorMsg("Por favor completá todos los campos (Nombre, Descripción, Categoría, Stock y Precios) antes de publicar.");
+      setErrorMsg("Por favor completá todos los campos (incluyendo participantes mínimos y máximos) antes de publicar.");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -89,6 +92,8 @@ export default function NewProduct() {
       payload.append("precio_grupal_minimo", formData.precio_grupal_minimo);
       payload.append("stock", formData.stock);
       payload.append("categoria", formData.categoria);
+      payload.append("min_participantes", formData.min_participantes);
+      payload.append("max_participantes", formData.max_participantes);
 
       images.forEach((img) => {
         if (img.file) {
@@ -129,13 +134,8 @@ export default function NewProduct() {
         <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver al Panel
       </Link>
 
-<<<<<<< HEAD
       <div className="flex items-center gap-4 mb-10">
         <div className="w-16 h-16 rounded-3xl bg-[#FFF8E7] text-[#009EE3] flex items-center justify-center shadow-inner">
-=======
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-16 h-16 rounded-3xl bg-[#E8F7FF] text-[#00AEEF] flex items-center justify-center shadow-inner">
->>>>>>> origin/main
           <Package size={32} />
         </div>
         <div>
@@ -257,6 +257,46 @@ export default function NewProduct() {
                   onChange={handleChange}
                   className="w-full bg-[#FFF8E7] border border-[#009EE3]/20 rounded-2xl py-4 pl-10 pr-4 text-sm font-black focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all text-[#00A650]"
                   placeholder="0.00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Group Deal Config Card */}
+        <div className="glass-card rounded-[2.5rem] p-8 space-y-6">
+          <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-2">
+            <Users className="text-[#009EE3]" size={20} /> Configuración Grupal
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3 px-1">Mínimo Participantes</label>
+              <div className="relative">
+                <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  type="number"
+                  name="min_participantes"
+                  min="1"
+                  value={formData.min_participantes}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all"
+                  placeholder="Ej: 5"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3 px-1">Máximo Participantes</label>
+              <div className="relative">
+                <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  type="number"
+                  name="max_participantes"
+                  min="1"
+                  value={formData.max_participantes}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all"
+                  placeholder="Ej: 50"
                 />
               </div>
             </div>

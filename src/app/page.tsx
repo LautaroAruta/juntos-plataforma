@@ -18,20 +18,39 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import CountdownTimer from "@/components/shared/CountdownTimer";
+import HeroCarousel from "@/components/home/HeroCarousel";
+import SocialProof from "@/components/home/SocialProof";
+import FlashSale from "@/components/home/FlashSale";
+import ProductCard from "@/components/home/ProductCard";
+import BenefitsBar from "@/components/home/BenefitsBar";
 
 export default async function Home() {
   const supabase = await createClient();
   
   // Fetch active group deals
-  const { data: deals } = await supabase
+  const { data: allDeals } = await supabase
     .from('group_deals')
     .select(`
       *,
       product:products (*)
     `)
     .eq('estado', 'activo')
-    .limit(8)
     .order('creado_en', { ascending: false });
+
+  // Filtrar ofertas que no tengan producto asociado (evitar crashes)
+  const validDeals = (allDeals || []).filter((d: any) => d.product !== null);
+
+  // Logic for Hero Carousel: Sort by "least missing people"
+  const dealsForCarousel = validDeals
+    ? [...validDeals]
+        .sort((a, b) => (a.min_participantes - a.participantes_actuales) - (b.min_participantes - b.participantes_actuales))
+        .slice(0, 5)
+    : [];
+
+  const flashSaleDeal = dealsForCarousel[0];
+
+  // Deals for the grid
+  const deals = validDeals?.slice(0, 8) || [];
 
   // Fetch individual products (featured)
   const { data: featuredProducts } = await supabase
@@ -80,18 +99,19 @@ export default async function Home() {
               </Link>
             </div>
 
-            {/* Visual element (placeholder for product image) */}
-            <div className="hidden lg:block absolute right-20 top-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-white/10 rounded-[4rem] backdrop-blur-sm border border-white/20 transform rotate-6">
-               <div className="absolute inset-4 bg-white/20 rounded-[3rem] border border-white/30 flex items-center justify-center -rotate-3 overflow-hidden">
-                  <div className="animate-pulse flex flex-col items-center">
-                    <ShoppingBag size={80} className="text-white opacity-50 mb-4" />
-                    <div className="h-4 w-32 bg-white/20 rounded-full"></div>
-                  </div>
-               </div>
+            {/* Visual element (Carousel of deals about to close) */}
+            <div className="hidden lg:flex absolute right-10 xl:right-20 top-1/2 -translate-y-1/2 w-[400px] xl:w-[450px] items-center justify-center transform rotate-2">
+               <HeroCarousel deals={dealsForCarousel} />
             </div>
           </div>
         </div>
       </section>
+
+      {/* SECCIÓN 1.2 — Beneficios y Medios de Pago */}
+      <BenefitsBar />
+
+      {/* SECCIÓN 1.5 — Social Proof Ticker */}
+      <SocialProof />
 
       {/* SECCIÓN 2 — Categorías destacadas */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
@@ -104,8 +124,9 @@ export default async function Home() {
         {/* Horizontal scroll on mobile */}
         <div className="flex sm:grid sm:grid-cols-4 md:grid-cols-8 gap-4 overflow-x-auto pb-4 sm:pb-0 hide-scrollbar no-scrollbar">
           {categories.map((cat, i) => (
-            <div 
+            <Link 
               key={i} 
+              href={`/categoria/${encodeURIComponent(cat.name)}`}
               className="group cursor-pointer flex flex-col items-center gap-4 p-5 bg-white rounded-3xl border border-transparent shadow-sm hover:shadow-xl hover:shadow-[#009EE3]/5 transition-all min-w-[120px] sm:min-w-0"
             >
               <div className={`w-12 h-12 flex items-center justify-center transform group-hover:scale-110 transition-transform ${cat.color}`}>
@@ -114,10 +135,13 @@ export default async function Home() {
               <span className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest text-center group-hover:text-gray-800 transition-colors">
                 {cat.name}
               </span>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
+
+      {/* SECCIÓN 2.5 — Flash Sale del Día */}
+      {flashSaleDeal && <FlashSale deal={flashSaleDeal} />}
 
       {/* SECCIÓN 3 — Ofertas grupales activas */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
@@ -139,73 +163,9 @@ export default async function Home() {
               <ShoppingBag size={48} className="mx-auto text-gray-200 mb-4" />
               <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Pronto habrá nuevas ofertas grupales...</p>
             </div>
-          ) : deals.map((deal: any) => {
-            const progress = (deal.participantes_actuales / deal.min_participantes) * 100;
-            const percentageSaved = Math.round(
-              ((deal.product.precio_individual - deal.precio_actual) / deal.product.precio_individual) * 100
-            );
-
-            return (
-              <div 
-                key={deal.id}
-                className="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-gray-200 transition-all duration-500 flex flex-col border border-gray-50 relative"
-              >
-                {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-gray-50 border-b border-gray-50">
-                  <img 
-                    src={deal.product.imagen_principal || "/placeholder-product.jpg"} 
-                    alt={deal.product.nombre}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  {percentageSaved > 0 && (
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm">
-                      <span className="text-[#009EE3] font-black text-[10px] uppercase tracking-widest">{percentageSaved}% AHORRO</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="p-8 flex flex-col flex-1">
-                  <h3 className="text-gray-800 font-black text-lg leading-tight mb-4 group-hover:text-[#009EE3] transition-colors line-clamp-2">
-                    {deal.product.nombre}
-                  </h3>
-                  
-                  <div className="space-y-1 mb-6">
-                    <p className="text-gray-300 text-sm font-bold line-through">
-                      ${deal.product.precio_individual.toLocaleString()}
-                    </p>
-                    <p className="text-3xl font-black text-[#009EE3] tracking-tighter">
-                      ${deal.precio_actual.toLocaleString()}
-                    </p>
-                  </div>
-
-                  <div className="mt-auto pt-6 border-t border-gray-50 space-y-6">
-                    {/* Progress */}
-                    <div>
-                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
-                        <span>{deal.participantes_actuales} de {deal.min_participantes} unidos</span>
-                        <CountdownTimer targetDate={deal.fecha_vencimiento} showIcon={true} className="bg-transparent px-0 py-0" />
-                      </div>
-                      <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-gradient-to-r from-[#009EE3] to-[#00A650] rounded-full transition-all duration-700"
-                          style={{ width: `${Math.min(100, progress)}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <Link 
-                      href={`/productos/${deal.product.id}`}
-                      className="w-full bg-gray-50 hover:bg-[#009EE3] text-gray-800 hover:text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center text-sm uppercase tracking-tight group"
-                    >
-                      Ver oferta
-                      <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          ) : deals.map((deal: any) => (
+            <ProductCard key={deal.id} deal={deal} />
+          ))}
         </div>
       </section>
 
