@@ -117,7 +117,7 @@ export default function CheckoutPage() {
   // -------------------------
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F5F5] pb-24 pt-8">
+      <div className="min-h-screen bg-[#FFF8E7] pb-24 pt-8">
         <div className="max-w-6xl mx-auto px-4 lg:px-8">
            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-8" />
            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -138,7 +138,7 @@ export default function CheckoutPage() {
   // MAIN RENDER
   // -------------------------
   return (
-    <div className="min-h-screen bg-[#F5F5F5] pb-24 md:pb-12 pt-4">
+    <div className="min-h-screen bg-[#FFF8E7] pb-24 md:pb-12 pt-4">
       <div className="max-w-6xl mx-auto px-4 md:px-8 pt-4">
         
         <Link 
@@ -291,14 +291,29 @@ export default function CheckoutPage() {
                   )}
                </button>
 
-               <div className="flex items-start gap-4 bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100/50">
-                  <ShieldCheck className="text-[#00AEEF] shrink-0" size={24} />
-                  <div>
-                    <p className="text-xs font-black text-slate-800 uppercase tracking-tight mb-1">Compra Blindada</p>
-                    <p className="text-[10px] text-slate-400 leading-relaxed font-bold">
-                      Si el grupo no se completa en el tiempo límite, se te devuelve el dinero automáticamente.
-                    </p>
-                  </div>
+               <div className="space-y-3">
+                 <div className="flex items-start gap-4 bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100/50">
+                   <ShieldCheck className="text-[#00AEEF] shrink-0" size={24} />
+                   <div>
+                     <p className="text-xs font-black text-slate-800 uppercase tracking-tight mb-1">Compra Blindada</p>
+                     <p className="text-[10px] text-slate-400 leading-relaxed font-bold">
+                       Si el grupo no se completa en el tiempo límite, se te devuelve el dinero automáticamente.
+                     </p>
+                   </div>
+                 </div>
+                 <div className="flex items-center justify-center gap-4 py-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                   <span className="flex items-center gap-1.5">
+                     🔒 Pago Seguro
+                   </span>
+                   <span className="text-slate-200">|</span>
+                   <span className="flex items-center gap-1.5">
+                     🛡️ Mercado Pago
+                   </span>
+                   <span className="text-slate-200">|</span>
+                   <span className="flex items-center gap-1.5">
+                     ✓ SSL 256-bit
+                   </span>
+                 </div>
                </div>
             </div>
           </div>

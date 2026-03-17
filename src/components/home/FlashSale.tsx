@@ -63,7 +63,7 @@ export default function FlashSale({ deal }: FlashSaleProps) {
           <div className="flex-1 text-white space-y-8">
             <div className="flex items-center gap-3">
               <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-white/30 flex items-center gap-2">
-                <Zap size={14} className="text-yellow-400 fill-yellow-400" />
+                <Zap size={14} strokeWidth={2.5} className="text-yellow-400 fill-yellow-400" />
                 Super Oferta del Día
               </span>
               <CountdownTimer 
@@ -86,7 +86,7 @@ export default function FlashSale({ deal }: FlashSaleProps) {
                 <p className="text-white/60 text-sm font-bold line-through">
                   ${deal.product.precio_individual.toLocaleString()}
                 </p>
-                <p className="text-5xl font-black tracking-tighter">
+                <p className="text-5xl font-black tracking-tighter tabular-nums">
                   ${deal.precio_actual.toLocaleString()}
                 </p>
               </div>
@@ -96,7 +96,7 @@ export default function FlashSale({ deal }: FlashSaleProps) {
                   Participantes
                 </p>
                 <div className="flex items-center gap-2">
-                  <Users size={20} className="text-white" />
+                  <Users size={20} strokeWidth={2.5} className="text-white" />
                   <span className="text-2xl font-black">{deal.participantes_actuales}/{deal.min_participantes}</span>
                 </div>
               </div>

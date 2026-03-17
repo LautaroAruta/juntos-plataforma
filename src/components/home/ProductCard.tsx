@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ChevronRight, Timer, Users } from "lucide-react";
 import CountdownTimer from "@/components/shared/CountdownTimer";
+import GroupAvatars from "@/components/group-deals/GroupAvatars";
 import { motion } from "framer-motion";
 
 interface ProductCardProps {
@@ -31,7 +32,7 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
       className="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-[#009EE3]/10 transition-all duration-500 flex flex-col border border-gray-50 relative h-full"
     >
       {/* Image Section */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-50 border-b border-gray-50">
+      <div className="relative aspect-square overflow-hidden bg-gray-50 border-b border-gray-100 flex-shrink-0">
         <img 
           src={product.imagen_principal || "/placeholder-product.jpg"} 
           alt={product.nombre}
@@ -39,14 +40,14 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
         />
         {hasDeal && percentageSaved > 0 && (
           <div className="absolute top-4 left-4 bg-gradient-to-br from-[#009EE3] to-[#00A650] px-3 py-1.5 rounded-xl shadow-md border border-white/20">
-            <span className="text-white font-black text-[9px] uppercase tracking-widest">{percentageSaved}% AHORRO</span>
+            <span className="text-white font-black text-[11px] uppercase tracking-widest">{percentageSaved}% AHORRO</span>
           </div>
         )}
       </div>
 
       {/* Content Section */}
       <div className="p-7 flex flex-col flex-1">
-        <h3 className="text-gray-800 font-black text-[17px] leading-tight mb-4 group-hover:text-[#009EE3] transition-colors line-clamp-2 min-h-[2.8rem]">
+        <h3 className="text-gray-800 font-black text-[17px] leading-tight mb-4 group-hover:text-[#009EE3] transition-colors line-clamp-2 h-[2.6rem] overflow-hidden">
           {product.nombre}
         </h3>
         
@@ -57,21 +58,21 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
                 ${product.precio_individual.toLocaleString()}
               </p>
               <div className="flex items-center gap-2 bg-[#00A650]/5 border border-[#00A650]/10 px-3 py-2.5 rounded-[1.25rem] w-fit shadow-sm relative overflow-hidden">
-                <p className="text-[22px] font-black text-gray-900 tracking-tighter leading-none">
+                <p className="text-[22px] font-black text-gray-900 tracking-tighter leading-none tabular-nums">
                   ${deal.precio_actual.toLocaleString()}
                 </p>
                 <div className="flex flex-col border-l border-[#00A650]/20 pl-2 leading-[0.8]">
-                    <span className="text-[8px] font-black text-[#00A650] uppercase tracking-tighter">PRECIO</span>
-                    <span className="text-[8px] font-black text-[#00A650] uppercase tracking-tighter">GRUPAL</span>
+                    <span className="text-[11px] font-black text-[#00A650] uppercase tracking-tighter">PRECIO</span>
+                    <span className="text-[11px] font-black text-[#00A650] uppercase tracking-tighter">GRUPAL</span>
                 </div>
               </div>
             </>
           ) : (
             <div className="flex flex-col gap-1">
-              <p className="text-[22px] font-black text-gray-900 tracking-tighter leading-none">
+              <p className="text-[22px] font-black text-gray-900 tracking-tighter leading-none tabular-nums">
                 ${product.precio_individual.toLocaleString()}
               </p>
-              <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter ml-1">PRECIO INDIVIDUAL</span>
+              <span className="text-[11px] font-black text-gray-400 uppercase tracking-tighter ml-1">PRECIO INDIVIDUAL</span>
             </div>
           )}
         </div>
@@ -80,16 +81,13 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
           {hasDeal && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-lg bg-gray-50 text-[#009EE3] flex items-center justify-center shrink-0 border border-gray-100">
-                    <Users size={12} />
-                  </div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-tight">
-                    ¡{deal.participantes_actuales} / {deal.min_participantes} unidos!
-                  </span>
-                </div>
+                <GroupAvatars
+                  current={deal.participantes_actuales}
+                  min={deal.min_participantes}
+                  compact
+                />
                 
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-col items-end gap-1 shrink-0">
                   <CountdownTimer 
                       targetDate={deal.fecha_vencimiento} 
                       showIcon={true} 
@@ -102,7 +100,7 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
               
               {/* FOMO Label */}
               {deal.min_participantes - deal.participantes_actuales <= 3 && deal.min_participantes - deal.participantes_actuales > 0 && (
-                  <p className="text-[9px] font-black text-red-600 uppercase tracking-widest text-center animate-pulse">
+                  <p className="text-[11px] font-black text-brand-danger uppercase tracking-widest text-center animate-pulse">
                       ¡Solo quedan {deal.min_participantes - deal.participantes_actuales} plazas!
                   </p>
               )}
@@ -124,13 +122,15 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
             </div>
           )}
 
-          <Link 
-            href={`/productos/${product.id}`}
-            className="w-full bg-[#F8F9FA] hover:bg-[#009EE3] hover:shadow-lg hover:shadow-[#009EE3]/20 text-gray-800 hover:text-white font-black py-3.5 rounded-xl transition-all flex items-center justify-center text-xs uppercase tracking-tight group/btn border border-gray-100"
-          >
-            {hasDeal ? "Ver oferta" : "Ver detalle"}
-            <ChevronRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
-          </Link>
+          <div className="mt-auto pt-4">
+            <Link 
+              href={`/productos/${product.id}`}
+              className="w-full bg-[#F8F9FA] hover:bg-[#009EE3] hover:shadow-lg hover:shadow-[#009EE3]/20 text-gray-800 hover:text-white font-black py-4 rounded-xl transition-all flex items-center justify-center text-xs uppercase tracking-tight group/btn border border-gray-100"
+            >
+              {hasDeal ? "Ver oferta" : "Ver detalle"}
+              <ChevronRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
       </div>
     </motion.div>

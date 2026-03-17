@@ -12,10 +12,10 @@ export const metadata: Metadata = {
   title: "BANDHA | Compras Grupales",
   description: "Plataforma de comercio grupal. Únete a un grupo y obtén los mejores descuentos directamente de fábrica.",
   openGraph: {
-    title: "JUNTOS | Compras Grupales",
-    description: "Ahorramos juntos, compramos mejor. Unite a una oferta grupal en tu barrio.",
-    url: "https://juntos.com.ar",
-    siteName: "JUNTOS",
+    title: "BANDHA | Compras Grupales",
+    description: "Comprá en grupo, pagá menos. Unite a una oferta grupal en tu barrio.",
+    url: "https://bandha.com.ar",
+    siteName: "BANDHA",
     images: [
       {
         url: "/og-image.png", // We should ensure this exists or use a generic one
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "JUNTOS | Compras Grupales",
+    title: "BANDHA | Compras Grupales",
     description: "La revolución del ahorro grupal en tu barrio.",
     images: ["/og-image.png"],
   },
@@ -51,7 +51,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={cn("font-sans", geist.variable)}>
-      <body className={`${inter.variable} font-sans antialiased text-slate-800 bg-[#F5F5F5] min-h-screen flex flex-col`}>
+      <body className={`${inter.variable} font-sans antialiased text-slate-800 bg-[#FFF8E7] min-h-screen flex flex-col`}>
         <NextAuthProvider>
           <Header />
 

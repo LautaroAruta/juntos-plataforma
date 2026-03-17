@@ -28,7 +28,7 @@ function CheckoutSuccessContent() {
   }, [paymentId]);
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-[#FFF8E7] flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 text-center mt-[-3rem]">
         
         <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">

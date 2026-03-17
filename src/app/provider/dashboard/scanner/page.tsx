@@ -106,17 +106,17 @@ export default function QRScanner() {
     
     // Format expected: BANDHA|{paymentId}|{timestamp} o BANDHA-ORDER-{paymentId}
     try {
-      // Decode the premium format: JUNTOS|{paymentId}|{timestamp}
+      // Decode the premium format: BANDHA|{paymentId}|{timestamp}
       // Or fallback to the old format for compatibility if needed
       let paymentId = data;
       if (data.includes("|")) {
           const decoded = atob(data);
           const parts = decoded.split("|");
-          if (parts[0] === "JUNTOS") {
+          if (parts[0] === "BANDHA") {
             paymentId = parts[1];
           }
       } else {
-        paymentId = data.replace("JUNTOS-ORDER-", "");
+        paymentId = data.replace("BANDHA-ORDER-", "");
       }
 
       // 1. Fetch order details with product info
@@ -219,7 +219,7 @@ export default function QRScanner() {
                 </div>
                 
                 <h2 className="text-2xl font-black mb-1 tracking-tight">{result.message}</h2>
-                <p className="text-slate-400 text-xs mb-6 font-bold uppercase tracking-widest">Validado por JUNTOS</p>
+                <p className="text-slate-400 text-xs mb-6 font-bold uppercase tracking-widest">Validado por BANDHA</p>
                 
                 {result.order && (
                   <div className="w-full bg-white/10 backdrop-blur-md rounded-3xl p-4 mb-8 flex items-center gap-4 text-left border border-white/10">

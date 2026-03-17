@@ -17,7 +17,7 @@ export default async function ProductosPage() {
     .order('creado_en', { ascending: false });
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] pb-24">
+    <div className="min-h-screen bg-[#FFF8E7] pb-24">
       {/* Header Section */}
       <div className="bg-white border-b border-gray-100 mb-8 md:mb-12">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-16">

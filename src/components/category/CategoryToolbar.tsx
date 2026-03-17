@@ -89,7 +89,7 @@ export default function CategoryToolbar({ totalResults }: CategoryToolbarProps) 
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rango de Precio</label>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <span className="text-[9px] font-bold text-slate-500 ml-1">Mínimo</span>
+                        <span className="text-[11px] font-bold text-slate-500 ml-1">Mínimo</span>
                         <input 
                           type="number" 
                           placeholder="$"
@@ -100,7 +100,7 @@ export default function CategoryToolbar({ totalResults }: CategoryToolbarProps) 
                         />
                       </div>
                       <div className="space-y-2">
-                        <span className="text-[9px] font-bold text-slate-500 ml-1">Máximo</span>
+                        <span className="text-[11px] font-bold text-slate-500 ml-1">Máximo</span>
                         <input 
                           type="number" 
                           placeholder="$"
@@ -133,7 +133,7 @@ export default function CategoryToolbar({ totalResults }: CategoryToolbarProps) 
                         </div>
                         <div className="text-left">
                           <p className="text-xs font-black text-slate-800 uppercase tracking-tight">Por finalizar</p>
-                          <p className="text-[9px] font-medium text-slate-500 leading-none mt-1">Ofertas que cierran hoy</p>
+                          <p className="text-[11px] font-medium text-slate-500 leading-none mt-1">Ofertas que cierran hoy</p>
                         </div>
                       </div>
                       <Check size={18} className="text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />

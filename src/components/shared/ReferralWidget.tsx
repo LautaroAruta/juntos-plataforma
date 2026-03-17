@@ -26,7 +26,7 @@ export default function ReferralWidget({ referralCode, referralStats }: Referral
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "¡Unite a JUNTOS!",
+          title: "¡Unite a BANDHA!",
           text: "Comprá en grupo y ahorrá hasta un 50%. Usá mi link para un beneficio extra:",
           url: referralLink,
         });
@@ -52,7 +52,7 @@ export default function ReferralWidget({ referralCode, referralStats }: Referral
 
       <div className="space-y-4">
         <p className="text-slate-600 text-sm font-medium leading-relaxed">
-          Compartí JUNTOS y recibí <span className="text-[#0077CC] font-bold">beneficios exclusivos</span> cuando tus amigos completen su primera compra.
+          Compartí BANDHA y recibí <span className="text-[#0077CC] font-bold">beneficios exclusivos</span> cuando tus amigos completen su primera compra.
         </p>
 
         <div className="grid grid-cols-2 gap-4">

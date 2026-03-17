@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import AnimatedLogo from "@/components/layout/AnimatedLogo";
 import { createClient } from "@/lib/supabase/client";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -67,9 +68,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm px-4 py-2 md:py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 md:gap-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center shrink-0">
-          <span className="text-2xl md:text-3xl font-black text-[#009EE3] tracking-tighter">BANDHA</span>
-        </Link>
+        <AnimatedLogo />
 
         {/* Search Bar - Mercado Libre Style with Autocomplete */}
         <div className="flex-1 max-w-2xl relative group hidden sm:block" ref={dropdownRef}>

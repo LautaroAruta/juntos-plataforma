@@ -99,7 +99,7 @@ export default async function CategoryPage({
   const description = category?.description || "Explorá todas las ofertas de esta categoría.";
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] pb-20">
+    <div className="min-h-screen bg-[#FFF8E7] pb-20">
       {/* Category Hero */}
       <section className={`w-full bg-gradient-to-br ${bgColor} pt-12 pb-20 px-4 md:px-6 relative overflow-hidden`}>
         <div className="absolute inset-0 opacity-10">

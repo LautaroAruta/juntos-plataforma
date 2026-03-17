@@ -96,7 +96,7 @@ export default async function ClienteDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] pb-24">
+    <div className="min-h-screen bg-[#FFF8E7] pb-24">
       {/* ... header ... */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row md:items-center justify-between gap-8">

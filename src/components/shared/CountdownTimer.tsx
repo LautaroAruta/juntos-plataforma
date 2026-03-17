@@ -78,8 +78,8 @@ export default function CountdownTimer({
 
   if (variant === 'simple') {
     return (
-      <div className={`flex items-center gap-1 font-black tracking-tight ${className}`}>
-        {showIcon && <Timer size={iconSize} className={isUrgent ? "animate-pulse text-red-600" : "text-slate-400"} />}
+      <div className={`flex items-center gap-1 font-black tracking-tight tabular-nums ${className}`}>
+        {showIcon && <Timer size={iconSize} className={isUrgent ? "animate-pulse text-brand-danger" : "text-slate-400"} />}
         <span className="text-slate-900 uppercase">
           {timeLeft.days > 0 ? (
             `¡${timeLeft.days} ${timeLeft.days === 1 ? 'DÍA' : 'DÍAS'}!`
@@ -94,8 +94,8 @@ export default function CountdownTimer({
   }
 
   return (
-    <div className={`flex items-center gap-1.5 font-black tracking-tight transition-all ${className}`}>
-      {showIcon && <Timer size={iconSize} className={isUrgent ? "animate-pulse text-red-600" : "text-slate-400"} />}
+    <div className={`flex items-center gap-1.5 font-black tracking-tight transition-all tabular-nums ${className}`}>
+      {showIcon && <Timer size={iconSize} className={isUrgent ? "animate-pulse text-brand-danger" : "text-slate-400"} />}
       <div className="flex items-baseline gap-1">
         {timeLeft.days > 0 && (
           <>

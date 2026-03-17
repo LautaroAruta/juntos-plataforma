@@ -3,11 +3,61 @@ import Link from "next/link";
 import { ArrowLeft, Users, Timer, Info, Star, Share2, ShieldCheck, Truck, ChevronRight, Award, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import JoinDealButton from "@/components/group-deals/JoinDealButton";
+import GroupAvatars from "@/components/group-deals/GroupAvatars";
 import CountdownTimer from "@/components/shared/CountdownTimer";
 import ProductGallery from "@/components/products/ProductGallery";
 import ProductShareActions from "@/components/products/ProductShareActions";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const supabase = await createClient();
+  const { id } = await params;
+
+  const { data: product } = await supabase
+    .from('products')
+    .select('*, group_deals (*)')
+    .eq('id', id)
+    .single();
+
+  if (!product) {
+    return { title: 'Producto no encontrado | BANDHA' };
+  }
+
+  const activeDeal = product.group_deals?.find((d: any) => d.estado === 'activo');
+  const price = activeDeal ? activeDeal.precio_actual : product.precio_individual;
+  const discount = activeDeal ? Math.round((1 - price / product.precio_individual) * 100) : 0;
+  const remaining = activeDeal ? activeDeal.min_participantes - activeDeal.participantes_actuales : 0;
+
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://bandha.com.ar';
+
+  const ogTitle = activeDeal && remaining > 0
+    ? `¡Falta${remaining === 1 ? '' : 'n'} solo ${remaining} para desbloquear ${discount}% OFF en ${product.nombre}!`
+    : `${product.nombre} — $${price.toLocaleString()} en BANDHA`;
+
+  const ogImageUrl = `${baseUrl}/api/og?title=${encodeURIComponent(product.nombre)}&price=${price}&originalPrice=${product.precio_individual}&discount=${discount}&image=${encodeURIComponent(product.imagen_principal || '')}&participants=${activeDeal?.participantes_actuales || 0}&minParticipants=${activeDeal?.min_participantes || 5}`;
+
+  return {
+    title: `${product.nombre} | BANDHA`,
+    description: ogTitle,
+    openGraph: {
+      title: ogTitle,
+      description: `Comprá en grupo y ahorrá ${discount}% en ${product.nombre}. Precio grupal: $${price.toLocaleString()}`,
+      url: `${baseUrl}/productos/${id}`,
+      siteName: 'BANDHA',
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      locale: 'es_AR',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogTitle,
+      description: `Precio grupal: $${price.toLocaleString()} (${discount}% OFF)`,
+      images: [ogImageUrl],
+    },
+  };
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
@@ -56,7 +106,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const progress = activeDeal ? (activeDeal.participantes_actuales / activeDeal.min_participantes) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] pb-24 md:pb-12 pt-4">
+    <div className="min-h-screen bg-[#FFF8E7] pb-24 md:pb-12 pt-4">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
 
         {/* Breadcrumbs */}
@@ -118,10 +168,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 </span>
                 {activeDeal && (
                   <div className="flex flex-col border-l border-[#00A650]/20 pl-3 shrink-0 leading-[0.85]">
-                    <span className="text-[9px] md:text-[10px] font-black text-[#00A650] uppercase tracking-tighter">
+                    <span className="text-[11px] md:text-[12px] font-black text-[#00A650] uppercase tracking-tighter">
                       OFERTA
                     </span>
-                    <span className="text-[9px] md:text-[10px] font-black text-[#00A650] uppercase tracking-tighter">
+                    <span className="text-[11px] md:text-[12px] font-black text-[#00A650] uppercase tracking-tighter">
                       GRUPAL
                     </span>
                   </div>
@@ -150,16 +200,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     />
                   </div>
 
-                  {/* Fila Media: Quórum Unificado */}
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-slate-50 shrink-0">
-                      <Users size={18} className="text-[#009EE3]" />
-                    </div>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-xl font-black text-slate-900 leading-none tracking-tighter">¡{activeDeal.participantes_actuales} unido!</span>
-                      <span className="text-base font-medium text-slate-400">/ {activeDeal.min_participantes} requeridos</span>
-                    </div>
-                  </div>
+                  {/* Fila Media: Avatares Modulares (Efecto Zeigarnik) */}
+                  <GroupAvatars
+                    current={activeDeal.participantes_actuales}
+                    min={activeDeal.min_participantes}
+                  />
 
                   {/* Barra de Progreso Dominante y Vibrante */}
                   <div className="space-y-2.5">
@@ -206,7 +251,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   productName={product.nombre}
                   price={price}
                   productId={id}
-                  baseUrl={process.env.NEXTAUTH_URL || 'https://juntos.com.ar'}
+                  baseUrl={process.env.NEXTAUTH_URL || 'https://bandha.com.ar'}
                 />
               </div>
 
@@ -268,7 +313,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   <h4 className="font-bold text-gray-800 text-xs md:text-sm mb-2 line-clamp-2 leading-snug group-hover:text-[#009EE3] transition-colors">{p.nombre}</h4>
                   <div className="mt-auto">
                     <p className="font-black text-base md:text-lg text-gray-900 tracking-tight">${p.precio_individual.toLocaleString()}</p>
-                    <p className="text-[9px] text-[#00A650] font-black uppercase mt-1 tracking-widest">Oferta disponible</p>
+                    <p className="text-[11px] text-[#00A650] font-black uppercase mt-1 tracking-widest">Oferta disponible</p>
                   </div>
                 </Link>
               ))}
@@ -282,7 +327,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md p-4 pb-8 border-t border-gray-100 flex flex-col gap-3 z-50 shadow-[0_-20px_50px_rgba(0,0,0,0.08)]">
         <div className="flex items-center gap-3">
           <button className="flex-1 h-12 bg-white text-gray-500 font-bold rounded-xl border border-gray-100 active:scale-95 flex flex-col items-center justify-center leading-none">
-            <span className="text-[8px] uppercase tracking-widest mb-0.5">Individual</span>
+            <span className="text-[11px] uppercase tracking-widest mb-0.5">Individual</span>
             <span className="text-sm font-black text-gray-700">${originalPrice.toLocaleString()}</span>
           </button>
           {activeDeal && (

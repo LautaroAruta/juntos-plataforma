@@ -19,7 +19,6 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import CountdownTimer from "@/components/shared/CountdownTimer";
 import HeroCarousel from "@/components/home/HeroCarousel";
-import SocialProof from "@/components/home/SocialProof";
 import FlashSale from "@/components/home/FlashSale";
 import ProductCard from "@/components/home/ProductCard";
 import BenefitsBar from "@/components/home/BenefitsBar";
@@ -102,8 +101,6 @@ export default async function Home() {
       {/* SECCIÓN 1.2 — Beneficios y Medios de Pago */}
       <BenefitsBar />
 
-      {/* SECCIÓN 1.5 — Social Proof Ticker */}
-      <SocialProof />
 
       {/* SECCIÓN 2 — Categorías destacadas */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
@@ -113,20 +110,33 @@ export default async function Home() {
           </h2>
         </div>
         
-        {/* Horizontal scroll on mobile */}
-        <div className="flex sm:grid sm:grid-cols-4 md:grid-cols-8 gap-4 overflow-x-auto pb-4 sm:pb-0 hide-scrollbar no-scrollbar">
+        {/* Horizontal scroll on mobile with padding to avoid clipping on hover scale */}
+        <div className="flex sm:grid sm:grid-cols-4 md:grid-cols-8 gap-4 overflow-x-auto p-6 md:p-8 -m-6 md:-m-8 hide-scrollbar no-scrollbar">
           {CATEGORIES.map((cat, i) => {
             const Icon = (LucideIcons as any)[cat.iconName];
             return (
               <Link 
                 key={i} 
                 href={`/categoria/${cat.slug}`}
-                className="group cursor-pointer flex flex-col items-center gap-4 p-5 bg-white rounded-3xl border border-transparent shadow-sm hover:shadow-xl hover:shadow-[#009EE3]/5 transition-all min-w-[120px] sm:min-w-0"
+                className={`group cursor-pointer flex flex-col items-center gap-4 p-5 rounded-[2.5rem] border border-white/50 shadow-sm transition-all min-w-[120px] sm:min-w-0
+                  bg-white/40 backdrop-blur-md 
+                  hover:scale-110 hover:shadow-xl hover:bg-white/80
+                  ${cat.id === 'tecnologia' ? 'hover:shadow-blue-500/20' : ''}
+                  ${cat.id === 'moda' ? 'hover:shadow-pink-500/20' : ''}
+                  ${cat.id === 'hogar' ? 'hover:shadow-orange-500/20' : ''}
+                  ${cat.id === 'alimentos' ? 'hover:shadow-green-500/20' : ''}
+                  ${cat.id === 'deportes' ? 'hover:shadow-red-500/20' : ''}
+                  ${cat.id === 'belleza' ? 'hover:shadow-purple-500/20' : ''}
+                  ${cat.id === 'juguetes' ? 'hover:shadow-yellow-500/20' : ''}
+                  ${cat.id === 'herramientas' ? 'hover:shadow-slate-500/20' : ''}
+                `}
               >
-                <div className={`w-12 h-12 flex items-center justify-center transform group-hover:scale-110 transition-transform ${cat.color}`}>
-                  {Icon && <Icon size={24} />}
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform shadow-inner
+                  ${cat.color.replace('text-', 'bg-')}/15 ${cat.color}
+                `}>
+                  {Icon && <Icon size={28} strokeWidth={2.5} />}
                 </div>
-                <span className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest text-center group-hover:text-gray-800 transition-colors">
+                <span className="label-badge text-slate-700 group-hover:text-slate-900 transition-colors text-center">
                   {cat.name}
                 </span>
               </Link>

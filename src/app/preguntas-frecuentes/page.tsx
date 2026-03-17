@@ -27,7 +27,7 @@ export default function FAQsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] pb-24">
+    <div className="min-h-screen bg-[#FFF8E7] pb-24">
       <div className="bg-white border-b border-gray-100 mb-12">
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
           <Link href="/" className="inline-flex items-center gap-2 text-[#009EE3] font-bold text-sm uppercase tracking-widest mb-8 hover:gap-3 transition-all">
