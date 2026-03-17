@@ -12,51 +12,127 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-       return NextResponse.json({ message: "No autorizado" }, { status: 401 });
+      return NextResponse.json({ message: "No autorizado" }, { status: 401 });
     }
 
-    const { 
-      nombreEmpresa, 
-      nombreContacto, 
-      telefono, 
-      cuit, 
-      categoria, 
-      descripcion 
+    const {
+      tipoCuenta,
+      nombreEmpresa,
+      razonSocial,
+      nombreContacto,
+      telefono,
+      cuit,
+      categoria,
+      descripcion,
+      domicilioFiscal,
+      codigoPostal,
+      provincia,
+      cbuCvu,
+      titularCuenta,
     } = await req.json();
 
-    const { error: providerError } = await supabaseAdmin
-      .from('providers')
-      .insert({
-        id: session.user.id,
-        nombre_empresa: nombreEmpresa,
-        nombre_contacto: nombreContacto,
-        email: session.user.email,
-        telefono: telefono,
-        cuit_rut: cuit,
-        categoria: categoria,
-        descripcion: descripcion,
-        verificado: false
-      });
+    // ─── Server-side validation ────────────────────────
+    if (!tipoCuenta || !nombreEmpresa || !nombreContacto || !cuit || !categoria) {
+      return NextResponse.json(
+        { message: "Faltan campos obligatorios" },
+        { status: 400 }
+      );
+    }
+
+    // Validate CUIT format (basic)
+    const cuitClean = cuit.replace(/[-\s]/g, "");
+    if (!/^\d{11}$/.test(cuitClean)) {
+      return NextResponse.json(
+        { message: "Formato de CUIT inválido" },
+        { status: 400 }
+      );
+    }
+
+    // Validate CBU if provided
+    if (cbuCvu) {
+      const cbuClean = cbuCvu.replace(/\s/g, "");
+      if (cbuClean.length > 0 && !/^\d{22}$/.test(cbuClean)) {
+        return NextResponse.json(
+          { message: "El CBU debe tener 22 dígitos" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // ─── Upsert provider ───────────────────────────────
+    // Check if provider already exists (for re-registration after rejection)
+    const { data: existing } = await supabaseAdmin
+      .from("providers")
+      .select("id")
+      .eq("id", session.user.id)
+      .single();
+
+    const providerData = {
+      id: session.user.id,
+      tipo_cuenta: tipoCuenta,
+      nombre_empresa: nombreEmpresa,
+      razon_social: razonSocial || null,
+      nombre_contacto: nombreContacto,
+      email: session.user.email,
+      telefono: telefono || null,
+      cuit_rut: cuit,
+      categoria: categoria,
+      descripcion: descripcion || null,
+      domicilio_fiscal: domicilioFiscal || null,
+      codigo_postal: codigoPostal || null,
+      provincia: provincia || null,
+      cbu_cvu: cbuCvu ? cbuCvu.replace(/\s/g, "") : null,
+      titular_cuenta: titularCuenta || null,
+      verificado: false,
+      estado_kyc: "pendiente" as const,
+      kyc_actualizado_en: new Date().toISOString(),
+    };
+
+    let providerError;
+
+    if (existing) {
+      // Update existing provider
+      const { error } = await supabaseAdmin
+        .from("providers")
+        .update(providerData)
+        .eq("id", session.user.id);
+      providerError = error;
+    } else {
+      // Insert new provider
+      const { error } = await supabaseAdmin
+        .from("providers")
+        .insert(providerData);
+      providerError = error;
+    }
 
     if (providerError) {
-      console.error("Provider insertion error:", providerError);
-      return NextResponse.json({ message: "Error al crear perfil de proveedor" }, { status: 500 });
+      console.error("Provider upsert error:", providerError);
+      return NextResponse.json(
+        { message: "Error al guardar perfil de proveedor: " + providerError.message },
+        { status: 500 }
+      );
     }
 
     // Actualizar el rol en la tabla users
     const { error: userUpdateError } = await supabaseAdmin
-      .from('users')
-      .update({ rol: 'proveedor' })
-      .eq('id', session.user.id);
+      .from("users")
+      .update({ rol: "proveedor" })
+      .eq("id", session.user.id);
 
     if (userUpdateError) {
       console.error("User role update error:", userUpdateError);
-      return NextResponse.json({ message: "Perfil guardado, pero hubo un error al asignar el rol." }, { status: 500 });
+      // Non-blocking: profile was saved, rol update can be retried
     }
 
-    return NextResponse.json({ message: "Proveedor completado exitosamente" }, { status: 201 });
+    return NextResponse.json(
+      { message: "Proveedor registrado exitosamente" },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Provider onboarding error:", error);
-    return NextResponse.json({ message: "Error interno del servidor" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error interno del servidor" },
+      { status: 500 }
+    );
   }
 }

@@ -1,82 +1,169 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { 
-  Building2, 
-  User, 
-  Mail, 
-  Lock, 
-  Phone, 
-  FileText, 
-  Tag, 
-  ChevronLeft, 
-  Loader2, 
-  Clock,
-  Briefcase
+import {
+  Building2,
+  User,
+  Phone,
+  FileText,
+  Tag,
+  ChevronLeft,
+  Loader2,
+  Briefcase,
+  MapPin,
+  Hash,
+  Landmark,
+  ArrowRight,
+  ArrowLeft,
+  Shield,
+  Store,
+  UserCircle,
+  Info,
 } from "lucide-react";
 
-const CATEGORIES = [
-  "Electrónica",
-  "Ropa y calzado",
-  "Alimentos",
-  "Hogar y decoración",
-  "Deportes",
-  "Belleza y cuidado personal",
-  "Juguetes",
-  "Otros"
-];
+import { FormStepper } from "@/components/providers/FormStepper";
+import { FormTooltip } from "@/components/providers/FormTooltip";
+import {
+  validateCUIT,
+  formatCUIT,
+  validateCBU,
+  formatCBU,
+  validatePhoneAR,
+  PROVINCIAS_AR,
+  CATEGORIES,
+} from "@/lib/validators";
+
+const TOTAL_STEPS = 5;
 
 export default function RegisterProveedor() {
   const router = useRouter();
   const { data: session, update } = useSession();
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
+    tipoCuenta: "" as "persona_fisica" | "empresa" | "",
     nombreEmpresa: "",
+    razonSocial: "",
     nombreContacto: session?.user?.name || "",
     email: session?.user?.email || "",
-    password: "",
     telefono: "",
     cuit: "",
     categoria: "",
     descripcion: "",
+    domicilioFiscal: "",
+    codigoPostal: "",
+    provincia: "",
+    cbuCvu: "",
+    titularCuenta: "",
   });
 
-  const validateCUIT = (cuit: string) => {
-    // Format XX-XXXXXXXX-X
-    const cuitRegex = /^\d{2}-\d{8}-\d{1}$/;
-    return cuitRegex.test(cuit);
+  useEffect(() => {
+    if (session?.user) {
+      setFormData((prev) => ({
+        ...prev,
+        nombreContacto: prev.nombreContacto || session.user?.name || "",
+        email: prev.email || session.user?.email || "",
+      }));
+    }
+  }, [session]);
+
+  const updateField = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Limpiar error del campo al editar
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // ─── Validación por paso ─────────────────────────────────
+  const validateStep = (stepNum: number): boolean => {
+    const errors: Record<string, string> = {};
+
+    switch (stepNum) {
+      case 1:
+        if (!formData.tipoCuenta) errors.tipoCuenta = "Seleccioná un tipo de cuenta";
+        break;
+
+      case 2:
+        if (!formData.nombreEmpresa.trim()) errors.nombreEmpresa = "Ingresá el nombre de tu empresa";
+        if (formData.tipoCuenta === "empresa" && !formData.razonSocial.trim())
+          errors.razonSocial = "La razón social es obligatoria para empresas";
+        if (!formData.nombreContacto.trim()) errors.nombreContacto = "Ingresá tu nombre";
+        if (!formData.categoria) errors.categoria = "Seleccioná una categoría";
+        break;
+
+      case 3: {
+        if (!formData.cuit.trim()) {
+          errors.cuit = "El CUIT es obligatorio";
+        } else {
+          const cuitResult = validateCUIT(formData.cuit);
+          if (!cuitResult.valid) errors.cuit = cuitResult.message;
+        }
+        if (!formData.telefono.trim()) {
+          errors.telefono = "El teléfono es obligatorio";
+        } else {
+          const phoneResult = validatePhoneAR(formData.telefono);
+          if (!phoneResult.valid) errors.telefono = phoneResult.message;
+        }
+        if (!formData.domicilioFiscal.trim()) errors.domicilioFiscal = "El domicilio fiscal es obligatorio";
+        if (!formData.provincia) errors.provincia = "Seleccioná una provincia";
+        if (!formData.codigoPostal.trim()) errors.codigoPostal = "El código postal es obligatorio";
+        break;
+      }
+
+      case 4: {
+        if (!formData.cbuCvu.trim()) {
+          errors.cbuCvu = "El CBU/CVU es obligatorio";
+        } else {
+          const cbuClean = formData.cbuCvu.replace(/\s/g, "");
+          if (cbuClean.length === 22) {
+            const cbuResult = validateCBU(cbuClean);
+            if (!cbuResult.valid) errors.cbuCvu = cbuResult.message;
+          } else if (cbuClean.length !== 22) {
+            errors.cbuCvu = "El CBU debe tener 22 dígitos";
+          }
+        }
+        if (!formData.titularCuenta.trim()) errors.titularCuenta = "El titular es obligatorio";
+        break;
+      }
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const nextStep = () => {
+    if (validateStep(step)) {
+      setStep(step + 1);
+      setError("");
+    }
+  };
+
+  const prevStep = () => {
+    setStep(step - 1);
     setError("");
+    setFieldErrors({});
+  };
 
-    if (!validateCUIT(formData.cuit)) {
-      setError("Formato de CUIT inválido (Ej: 20-12345678-9).");
-      return;
-    }
-
-    if (!session && formData.password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
-      return;
-    }
-
-    if (!formData.categoria) {
-      setError("Por favor selecciona una categoría.");
-      return;
-    }
+  const handleSubmit = async () => {
+    if (!validateStep(4)) return;
 
     setLoading(true);
+    setError("");
 
     try {
-      const endpoint = session ? "/api/provider/onboarding" : "/api/auth/register-provider";
-      
+      const endpoint = "/api/provider/onboarding";
+
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -90,11 +177,10 @@ export default function RegisterProveedor() {
       }
 
       if (session) {
-        // Refrescar la sesión para que NextAuth vea que ahora somos proveedor
-        await update({ rol: 'proveedor' });
+        await update({ rol: "proveedor" });
       }
 
-      setSuccess(true);
+      router.push("/provider/estado-verificacion");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -102,187 +188,540 @@ export default function RegisterProveedor() {
     }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6 text-center">
-        <div className="max-w-md bg-white rounded-[3rem] p-12 shadow-2xl shadow-slate-200/50 border border-slate-50">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-50 text-[#009EE3] mb-8">
-            <Clock size={48} />
-          </div>
-          <h1 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">¡Recibido!</h1>
-          <p className="text-slate-500 font-medium mb-8">
-            Tu cuenta de proveedor está configurada. Ahora podés empezar a cargar tus productos.
-          </p>
-          <Link href="/provider/dashboard" className="inline-block bg-[#009EE3] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#009EE3]/20 hover:bg-[#00A650] transition-all uppercase tracking-widest text-sm">
-            Ir a mi Panel
-          </Link>
-        </div>
+  // ─── INPUT HELPER ─────────────────────────────────────────
+  const InputField = ({
+    label,
+    name,
+    icon: Icon,
+    placeholder,
+    tooltip,
+    type = "text",
+    mono = false,
+    value,
+    onChange,
+  }: {
+    label: string;
+    name: string;
+    icon: any;
+    placeholder: string;
+    tooltip?: string;
+    type?: string;
+    mono?: boolean;
+    value: string;
+    onChange: (val: string) => void;
+  }) => (
+    <div>
+      <label className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">
+        {label}
+        {tooltip && <FormTooltip text={tooltip} />}
+      </label>
+      <div className="relative">
+        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} strokeWidth={2.5} />
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full bg-slate-50 border ${
+            fieldErrors[name] ? "border-red-300 ring-2 ring-red-100" : "border-slate-100"
+          } rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all ${
+            mono ? "font-mono" : ""
+          }`}
+        />
       </div>
-    );
-  }
+      {fieldErrors[name] && (
+        <p className="text-red-500 text-[11px] font-bold mt-1.5 px-1 animate-in fade-in slide-in-from-top-1 duration-200">
+          ⚠️ {fieldErrors[name]}
+        </p>
+      )}
+    </div>
+  );
 
   return (
-    <div className="pb-24 px-4 pt-8 max-w-lg mx-auto">
-      {!session && (
-        <Link href="/auth/login" className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-800 font-bold mb-8 transition-colors group">
-          <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver al Login
+    <div className="min-h-screen bg-[#FFF8E7] pb-24 px-4 pt-8">
+      <div className="max-w-lg mx-auto">
+        {/* Back link */}
+        <Link
+          href="/elegir-rol"
+          className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-800 font-bold mb-8 transition-colors group"
+        >
+          <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver
         </Link>
-      )}
 
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">
-          {session ? "Completar Perfil" : "Registro Proveedor"}
-        </h1>
-        <p className="text-slate-500 font-medium italic">Impulsá tu negocio con BANDHA.</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Nombre de la Empresa</label>
-            <div className="relative">
-              <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="text"
-                required
-                placeholder="Empresa S.A."
-                value={formData.nombreEmpresa}
-                onChange={(e) => setFormData({...formData, nombreEmpresa: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Responsable del Negocio</label>
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="text"
-                required
-                placeholder="Nombre y Apellido"
-                value={formData.nombreContacto}
-                onChange={(e) => setFormData({...formData, nombreContacto: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-             <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">CUIT</label>
-                <div className="relative">
-                  <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                  <input
-                    type="text"
-                    required
-                    placeholder="XX-XXXXXXXX-X"
-                    value={formData.cuit}
-                    onChange={(e) => setFormData({...formData, cuit: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all font-mono"
-                  />
-                </div>
-             </div>
-             <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Categoría</label>
-                <div className="relative">
-                  <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                  <select
-                    required
-                    value={formData.categoria}
-                    onChange={(e) => setFormData({...formData, categoria: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all appearance-none"
-                  >
-                    <option value="">Seleccionar...</option>
-                    {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
-                </div>
-             </div>
-          </div>
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">
+            Registro Proveedor
+          </h1>
+          <p className="text-slate-500 font-medium">Impulsá tu negocio con BANDHA.</p>
         </div>
 
-        <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-          {!session && (
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email Empresarial</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                <input
-                  type="email"
-                  required={!session}
-                  placeholder="ventas@empresa.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-                />
+        {/* Stepper */}
+        <FormStepper currentStep={step} totalSteps={TOTAL_STEPS} />
+
+        {/* ─── STEP 1: Tipo de Cuenta ───────────────────── */}
+        {step === 1 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
+              <h2 className="text-xl font-black text-slate-800 tracking-tight mb-2">¿Qué tipo de cuenta tenés?</h2>
+              <p className="text-slate-400 text-sm mb-8">
+                Esto nos ayuda a configurar tu perfil fiscal correctamente.
+              </p>
+
+              <div className="grid grid-cols-1 gap-4">
+                {/* Persona Física */}
+                <button
+                  type="button"
+                  onClick={() => updateField("tipoCuenta", "persona_fisica")}
+                  className={`p-6 rounded-2xl border-2 text-left transition-all group ${
+                    formData.tipoCuenta === "persona_fisica"
+                      ? "border-[#009EE3] bg-[#009EE3]/5 shadow-lg shadow-[#009EE3]/10"
+                      : "border-slate-100 hover:border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all ${
+                        formData.tipoCuenta === "persona_fisica"
+                          ? "bg-[#009EE3] text-white"
+                          : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
+                      }`}
+                    >
+                      <UserCircle size={28} strokeWidth={2} />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-slate-800 text-lg tracking-tight">Persona Física</h3>
+                      <p className="text-slate-400 text-sm mt-1">
+                        Monotributista o autónomo. Usás tu DNI y CUIT personal.
+                      </p>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Empresa */}
+                <button
+                  type="button"
+                  onClick={() => updateField("tipoCuenta", "empresa")}
+                  className={`p-6 rounded-2xl border-2 text-left transition-all group ${
+                    formData.tipoCuenta === "empresa"
+                      ? "border-[#009EE3] bg-[#009EE3]/5 shadow-lg shadow-[#009EE3]/10"
+                      : "border-slate-100 hover:border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all ${
+                        formData.tipoCuenta === "empresa"
+                          ? "bg-[#009EE3] text-white"
+                          : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
+                      }`}
+                    >
+                      <Store size={28} strokeWidth={2} />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-slate-800 text-lg tracking-tight">Empresa</h3>
+                      <p className="text-slate-400 text-sm mt-1">
+                        SA, SRL, SAS u otra razón social. Requiere CUIT de empresa y datos del representante legal.
+                      </p>
+                    </div>
+                  </div>
+                </button>
               </div>
+
+              {fieldErrors.tipoCuenta && (
+                <p className="text-red-500 text-[11px] font-bold mt-4 px-1 animate-in fade-in duration-200">
+                  ⚠️ {fieldErrors.tipoCuenta}
+                </p>
+              )}
             </div>
-          )}
 
-          <div>
-             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Teléfono de Contacto</label>
-             <div className="relative">
-               <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-               <input
-                 type="text"
-                 required
-                 placeholder="Ej: +54 9 11 ..."
-                 value={formData.telefono}
-                 onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all font-mono"
-               />
-             </div>
-          </div>
-
-          {!session && (
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Contraseña</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                <input
-                  type="password"
-                  required={!session}
-                  placeholder="Mínimo 8 caracteres"
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-           <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Descripción del Negocio (Opcional)</label>
-              <div className="relative">
-                <Briefcase className="absolute left-4 top-4 text-slate-300" size={18} />
-                <textarea
-                  placeholder="Contanos brevemente qué vendes..."
-                  value={formData.descripcion}
-                  onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
-                  rows={3}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all resize-none"
-                />
-              </div>
-           </div>
-        </div>
-
-        {error && (
-          <div className="bg-red-50 text-red-500 text-xs font-bold p-4 rounded-2xl border border-red-100 animate-shake">
-            ⚠️ {error}
+            <button
+              onClick={nextStep}
+              className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 text-base uppercase tracking-tight active:scale-95"
+            >
+              Siguiente <ArrowRight size={20} />
+            </button>
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-slate-800 hover:bg-black text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-slate-800/20 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest active:scale-95 disabled:grayscale"
-        >
-          {loading ? <Loader2 className="animate-spin" size={24} /> : "Finalizar Empresa"}
-        </button>
-      </form>
+        {/* ─── STEP 2: Datos del Negocio ────────────────── */}
+        {step === 2 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 space-y-5">
+              <h2 className="text-xl font-black text-slate-800 tracking-tight mb-1">Datos del Negocio</h2>
+
+              <InputField
+                label="Nombre Comercial"
+                name="nombreEmpresa"
+                icon={Building2}
+                placeholder="Ej: Mi Tienda Online"
+                tooltip="El nombre con el que tus clientes te conocen"
+                value={formData.nombreEmpresa}
+                onChange={(v) => updateField("nombreEmpresa", v)}
+              />
+
+              {formData.tipoCuenta === "empresa" && (
+                <InputField
+                  label="Razón Social"
+                  name="razonSocial"
+                  icon={Briefcase}
+                  placeholder="Ej: Mi Empresa S.R.L."
+                  tooltip="Tal como figura en tu acta constitutiva"
+                  value={formData.razonSocial}
+                  onChange={(v) => updateField("razonSocial", v)}
+                />
+              )}
+
+              <InputField
+                label="Responsable / Representante Legal"
+                name="nombreContacto"
+                icon={User}
+                placeholder="Nombre y Apellido"
+                tooltip={
+                  formData.tipoCuenta === "empresa"
+                    ? "Nombre del representante legal de la empresa"
+                    : "Tu nombre completo tal como figura en tu DNI"
+                }
+                value={formData.nombreContacto}
+                onChange={(v) => updateField("nombreContacto", v)}
+              />
+
+              <div>
+                <label className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">
+                  Categoría Principal
+                  <FormTooltip text="Seleccioná la categoría que mejor describe los productos que vas a vender" />
+                </label>
+                <div className="relative">
+                  <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} strokeWidth={2.5} />
+                  <select
+                    value={formData.categoria}
+                    onChange={(e) => updateField("categoria", e.target.value)}
+                    className={`w-full bg-slate-50 border ${
+                      fieldErrors.categoria ? "border-red-300 ring-2 ring-red-100" : "border-slate-100"
+                    } rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all appearance-none`}
+                  >
+                    <option value="">Seleccionar...</option>
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {fieldErrors.categoria && (
+                  <p className="text-red-500 text-[11px] font-bold mt-1.5 px-1">⚠️ {fieldErrors.categoria}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">
+                  Descripción del Negocio
+                  <FormTooltip text="Contanos qué vendés para que podamos destacar tu perfil" />
+                </label>
+                <div className="relative">
+                  <Briefcase className="absolute left-4 top-4 text-slate-300" size={18} strokeWidth={2.5} />
+                  <textarea
+                    placeholder="Contanos brevemente qué vendés..."
+                    value={formData.descripcion}
+                    onChange={(e) => updateField("descripcion", e.target.value)}
+                    rows={3}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={prevStep}
+                className="flex-1 bg-slate-100 text-slate-600 font-black py-5 rounded-[2rem] hover:bg-slate-200 transition-all flex items-center justify-center gap-2 uppercase tracking-tight text-sm"
+              >
+                <ArrowLeft size={18} /> Volver
+              </button>
+              <button
+                onClick={nextStep}
+                className="flex-[2] bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
+              >
+                Siguiente <ArrowRight size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 3: Datos Fiscales ───────────────────── */}
+        {step === 3 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 space-y-5">
+              <h2 className="text-xl font-black text-slate-800 tracking-tight mb-1">Datos Fiscales</h2>
+
+              <InputField
+                label="CUIT"
+                name="cuit"
+                icon={FileText}
+                placeholder="XX-XXXXXXXX-X"
+                tooltip="Tu Clave Única de Identificación Tributaria. Necesario para facturación electrónica y cumplimiento fiscal."
+                mono
+                value={formData.cuit}
+                onChange={(v) => updateField("cuit", formatCUIT(v))}
+              />
+
+              <InputField
+                label="Teléfono de Contacto"
+                name="telefono"
+                icon={Phone}
+                placeholder="+54 9 11 1234-5678"
+                tooltip="Tu teléfono celular. Lo usaremos para contactarte sobre tus ventas."
+                mono
+                value={formData.telefono}
+                onChange={(v) => updateField("telefono", v)}
+              />
+
+              <InputField
+                label="Domicilio Fiscal"
+                name="domicilioFiscal"
+                icon={MapPin}
+                placeholder="Av. Corrientes 1234, Piso 3"
+                tooltip="La dirección que figura en tu constancia de inscripción en AFIP."
+                value={formData.domicilioFiscal}
+                onChange={(v) => updateField("domicilioFiscal", v)}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">
+                    Provincia
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} strokeWidth={2.5} />
+                    <select
+                      value={formData.provincia}
+                      onChange={(e) => updateField("provincia", e.target.value)}
+                      className={`w-full bg-slate-50 border ${
+                        fieldErrors.provincia ? "border-red-300 ring-2 ring-red-100" : "border-slate-100"
+                      } rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all appearance-none`}
+                    >
+                      <option value="">Seleccionar...</option>
+                      {PROVINCIAS_AR.map((prov) => (
+                        <option key={prov} value={prov}>
+                          {prov}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {fieldErrors.provincia && (
+                    <p className="text-red-500 text-[11px] font-bold mt-1.5 px-1">⚠️ {fieldErrors.provincia}</p>
+                  )}
+                </div>
+
+                <InputField
+                  label="Código Postal"
+                  name="codigoPostal"
+                  icon={Hash}
+                  placeholder="C1414"
+                  mono
+                  value={formData.codigoPostal}
+                  onChange={(v) => updateField("codigoPostal", v)}
+                />
+              </div>
+            </div>
+
+            {/* Info Box */}
+            <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-2xl p-4">
+              <Shield className="text-blue-500 shrink-0 mt-0.5" size={18} strokeWidth={2.5} />
+              <div>
+                <p className="text-blue-800 font-bold text-xs">Tus datos están protegidos</p>
+                <p className="text-blue-600 text-[11px] mt-0.5 leading-relaxed">
+                  Usamos cifrado de extremo a extremo. Tu información fiscal solo se comparte con AFIP según lo requiera la ley.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={prevStep}
+                className="flex-1 bg-slate-100 text-slate-600 font-black py-5 rounded-[2rem] hover:bg-slate-200 transition-all flex items-center justify-center gap-2 uppercase tracking-tight text-sm"
+              >
+                <ArrowLeft size={18} /> Volver
+              </button>
+              <button
+                onClick={nextStep}
+                className="flex-[2] bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
+              >
+                Siguiente <ArrowRight size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 4: Datos Bancarios ──────────────────── */}
+        {step === 4 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 space-y-5">
+              <h2 className="text-xl font-black text-slate-800 tracking-tight mb-1">Datos Bancarios</h2>
+              <p className="text-slate-400 text-sm -mt-1">
+                Para poder transferirte el dinero de tus ventas.
+              </p>
+
+              <InputField
+                label="CBU / CVU"
+                name="cbuCvu"
+                icon={Landmark}
+                placeholder="0000 0000 0000 0000 0000 00"
+                tooltip="Tu Clave Bancaria Uniforme (22 dígitos). Lo encontrás en tu homebanking o billetera virtual."
+                mono
+                value={formData.cbuCvu}
+                onChange={(v) => updateField("cbuCvu", formatCBU(v))}
+              />
+
+              <InputField
+                label="Titular de la Cuenta"
+                name="titularCuenta"
+                icon={User}
+                placeholder="Nombre tal como aparece en el banco"
+                tooltip="Debe coincidir con el titular de la cuenta bancaria asociada al CBU/CVU."
+                value={formData.titularCuenta}
+                onChange={(v) => updateField("titularCuenta", v)}
+              />
+            </div>
+
+            {/* Security badges */}
+            <div className="flex items-start gap-3 bg-green-50 border border-green-100 rounded-2xl p-4">
+              <Landmark className="text-green-500 shrink-0 mt-0.5" size={18} strokeWidth={2.5} />
+              <div>
+                <p className="text-green-800 font-bold text-xs">Pagos seguros con Mercado Pago</p>
+                <p className="text-green-600 text-[11px] mt-0.5 leading-relaxed">
+                  BANDHA utiliza el sistema de split de pagos oficial de Mercado Pago. Tus cobros se acreditan automáticamente.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={prevStep}
+                className="flex-1 bg-slate-100 text-slate-600 font-black py-5 rounded-[2rem] hover:bg-slate-200 transition-all flex items-center justify-center gap-2 uppercase tracking-tight text-sm"
+              >
+                <ArrowLeft size={18} /> Volver
+              </button>
+              <button
+                onClick={nextStep}
+                className="flex-[2] bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
+              >
+                Revisar Datos <ArrowRight size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 5: Resumen y Confirmación ───────────── */}
+        {step === 5 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 space-y-6">
+              <h2 className="text-xl font-black text-slate-800 tracking-tight">Revisá tus datos</h2>
+
+              {/* Summary sections */}
+              <SummarySection
+                title="Tipo de Cuenta"
+                items={[
+                  {
+                    label: "Tipo",
+                    value: formData.tipoCuenta === "persona_fisica" ? "Persona Física" : "Empresa",
+                  },
+                ]}
+              />
+
+              <SummarySection
+                title="Datos del Negocio"
+                items={[
+                  { label: "Nombre Comercial", value: formData.nombreEmpresa },
+                  ...(formData.razonSocial ? [{ label: "Razón Social", value: formData.razonSocial }] : []),
+                  { label: "Responsable", value: formData.nombreContacto },
+                  { label: "Categoría", value: formData.categoria },
+                  ...(formData.descripcion ? [{ label: "Descripción", value: formData.descripcion }] : []),
+                ]}
+              />
+
+              <SummarySection
+                title="Datos Fiscales"
+                items={[
+                  { label: "CUIT", value: formData.cuit },
+                  { label: "Teléfono", value: formData.telefono },
+                  { label: "Domicilio", value: formData.domicilioFiscal },
+                  { label: "Provincia", value: formData.provincia },
+                  { label: "Código Postal", value: formData.codigoPostal },
+                ]}
+              />
+
+              <SummarySection
+                title="Datos Bancarios"
+                items={[
+                  { label: "CBU/CVU", value: formData.cbuCvu },
+                  { label: "Titular", value: formData.titularCuenta },
+                ]}
+              />
+            </div>
+
+            {/* Terms */}
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+              <Info className="text-amber-500 shrink-0 mt-0.5" size={18} strokeWidth={2.5} />
+              <p className="text-amber-700 text-[11px] leading-relaxed">
+                Al confirmar, aceptás los{" "}
+                <Link href="/terminos-y-condiciones" className="underline font-bold">
+                  Términos y Condiciones
+                </Link>{" "}
+                y la{" "}
+                <Link href="/privacidad" className="underline font-bold">
+                  Política de Privacidad
+                </Link>{" "}
+                de BANDHA. Tu información será verificada por nuestro equipo.
+              </p>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 text-red-500 text-xs font-bold p-4 rounded-2xl border border-red-100 animate-shake">
+                ⚠️ {error}
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                onClick={prevStep}
+                disabled={loading}
+                className="flex-1 bg-slate-100 text-slate-600 font-black py-5 rounded-[2rem] hover:bg-slate-200 transition-all flex items-center justify-center gap-2 uppercase tracking-tight text-sm disabled:opacity-50"
+              >
+                <ArrowLeft size={18} /> Volver
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="flex-[2] bg-[#00A650] hover:bg-[#009EE3] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#00A650]/20 transition-all flex items-center justify-center gap-3 text-base uppercase tracking-tight active:scale-95 disabled:grayscale"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" size={24} />
+                ) : (
+                  <>Confirmar y Registrar</>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
+// ─── SUMMARY SECTION COMPONENT ──────────────────────────────
+function SummarySection({ title, items }: { title: string; items: { label: string; value: string }[] }) {
+  return (
+    <div className="border border-slate-100 rounded-2xl p-5">
+      <h3 className="text-[10px] font-black text-[#009EE3] uppercase tracking-widest mb-3">{title}</h3>
+      <div className="space-y-2">
+        {items.map((item, i) => (
+          <div key={i} className="flex justify-between items-baseline">
+            <span className="text-slate-400 text-xs font-medium">{item.label}</span>
+            <span className="text-slate-800 text-sm font-bold text-right max-w-[60%] truncate">{item.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

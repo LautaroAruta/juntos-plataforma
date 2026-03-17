@@ -32,12 +32,17 @@ export default function ElegirRolPage() {
       if (role === "proveedor") {
         const { data: providerProfile } = await supabase
           .from("providers")
-          .select("id")
+          .select("id, estado_kyc, verificado")
           .eq("id", session.user.id)
           .single();
           
         if (providerProfile) {
-          targetPath = "/provider/dashboard";
+          // Si KYC aprobado o verificado → dashboard, sino → estado verificación
+          if (providerProfile.verificado || providerProfile.estado_kyc === "aprobado") {
+            targetPath = "/provider/dashboard";
+          } else {
+            targetPath = "/provider/estado-verificacion";
+          }
         }
       }
 
