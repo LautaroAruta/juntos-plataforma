@@ -63,34 +63,19 @@ export default function JoinDealButton({ dealId }: { dealId: string }) {
   };
 
   return (
-    <div className="flex gap-3 w-full">
-      <button
-        onClick={handleJoin}
-        disabled={loading}
-        className="flex-[3] bg-gradient-to-r from-[#009EE3] to-[#00A650] text-white font-black py-4 px-6 rounded-2xl shadow-xl shadow-[#009EE3]/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-70 group"
-      >
-        {loading ? (
-          <Loader2 className="animate-spin" size={24} />
-        ) : (
-          <>
-            <Users size={24} className="group-hover:scale-110 transition-transform" />
-            <div className="flex flex-col items-start leading-tight">
-              <span className="text-[10px] uppercase opacity-80">Unirse al grupo</span>
-              <span className="text-lg">COMPRAR BANDHA</span>
-            </div>
-          </>
-        )}
-      </button>
-
-      {/* Botón de Compartir Viral */}
-      <button
-        onClick={handleShare}
-        title="Invitar a un amigo (WhatsApp)"
-        className="flex-1 max-w-[80px] bg-green-500 hover:bg-green-600 text-white font-black py-4 px-0 rounded-2xl shadow-xl shadow-green-500/20 flex flex-col items-center justify-center gap-1 transition-all active:scale-95"
-      >
-        <Share2 size={20} className="mb-0.5" />
-        <span className="text-[9px] uppercase tracking-tighter">Invitar</span>
-      </button>
-    </div>
+    <button
+      onClick={handleJoin}
+      disabled={loading}
+      className="w-full bg-[#00A650] hover:bg-[#008E4A] text-white font-black py-4 px-6 rounded-2xl shadow-lg shadow-[#00A650]/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-70 group"
+    >
+      {loading ? (
+        <Loader2 className="animate-spin" size={20} />
+      ) : (
+        <>
+          <Users size={20} className="group-hover:scale-110 transition-transform" />
+          <span className="text-base uppercase tracking-tight">Comprar en grupo</span>
+        </>
+      )}
+    </button>
   );
 }

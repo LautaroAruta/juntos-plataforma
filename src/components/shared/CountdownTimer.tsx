@@ -8,15 +8,27 @@ interface CountdownTimerProps {
   onExpire?: () => void;
   className?: string;
   showIcon?: boolean;
+  iconSize?: number;
+  variant?: 'default' | 'simple';
 }
 
-export default function CountdownTimer({ targetDate, onExpire, className = "", showIcon = true }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState<{
-    hours: number;
-    minutes: number;
-    seconds: number;
-    totalSeconds: number;
-  }>({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 });
+interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  totalSeconds: number;
+}
+
+export default function CountdownTimer({ 
+  targetDate, 
+  onExpire, 
+  className = "", 
+  showIcon = true,
+  iconSize = 12,
+  variant = 'default'
+}: CountdownTimerProps) {
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 });
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -26,11 +38,12 @@ export default function CountdownTimer({ targetDate, onExpire, className = "", s
 
       if (difference <= 0) {
         if (onExpire) onExpire();
-        return { hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 };
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 };
       }
 
       return {
-        hours: Math.floor((difference / (1000 * 60 * 60))),
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / (1000 * 60)) % 60),
         seconds: Math.floor((difference / 1000) % 60),
         totalSeconds: Math.floor(difference / 1000),
@@ -63,17 +76,39 @@ export default function CountdownTimer({ targetDate, onExpire, className = "", s
     );
   }
 
+  if (variant === 'simple') {
+    return (
+      <div className={`flex items-center gap-1 font-black tracking-tight ${className}`}>
+        {showIcon && <Timer size={iconSize} className={isUrgent ? "animate-pulse text-red-600" : "text-slate-400"} />}
+        <span className="text-slate-900 uppercase">
+          {timeLeft.days > 0 ? (
+            `¡${timeLeft.days} ${timeLeft.days === 1 ? 'DÍA' : 'DÍAS'}!`
+          ) : timeLeft.hours > 0 ? (
+            `¡${timeLeft.hours} HORAS!`
+          ) : (
+            `¡${timeLeft.minutes} MIN!`
+          )}
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className={`flex items-center gap-1 font-black text-sm px-2 py-1 rounded-lg transition-all ${
-      isUrgent 
-        ? "text-red-500 bg-red-50 animate-pulse ring-1 ring-red-200" 
-        : "text-[#00AEEF] bg-[#E8F7FF]"
-    } ${className}`}>
-      {showIcon && <Timer size={14} className={isUrgent ? "animate-spin-slow" : ""} />}
-      <span>
-        {timeLeft.hours > 0 && `${timeLeft.hours}h `}
-        {timeLeft.minutes}m {timeLeft.seconds}s
-      </span>
+    <div className={`flex items-center gap-1.5 font-black tracking-tight transition-all ${className}`}>
+      {showIcon && <Timer size={iconSize} className={isUrgent ? "animate-pulse text-red-600" : "text-slate-400"} />}
+      <div className="flex items-baseline gap-1">
+        {timeLeft.days > 0 && (
+          <>
+            <span className="text-slate-900">{timeLeft.days}</span>
+            <span className="text-[10px] text-slate-900 uppercase tracking-widest mr-1">DÍAS</span>
+          </>
+        )}
+        <span className="text-slate-900">{timeLeft.hours}</span>
+        <span className="text-[10px] text-slate-900 font-bold mr-1">horas</span>
+        <span className="text-slate-300 font-light mx-0.5">|</span>
+        <span className="text-slate-900">{timeLeft.minutes}</span>
+        <span className="text-[10px] text-slate-900 font-bold">min!</span>
+      </div>
     </div>
   );
 }

@@ -26,6 +26,8 @@ export default function NewProduct() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [images, setImages] = useState<{file?: File, url: string}[]>([]);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     nombre: "",
@@ -36,6 +38,7 @@ export default function NewProduct() {
     categoria: "tecnologia",
     min_participantes: "5",
     max_participantes: "50",
+    duracion_horas: "48",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -94,6 +97,7 @@ export default function NewProduct() {
       payload.append("categoria", formData.categoria);
       payload.append("min_participantes", formData.min_participantes);
       payload.append("max_participantes", formData.max_participantes);
+      payload.append("duracion_horas", formData.duracion_horas);
 
       images.forEach((img) => {
         if (img.file) {
@@ -112,9 +116,12 @@ export default function NewProduct() {
         throw new Error(data.message || "Error al subir el producto.");
       }
 
-      alert("Producto publicado exitosamente. ¡A vender!");
-      router.push("/provider/dashboard");
-      router.refresh();
+
+      setCreatedProductId(data.id);
+      setShowSuccessModal(true);
+      // alert("Producto publicado exitosamente. ¡A vender!");
+      // router.push("/provider/dashboard");
+      // router.refresh();
 
     } catch (err: any) {
       console.error("Error capturado:", err.message);
@@ -199,9 +206,13 @@ export default function NewProduct() {
                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm font-medium focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all appearance-none"
               >
                 <option value="tecnologia">Tecnología</option>
+                <option value="moda">Moda</option>
                 <option value="hogar">Hogar</option>
                 <option value="alimentos">Alimentos</option>
-                <option value="moda">Moda</option>
+                <option value="deportes">Deportes</option>
+                <option value="belleza">Belleza</option>
+                <option value="juguetes">Juguetes</option>
+                <option value="herramientas">Herramientas</option>
               </select>
             </div>
 
@@ -300,6 +311,23 @@ export default function NewProduct() {
                 />
               </div>
             </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3 px-1">Duración de la oferta (Horas)</label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">HRS</div>
+                <input
+                  type="number"
+                  name="duracion_horas"
+                  min="1"
+                  value={formData.duracion_horas}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#009EE3]/10 focus:border-[#009EE3] transition-all"
+                  placeholder="Ej: 48"
+                />
+              </div>
+              <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider px-1">El temporizador se activará recién cuando se una la primer persona.</p>
+            </div>
           </div>
         </div>
 
@@ -351,6 +379,46 @@ export default function NewProduct() {
           )}
         </button>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300"
+            onClick={() => router.push("/provider/dashboard")}
+          />
+          <div className="relative bg-white rounded-[3rem] p-8 md:p-12 max-w-md w-full shadow-2xl border border-slate-100 animate-in zoom-in-95 fade-in duration-300 text-center">
+            <div className="w-24 h-24 bg-green-100 text-green-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
+              <Package size={48} className="animate-bounce" />
+            </div>
+            
+            <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter mb-4 leading-none">
+              ¡Producto <br /> Publicado!
+            </h2>
+            <p className="text-slate-500 font-medium mb-10 px-4">
+              Tu oferta ya está activa y lista para recibir compradores.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <Link
+                href={`/productos/${createdProductId}`}
+                className="w-full bg-[#009EE3] text-white font-black py-4 rounded-2xl shadow-xl shadow-[#009EE3]/20 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-tight flex items-center justify-center gap-2"
+              >
+                Ver publicación
+              </Link>
+              <button
+                onClick={() => {
+                  router.push("/provider/dashboard");
+                  router.refresh();
+                }}
+                className="w-full bg-slate-100 text-slate-600 font-black py-4 rounded-2xl hover:bg-slate-200 transition-all uppercase tracking-tight text-xs"
+              >
+                Volver al panel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

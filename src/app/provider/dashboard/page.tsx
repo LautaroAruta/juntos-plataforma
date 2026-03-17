@@ -24,13 +24,14 @@ import { useSession } from "next-auth/react";
 export default function ProviderDashboard() {
   const { data: session } = useSession();
   const [products, setProducts] = useState<any[]>([]);
-  // ... rest of state ...
   const [stats, setStats] = useState({
     totalSales: "$0",
     activeParticipants: 0,
     completedDeals: 0
   });
   const [loading, setLoading] = useState(true);
+  const [productToDelete, setProductToDelete] = useState<{id: string, name: string} | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const supabase = createClient();
   const router = useRouter();
 
@@ -77,22 +78,37 @@ export default function ProviderDashboard() {
     setLoading(false);
   }
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Estás seguro que querés eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
+  const handleDelete = (id: string, name: string) => {
+    setProductToDelete({ id, name });
+  };
 
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
+    
+    setIsDeleting(true);
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
+      const response = await fetch(`/api/products/${productToDelete.id}`, {
+        method: 'DELETE',
+      });
       
-      if (error) throw error;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Error al eliminar el producto");
+      }
       
-      setProducts(products.filter(p => p.id !== id));
-      toast.success("Producto eliminado");
-    } catch (err) {
+      setProducts(products.filter(p => p.id !== productToDelete.id));
+      toast.success("Producto eliminado permanentemente");
+      setProductToDelete(null);
+      
+      // Forzar actualización de cache y estado
+      router.refresh();
+      setTimeout(() => fetchProducts(), 500);
+    } catch (err: any) {
       console.error("Error deleting product:", err);
-      toast.error("No se pudo eliminar el producto.");
+      toast.error(`Error: ${err.message || "No se pudo eliminar el producto"}`);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -255,6 +271,45 @@ export default function ProviderDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300"
+            onClick={() => !isDeleting && setProductToDelete(null)}
+          />
+          <div className="relative bg-white rounded-[3rem] p-8 md:p-12 max-w-md w-full shadow-2xl border border-slate-100 animate-in zoom-in-95 fade-in duration-300 text-center">
+            <div className="w-24 h-24 bg-red-100 text-red-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
+              <Trash2 size={48} className={isDeleting ? "animate-pulse" : ""} />
+            </div>
+            
+            <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter mb-4 leading-none">
+              ¿Eliminar <br /> Producto?
+            </h2>
+            <p className="text-slate-500 font-medium mb-10 px-4">
+              Estás por eliminar <span className="text-slate-900 font-bold">"{productToDelete.name}"</span>. Esta acción es permanente y no se puede deshacer.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="w-full bg-red-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-red-500/20 hover:bg-red-600 active:scale-95 transition-all uppercase tracking-tight flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isDeleting ? "Eliminando..." : "Sí, eliminar ahora"}
+              </button>
+              <button
+                onClick={() => setProductToDelete(null)}
+                disabled={isDeleting}
+                className="w-full bg-slate-100 text-slate-600 font-black py-4 rounded-2xl hover:bg-slate-200 transition-all uppercase tracking-tight text-xs disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

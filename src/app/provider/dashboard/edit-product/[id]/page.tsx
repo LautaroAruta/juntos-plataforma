@@ -13,7 +13,9 @@ import {
   FileText,
   X,
   Loader2,
-  Trash2
+  Trash2,
+  Edit,
+  Check
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -26,6 +28,8 @@ export default function EditProduct() {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
   // Existing images from DB
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -40,6 +44,7 @@ export default function EditProduct() {
     precio_grupal_minimo: "",
     stock: "",
     categoria: "tecnologia",
+    duracion_horas: "48",
   });
 
   useEffect(() => {
@@ -51,6 +56,7 @@ export default function EditProduct() {
         .single();
         
       if (data) {
+        // ... (existing logic)
         setFormData({
           nombre: data.nombre,
           descripcion: data.descripcion || "",
@@ -58,16 +64,30 @@ export default function EditProduct() {
           precio_grupal_minimo: data.precio_grupal_minimo.toString(),
           stock: data.stock.toString(),
           categoria: data.categoria || "tecnologia",
+          duracion_horas: "48", // Default
         });
+
+        // Fetch the group deal to get duracion_horas
+        const { data: deal } = await supabase
+          .from('group_deals')
+          .select('duracion_horas')
+          .eq('product_id', productId)
+          .eq('estado', 'activo')
+          .single();
         
-        // Cargar imágenes existentes (si las hay)
-        // Por ahora Soporte básico para imagen_principal, o array de imágenes si existiera
+        if (deal) {
+          setFormData(prev => ({
+            ...prev,
+            duracion_horas: (deal.duracion_horas || 48).toString()
+          }));
+        }
+        
         const imgs = [];
         if (data.imagen_principal) imgs.push(data.imagen_principal);
         setExistingImages(imgs);
       } else {
-        alert("No se encontró el producto.");
-        router.push("/provider/dashboard");
+        setErrorMsg("No se encontró el producto.");
+        setTimeout(() => router.push("/provider/dashboard"), 3000);
       }
       setLoading(false);
     }
@@ -151,16 +171,26 @@ export default function EditProduct() {
         
       if (updateError) throw updateError;
 
+      // Update the group deal duracion_horas
+      await supabase
+        .from('group_deals')
+        .update({ duracion_horas: parseInt(formData.duracion_horas) })
+        .eq('product_id', productId)
+        .eq('estado', 'activo');
+
       // TODO: Handle new image uploads correctly by calling storage 
       // y actualizando 'imagen_principal' en la base de datos si hay imágenes nuevas.
       // (Por ahora simplificaremos asumiendo que el usuario quiere editar datos, las fotos son un plus).
 
-      alert("Producto actualizado exitosamente. ¡A vender!");
-      router.push("/provider/dashboard");
-      router.refresh();
+
+      setShowSuccessModal(true);
+      // alert("Producto actualizado exitosamente. ¡A vender!");
+      // router.push("/provider/dashboard");
+      // router.refresh();
 
     } catch (err: any) {
-      alert("Error al editar producto: " + err.message);
+      setErrorMsg("Error al editar producto: " + err.message);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setSaving(false);
     }
@@ -192,6 +222,18 @@ export default function EditProduct() {
           <p className="text-slate-500">Actualizá la información de tu publicación</p>
         </div>
       </div>
+
+      {errorMsg && (
+        <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start justify-between animate-in fade-in slide-in-from-top-2">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-red-800 font-bold text-lg">Hubo un problema</h3>
+            <p className="text-red-600 font-medium">{errorMsg}</p>
+          </div>
+          <button onClick={() => setErrorMsg(null)} className="text-red-400 hover:text-red-600 transition-colors p-1 bg-white rounded-full shadow-sm">
+            <X size={20} />
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Info Card */}
@@ -302,6 +344,23 @@ export default function EditProduct() {
                 />
               </div>
             </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3 px-1">Duración de la oferta (Horas)</label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">HRS</div>
+                <input
+                  type="number"
+                  name="duracion_horas"
+                  min="1"
+                  value={formData.duracion_horas}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-4 focus:ring-[#00AEEF]/10 focus:border-[#00AEEF] transition-all"
+                  placeholder="Ej: 48"
+                />
+              </div>
+              <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider px-1">El temporizador se activará recién cuando se una la primer persona.</p>
+            </div>
           </div>
         </div>
 
@@ -370,6 +429,46 @@ export default function EditProduct() {
           )}
         </button>
       </form>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300"
+            onClick={() => router.push("/provider/dashboard")}
+          />
+          <div className="relative bg-white rounded-[3rem] p-8 md:p-12 max-w-md w-full shadow-2xl border border-slate-100 animate-in zoom-in-95 fade-in duration-300 text-center">
+            <div className="w-24 h-24 bg-green-100 text-green-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
+              <Check className="animate-bounce" size={48} />
+            </div>
+            
+            <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter mb-4 leading-none">
+              ¡Cambios <br /> Guardados!
+            </h2>
+            <p className="text-slate-500 font-medium mb-10 px-4">
+              Tu publicación ha sido actualizada correctamente.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <Link
+                href={`/productos/${productId}`}
+                className="w-full bg-[#009EE3] text-white font-black py-4 rounded-2xl shadow-xl shadow-[#009EE3]/20 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-tight flex items-center justify-center gap-2"
+              >
+                Ver publicación
+              </Link>
+              <button
+                onClick={() => {
+                  router.push("/provider/dashboard");
+                  router.refresh();
+                }}
+                className="w-full bg-slate-100 text-slate-600 font-black py-4 rounded-2xl hover:bg-slate-200 transition-all uppercase tracking-tight text-xs"
+              >
+                Volver al panel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

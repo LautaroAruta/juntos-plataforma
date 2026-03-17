@@ -269,18 +269,13 @@ function SearchResultsContent() {
               </div>
             ) : results.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-                {results.map((item) => {
-                  const dealProp = item.activeDeal 
-                    ? { ...item.activeDeal, product: item } 
-                    : { 
-                        product: item, 
-                        precio_actual: item.precio_individual, 
-                        participantes_actuales: 0, 
-                        min_participantes: 1, 
-                        fecha_vencimiento: new Date(Date.now() + 86400000).toISOString() // 1 day from now
-                      };
-                  return <ProductCard key={item.id} deal={dealProp} />;
-                })}
+                {results.map((item) => (
+                  <ProductCard 
+                    key={item.id} 
+                    deal={item.activeDeal} 
+                    product={!item.activeDeal ? item : undefined} 
+                  />
+                ))}
               </div>
             ) : (
               <div className="bg-white rounded-[3rem] p-12 md:p-20 text-center border border-gray-100 shadow-sm max-w-2xl mx-auto">

@@ -64,6 +64,7 @@ export async function POST(req: Request) {
     const categoria = formData.get("categoria") as string;
     const min_participantes = formData.get("min_participantes") as string;
     const max_participantes = formData.get("max_participantes") as string;
+    const duracion_horas = formData.get("duracion_horas") as string || "48";
 
     if (!nombre || !precio_individual || !precio_grupal_minimo || !stock || !min_participantes || !max_participantes) {
       return NextResponse.json({ message: "Faltan datos obligatorios (nombre, precios, stock, participantes)" }, { status: 400 });
@@ -125,6 +126,7 @@ export async function POST(req: Request) {
 
     // Create Group Deal for the new product
     console.log("Creando oferta grupal para producto:", product.id);
+    const hours = parseInt(duracion_horas);
     const { error: dealError } = await supabaseAdmin
       .from('group_deals')
       .insert({
@@ -133,7 +135,8 @@ export async function POST(req: Request) {
         min_participantes: parseInt(min_participantes),
         max_participantes: parseInt(max_participantes),
         participantes_actuales: 0,
-        fecha_vencimiento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        duracion_horas: hours,
+        fecha_vencimiento: new Date(Date.now() + hours * 60 * 60 * 1000).toISOString(), // Starts NOW
         estado: 'activo'
       });
 

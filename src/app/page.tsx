@@ -23,6 +23,8 @@ import SocialProof from "@/components/home/SocialProof";
 import FlashSale from "@/components/home/FlashSale";
 import ProductCard from "@/components/home/ProductCard";
 import BenefitsBar from "@/components/home/BenefitsBar";
+import { CATEGORIES } from "@/lib/constants/categories";
+import * as LucideIcons from "lucide-react";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -59,16 +61,6 @@ export default async function Home() {
     .limit(8)
     .order('creado_en', { ascending: false });
 
-  const categories = [
-    { name: "Electrónica", icon: <Gamepad2 size={24} />, color: "text-blue-500" },
-    { name: "Ropa", icon: <Shirt size={24} />, color: "text-pink-500" },
-    { name: "Alimentos", icon: <Apple size={24} />, color: "text-green-500" },
-    { name: "Hogar", icon: <HomeIcon size={24} />, color: "text-orange-500" },
-    { name: "Deportes", icon: <Dumbbell size={24} />, color: "text-red-500" },
-    { name: "Belleza", icon: <Sparkles size={24} />, color: "text-purple-500" },
-    { name: "Juguetes", icon: <Puzzle size={24} />, color: "text-yellow-500" },
-    { name: "Otros", icon: <MoreHorizontal size={24} />, color: "text-gray-500" },
-  ];
 
   return (
     <div className="flex flex-col gap-12 sm:gap-16 pb-20">
@@ -123,20 +115,23 @@ export default async function Home() {
         
         {/* Horizontal scroll on mobile */}
         <div className="flex sm:grid sm:grid-cols-4 md:grid-cols-8 gap-4 overflow-x-auto pb-4 sm:pb-0 hide-scrollbar no-scrollbar">
-          {categories.map((cat, i) => (
-            <Link 
-              key={i} 
-              href={`/categoria/${encodeURIComponent(cat.name)}`}
-              className="group cursor-pointer flex flex-col items-center gap-4 p-5 bg-white rounded-3xl border border-transparent shadow-sm hover:shadow-xl hover:shadow-[#009EE3]/5 transition-all min-w-[120px] sm:min-w-0"
-            >
-              <div className={`w-12 h-12 flex items-center justify-center transform group-hover:scale-110 transition-transform ${cat.color}`}>
-                {cat.icon}
-              </div>
-              <span className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest text-center group-hover:text-gray-800 transition-colors">
-                {cat.name}
-              </span>
-            </Link>
-          ))}
+          {CATEGORIES.map((cat, i) => {
+            const Icon = (LucideIcons as any)[cat.iconName];
+            return (
+              <Link 
+                key={i} 
+                href={`/categoria/${cat.slug}`}
+                className="group cursor-pointer flex flex-col items-center gap-4 p-5 bg-white rounded-3xl border border-transparent shadow-sm hover:shadow-xl hover:shadow-[#009EE3]/5 transition-all min-w-[120px] sm:min-w-0"
+              >
+                <div className={`w-12 h-12 flex items-center justify-center transform group-hover:scale-110 transition-transform ${cat.color}`}>
+                  {Icon && <Icon size={24} />}
+                </div>
+                <span className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest text-center group-hover:text-gray-800 transition-colors">
+                  {cat.name}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -173,24 +168,9 @@ export default async function Home() {
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
         <h2 className="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tighter mb-10">Más productos destacados</h2>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {featuredProducts?.map((product: any) => (
-            <Link 
-              href={`/productos/${product.id}`}
-              key={product.id}
-              className="bg-white rounded-3xl p-4 md:p-6 shadow-sm hover:shadow-xl hover:shadow-gray-200 transition-all border border-gray-50 group"
-            >
-              <div className="aspect-square bg-gray-50 rounded-2xl mb-4 overflow-hidden">
-                <img 
-                  src={product.imagen_principal || "/placeholder-product.jpg"} 
-                  alt={product.nombre}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                />
-              </div>
-              <h4 className="font-bold text-gray-800 text-sm mb-2 line-clamp-2 leading-snug group-hover:text-[#009EE3] transition-colors">{product.nombre}</h4>
-              <p className="font-black text-lg text-gray-900 tracking-tight">${product.precio_individual.toLocaleString()}</p>
-              <p className="text-[10px] text-green-500 font-bold uppercase mt-1">Llega gratis mañana</p>
-            </Link>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
