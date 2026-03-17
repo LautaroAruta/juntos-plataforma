@@ -35,7 +35,7 @@ export default function FlashSale({ deal }: FlashSaleProps) {
 
   return (
     <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
-      <div className="relative bg-gradient-to-br from-[#009EE3] to-[#00A650] rounded-[3rem] overflow-hidden shadow-2xl shadow-[#009EE3]/20">
+      <div className="relative bg-gradient-to-br from-bandha-primary to-bandha-secondary rounded-[3rem] overflow-hidden shadow-2xl shadow-bandha-primary/20">
         {/* Background Decorative Elements */}
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <Zap size={300} className="text-white -rotate-12 translate-x-20 -translate-y-20" />
@@ -46,14 +46,14 @@ export default function FlashSale({ deal }: FlashSaleProps) {
           <div className="flex-1 w-full lg:w-auto">
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="relative aspect-square md:aspect-video lg:aspect-square bg-white rounded-[2.5rem] overflow-hidden shadow-xl"
+              className="relative aspect-square md:aspect-video lg:aspect-square bg-bandha-surface rounded-[2.5rem] overflow-hidden shadow-xl"
             >
               <img 
                 src={deal.product.imagen_principal || "/placeholder-product.jpg"} 
                 alt={deal.product.nombre}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-6 left-6 bg-[#FFD700] text-black font-black px-6 py-2 rounded-2xl shadow-lg border-2 border-white">
+              <div className="absolute top-6 left-6 bg-amber-400 text-black font-black px-6 py-2 rounded-2xl shadow-lg border-2 border-white">
                 <span className="text-sm uppercase tracking-widest">{percentageSaved}% OFF</span>
               </div>
             </motion.div>
@@ -86,7 +86,7 @@ export default function FlashSale({ deal }: FlashSaleProps) {
                 <p className="text-white/60 text-sm font-bold line-through">
                   ${deal.product.precio_individual.toLocaleString()}
                 </p>
-                <p className="text-5xl font-black tracking-tighter tabular-nums">
+                <p className="text-5xl font-black tracking-tighter tabular-nums text-white">
                   ${deal.precio_actual.toLocaleString()}
                 </p>
               </div>
@@ -97,7 +97,7 @@ export default function FlashSale({ deal }: FlashSaleProps) {
                 </p>
                 <div className="flex items-center gap-2">
                   <Users size={20} strokeWidth={2.5} className="text-white" />
-                  <span className="text-2xl font-black">{deal.participantes_actuales}/{deal.min_participantes}</span>
+                  <span className="text-2xl font-black text-white">{deal.participantes_actuales}/{deal.min_participantes}</span>
                 </div>
               </div>
             </div>
@@ -120,7 +120,7 @@ export default function FlashSale({ deal }: FlashSaleProps) {
 
             <Link 
               href={`/productos/${deal.product.id}`}
-              className="inline-flex items-center gap-4 bg-white text-[#00A650] font-black py-5 px-12 rounded-[2rem] shadow-2xl hover:scale-[1.05] active:scale-[0.98] transition-all text-lg uppercase tracking-tight group"
+              className="inline-flex items-center gap-4 bg-white dark:bg-amber-400 text-bandha-secondary dark:text-black font-black py-5 px-12 rounded-[2rem] shadow-2xl hover:scale-[1.05] active:scale-[0.98] transition-all text-lg uppercase tracking-tight group"
             >
               Unirme a la oferta
               <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />

@@ -138,12 +138,12 @@ function SearchResultsContent() {
     <div className="flex flex-col gap-8">
       {/* Category Filter */}
       <div>
-        <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-4">Categorías</h3>
+        <h3 className="text-sm font-black text-bandha-text uppercase tracking-widest mb-4">Categorías</h3>
         <ul className="flex flex-col gap-2">
           <li>
             <button 
               onClick={() => setActiveFilters(prev => ({ ...prev, categoria: "todas" }))}
-              className={`text-sm font-medium ${activeFilters.categoria === "todas" ? "text-[#009EE3] font-bold" : "text-gray-500 hover:text-gray-800"} transition-colors`}
+              className={`text-sm font-medium ${activeFilters.categoria === "todas" ? "text-bandha-primary font-bold" : "text-bandha-text-muted hover:text-bandha-text"} transition-colors`}
             >
               Todas las categorías
             </button>
@@ -152,7 +152,7 @@ function SearchResultsContent() {
             <li key={cat}>
               <button 
                 onClick={() => setActiveFilters(prev => ({ ...prev, categoria: cat }))}
-                className={`text-sm font-medium ${activeFilters.categoria === cat ? "text-[#009EE3] font-bold" : "text-gray-500 hover:text-gray-800"} transition-colors`}
+                className={`text-sm font-medium ${activeFilters.categoria === cat ? "text-bandha-primary font-bold" : "text-bandha-text-muted hover:text-bandha-text"} transition-colors`}
               >
                 {cat}
               </button>
@@ -163,22 +163,22 @@ function SearchResultsContent() {
 
       {/* Price Filter */}
       <div>
-        <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-4">Precio</h3>
+        <h3 className="text-sm font-black text-bandha-text uppercase tracking-widest mb-4">Precio</h3>
         <div className="flex items-center gap-2">
           <input 
             type="number" 
             placeholder="Mínimo"
             value={activeFilters.precioMin}
             onChange={(e) => setActiveFilters(prev => ({ ...prev, precioMin: e.target.value }))}
-            className="w-full bg-white border border-gray-200 rounded-lg p-2 text-xs focus:border-[#009EE3] outline-none"
+            className="w-full bg-bandha-surface border border-bandha-border rounded-lg p-2 text-xs focus:border-bandha-primary outline-none text-bandha-text"
           />
-          <span className="text-gray-300">-</span>
+          <span className="text-bandha-text-muted">-</span>
           <input 
             type="number" 
             placeholder="Máximo"
             value={activeFilters.precioMax}
             onChange={(e) => setActiveFilters(prev => ({ ...prev, precioMax: e.target.value }))}
-            className="w-full bg-white border border-gray-200 rounded-lg p-2 text-xs focus:border-[#009EE3] outline-none"
+            className="w-full bg-bandha-surface border border-bandha-border rounded-lg p-2 text-xs focus:border-bandha-primary outline-none text-bandha-text"
           />
         </div>
       </div>
@@ -189,43 +189,43 @@ function SearchResultsContent() {
           onClick={() => setActiveFilters(prev => ({ ...prev, soloOfertas: !prev.soloOfertas }))}
           className="flex items-center gap-3 group"
         >
-          <div className={`w-5 h-5 rounded border ${activeFilters.soloOfertas ? "bg-[#009EE3] border-[#009EE3]" : "bg-white border-gray-200"} flex items-center justify-center transition-all`}>
+          <div className={`w-5 h-5 rounded border ${activeFilters.soloOfertas ? "bg-bandha-primary border-bandha-primary" : "bg-bandha-surface border-bandha-border"} flex items-center justify-center transition-all`}>
             {activeFilters.soloOfertas && <X size={12} className="text-white" />}
           </div>
-          <span className="text-sm font-black text-gray-800 uppercase tracking-tighter">Solo ofertas grupales</span>
+          <span className="text-sm font-black text-bandha-text uppercase tracking-tighter">Solo ofertas grupales</span>
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#FFF8E7] pb-20 pt-8">
+    <div className="min-h-screen bg-bandha-bg pb-20 pt-8">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         
         {/* Header de Búsqueda */}
         <div className="flex flex-col gap-2 mb-8">
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 tracking-widest">
-            <Link href="/" className="hover:text-[#009EE3]">Inicio</Link>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase text-bandha-text-muted tracking-widest">
+            <Link href="/" className="hover:text-bandha-primary">Inicio</Link>
             <span>/</span>
-            <span className="text-gray-800">Búsqueda</span>
+            <span className="text-bandha-text">Búsqueda</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-gray-800 uppercase tracking-tighter">
+          <h1 className="text-3xl md:text-4xl font-black text-bandha-text uppercase tracking-tighter">
             {debouncedQuery ? `Resultados para "${debouncedQuery}"` : "Explorar catálogo"}
           </h1>
-          <p className="text-gray-500 font-medium">{results.length} productos encontrados</p>
+          <p className="text-bandha-text-secondary font-medium">{results.length} productos encontrados</p>
         </div>
 
         {/* Action Bar (Sorting and Mobile Toggle) */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between mb-8 sticky top-20 z-30">
+        <div className="bg-bandha-surface rounded-2xl p-4 shadow-sm border border-bandha-border flex items-center justify-between mb-8 sticky top-20 z-30">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
              {/* Applied Filters Tags */}
              {activeFilters.categoria !== "todas" && (
-                <span className="bg-[#009EE3]/10 text-[#009EE3] px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                <span className="bg-bandha-primary/10 text-bandha-primary px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
                   {activeFilters.categoria} <X size={14} className="cursor-pointer" onClick={() => removeFilter("categoria", "todas")} />
                 </span>
              )}
              {(activeFilters.precioMin || activeFilters.precioMax) && (
-                <span className="bg-[#009EE3]/10 text-[#009EE3] px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                <span className="bg-bandha-primary/10 text-bandha-primary px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
                   Precio: {activeFilters.precioMin || 0} - {activeFilters.precioMax || "Max"} <X size={14} className="cursor-pointer" onClick={() => { removeFilter("precioMin", ""); removeFilter("precioMax", ""); }} />
                 </span>
              )}
@@ -234,7 +234,7 @@ function SearchResultsContent() {
           <div className="flex items-center gap-3">
              <button 
                 onClick={() => setIsMobileFiltersOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 font-bold text-xs"
+                className="lg:hidden flex items-center gap-2 px-4 py-2 bg-bandha-subtle border border-bandha-border rounded-xl text-bandha-text font-bold text-xs"
              >
                 <Filter size={16} /> Filtros
              </button>
@@ -243,13 +243,13 @@ function SearchResultsContent() {
                 <select 
                   value={activeFilters.orden}
                   onChange={(e) => setActiveFilters(prev => ({ ...prev, orden: e.target.value }))}
-                  className="appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 pr-10 text-xs font-bold text-gray-800 outline-none focus:border-[#009EE3] cursor-pointer"
+                  className="appearance-none bg-bandha-subtle border border-bandha-border rounded-xl px-4 py-2 pr-10 text-xs font-bold text-bandha-text outline-none focus:border-bandha-primary cursor-pointer"
                 >
                   <option value="relevancia">Relevancia</option>
                   <option value="precio-asc">Menor precio</option>
                   <option value="precio-desc">Mayor precio</option>
                 </select>
-                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-bandha-text-muted" />
              </div>
           </div>
         </div>
@@ -264,8 +264,8 @@ function SearchResultsContent() {
           <main className="flex-1">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-32 gap-6">
-                <Loader2 className="animate-spin text-[#009EE3]" size={48} />
-                <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Sincronizando catálogo...</p>
+                <Loader2 className="animate-spin text-bandha-primary" size={48} />
+                <p className="text-bandha-text-muted font-black uppercase tracking-widest text-[10px]">Sincronizando catálogo...</p>
               </div>
             ) : results.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
@@ -278,13 +278,13 @@ function SearchResultsContent() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-[3rem] p-12 md:p-20 text-center border border-gray-100 shadow-sm max-w-2xl mx-auto">
-                <ShoppingBag size={48} className="mx-auto text-gray-200 mb-6" />
-                <h2 className="text-2xl font-black text-gray-800 mb-4 tracking-tighter uppercase">No hay resultados</h2>
-                <p className="text-gray-500 font-medium mb-10">Intentá con otros filtros o términos de búsqueda.</p>
+              <div className="bg-bandha-surface rounded-[3rem] p-12 md:p-20 text-center border border-bandha-border shadow-sm max-w-2xl mx-auto">
+                <ShoppingBag size={48} className="mx-auto text-bandha-subtle mb-6" />
+                <h2 className="text-2xl font-black text-bandha-text mb-4 tracking-tighter uppercase">No hay resultados</h2>
+                <p className="text-bandha-text-secondary font-medium mb-10">Intentá con otros filtros o términos de búsqueda.</p>
                 <button 
                   onClick={() => setActiveFilters({ categoria: "todas", precioMin: "", precioMax: "", soloOfertas: false, orden: "relevancia" })}
-                  className="bg-[#009EE3] text-white font-black px-10 py-4 rounded-2xl uppercase tracking-widest text-xs"
+                  className="bg-bandha-primary text-white font-black px-10 py-4 rounded-2xl uppercase tracking-widest text-xs shadow-lg shadow-bandha-primary/20"
                 >
                   Limpiar filtros
                 </button>
@@ -296,20 +296,20 @@ function SearchResultsContent() {
 
       {/* Mobile Filters Modal */}
       {isMobileFiltersOpen && (
-        <div className="fixed inset-0 z-[100] bg-white flex flex-col">
-          <div className="flex items-center justify-between p-6 border-b border-gray-100">
-            <h2 className="text-xl font-black text-gray-800 uppercase tracking-tighter">Filtros</h2>
-            <button onClick={() => setIsMobileFiltersOpen(false)} className="p-2 bg-gray-50 rounded-xl">
+        <div className="fixed inset-0 z-[100] bg-bandha-bg flex flex-col font-sans">
+          <div className="flex items-center justify-between p-6 border-b border-bandha-border bg-bandha-surface">
+            <h2 className="text-xl font-black text-bandha-text uppercase tracking-tighter">Filtros</h2>
+            <button onClick={() => setIsMobileFiltersOpen(false)} className="p-2 bg-bandha-subtle rounded-xl text-bandha-text">
               <X size={24} />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-6">
             <Sidebar />
           </div>
-          <div className="p-6 border-t border-gray-100">
+          <div className="p-6 border-t border-bandha-border bg-bandha-surface">
              <button 
               onClick={() => setIsMobileFiltersOpen(false)}
-              className="w-full bg-[#009EE3] text-white font-black py-4 rounded-2xl uppercase tracking-widest"
+              className="w-full bg-bandha-primary text-white font-black py-4 rounded-2xl uppercase tracking-widest shadow-lg shadow-bandha-primary/20"
              >
                 Aplicar filtros
              </button>
@@ -323,8 +323,8 @@ function SearchResultsContent() {
 export default function SearchPage() {
   return (
     <Suspense fallback={
-      <div className="flex flex-col items-center justify-center py-32 bg-[#F5F5F5] min-h-screen">
-        <Loader2 className="animate-spin text-[#009EE3]" size={64} />
+      <div className="flex flex-col items-center justify-center py-32 bg-bandha-bg min-h-screen">
+        <Loader2 className="animate-spin text-bandha-primary" size={64} />
       </div>
     }>
       <SearchResultsContent />

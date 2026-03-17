@@ -96,25 +96,25 @@ export default async function ClienteDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8E7] pb-24">
+    <div className="min-h-screen bg-bandha-bg pb-24">
       {/* ... header ... */}
-      <div className="bg-white border-b border-gray-100">
+      <div className="bg-bandha-surface border-b border-bandha-border">
         <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-[#009EE3] flex items-center justify-center overflow-hidden">
+            <div className="w-20 h-20 rounded-full bg-bandha-subtle border-2 border-bandha-primary flex items-center justify-center overflow-hidden">
                {session.user.image ? (
                  <img src={session.user.image} alt="" className="w-full h-full object-cover" />
                ) : (
-                 <span className="text-3xl font-black text-[#009EE3]">{session.user.name?.[0]}</span>
+                 <span className="text-3xl font-black text-bandha-primary">{session.user.name?.[0]}</span>
                )}
             </div>
             <div>
-              <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Hola, {session.user.name?.split(' ')[0]}</h1>
-              <p className="text-gray-500 font-medium">Nivel Comprador BANDHA</p>
+              <h1 className="text-3xl font-black text-bandha-text tracking-tighter uppercase">Hola, {session.user.name?.split(' ')[0]}</h1>
+              <p className="text-bandha-text-secondary font-medium">Nivel Comprador BANDHA</p>
             </div>
           </div>
           <div className="flex gap-4">
-            <Link href="/auth/perfil" className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-xl font-bold text-sm text-gray-600 hover:bg-gray-50 transition-all shadow-sm">
+            <Link href="/auth/perfil" className="flex items-center gap-2 px-6 py-3 bg-bandha-surface border border-bandha-border rounded-xl font-bold text-sm text-bandha-text-secondary hover:bg-bandha-subtle transition-all shadow-sm">
               <Settings size={18} /> Mi Perfil
             </Link>
           </div>
@@ -126,38 +126,38 @@ export default async function ClienteDashboard() {
           {/* Main Content: Purchases */}
           <div className="lg:col-span-2 space-y-8">
             <div className="flex items-center justify-between px-2">
-              <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight flex items-center gap-3">
-                <ShoppingBag className="text-[#009EE3]" size={24} /> Mis Compras Grupales
+              <h2 className="text-xl font-black text-bandha-text uppercase tracking-tight flex items-center gap-3">
+                <ShoppingBag className="text-bandha-primary" size={24} /> Mis Compras Grupales
               </h2>
             </div>
             
             <div className="space-y-4">
               {orders.map((order) => (
-                <div key={order.id} className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-50 flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:shadow-xl hover:shadow-gray-200 transition-all">
-                  <div className="w-24 h-24 bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center text-gray-300">
+                <div key={order.id} className="bg-bandha-surface rounded-3xl p-6 md:p-8 shadow-sm border border-bandha-border flex flex-col md:flex-row items-center gap-6 md:gap-8 group hover:shadow-xl hover:shadow-bandha-primary/5 transition-all">
+                  <div className="w-24 h-24 bg-bandha-subtle rounded-2xl flex-shrink-0 flex items-center justify-center text-bandha-text-muted">
                     <Package size={40} />
                   </div>
                   <div className="flex-1 text-center md:text-left">
-                    <h3 className="text-xl font-black text-gray-800 mb-1">{order.product}</h3>
-                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">
+                    <h3 className="text-xl font-black text-bandha-text mb-1">{order.product}</h3>
+                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-bold text-bandha-text-muted uppercase tracking-widest mt-2">
                       <span className="flex items-center gap-1.5"><Clock size={14} /> {order.date}</span>
-                      <span className={`flex items-center gap-1.5 ${order.status === 'activo' ? 'text-blue-500' : 'text-green-500'}`}>
-                        <div className={`w-2 h-2 rounded-full ${order.status === 'activo' ? 'bg-blue-500 animate-pulse' : 'bg-green-500'}`} />
+                      <span className={`flex items-center gap-1.5 ${order.status === 'activo' ? 'text-bandha-primary' : 'text-bandha-secondary'}`}>
+                        <div className={`w-2 h-2 rounded-full ${order.status === 'activo' ? 'bg-bandha-primary animate-pulse' : 'bg-bandha-secondary'}`} />
                         {order.status}
                       </span>
                     </div>
                   </div>
                   <div className="flex flex-col items-center md:items-end gap-2">
-                     <span className="text-2xl font-black text-gray-800">${order.price.toLocaleString()}</span>
-                     <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+                     <span className="text-2xl font-black text-bandha-text">${order.price.toLocaleString()}</span>
+                     <div className="w-32 h-2 bg-bandha-subtle rounded-full overflow-hidden">
                         <div 
-                          className={`h-full bg-gradient-to-r ${order.status === 'activo' ? 'from-[#009EE3] to-[#00A650]' : 'from-green-400 to-green-600'} rounded-full`}
+                          className={`h-full bg-gradient-to-r ${order.status === 'activo' ? 'from-bandha-primary to-bandha-secondary' : 'from-green-400 to-green-600'} rounded-full`}
                           style={{ width: `${(order.participants / order.min) * 100}%` }}
                         />
                      </div>
-                     <span className="text-[10px] font-black text-gray-400">{order.participants}/{order.min} unidos</span>
+                     <span className="text-[10px] font-black text-bandha-text-muted">{order.participants}/{order.min} unidos</span>
                   </div>
-                  <ChevronRight className="text-gray-300 hidden md:block" />
+                  <ChevronRight className="text-bandha-text-muted hidden md:block" />
                 </div>
               ))}
             </div>
@@ -165,7 +165,7 @@ export default async function ClienteDashboard() {
 
           {/* Sidebar: Stats / Promos */}
           <div className="space-y-8">
-            <div className="bg-gradient-to-br from-[#009EE3] to-[#00A650] rounded-[2.5rem] p-8 text-white shadow-xl shadow-[#009EE3]/20">
+            <div className="bg-gradient-to-br from-bandha-primary to-bandha-secondary rounded-[2.5rem] p-8 text-white shadow-xl shadow-bandha-primary/20">
                <h3 className="text-lg font-black uppercase tracking-tight mb-4">Ahorro Acumulado</h3>
                <div className="text-4xl font-black mb-2">$12.500</div>
                <p className="text-white/70 font-medium text-sm">Gracias a comprar en grupo este mes.</p>

@@ -29,10 +29,10 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="group bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-[#009EE3]/10 transition-all duration-500 flex flex-col border border-gray-50 relative h-full"
+      className="group bg-bandha-surface rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-bandha-primary/10 transition-all duration-500 flex flex-col border border-bandha-border relative h-full"
     >
       {/* Image Section */}
-      <div className="relative aspect-square overflow-hidden bg-gray-50 border-b border-gray-100 flex-shrink-0">
+      <div className="relative aspect-square overflow-hidden bg-bandha-subtle border-b border-bandha-border flex-shrink-0">
         <img 
           src={product.imagen_principal || "/placeholder-product.jpg"} 
           alt={product.nombre}
@@ -47,32 +47,32 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
 
       {/* Content Section */}
       <div className="p-7 flex flex-col flex-1">
-        <h3 className="text-gray-800 font-black text-[17px] leading-tight mb-4 group-hover:text-[#009EE3] transition-colors line-clamp-2 h-[2.6rem] overflow-hidden">
+        <h3 className="text-bandha-text font-black text-[17px] leading-tight mb-4 group-hover:text-bandha-primary transition-colors line-clamp-2 h-[2.6rem] overflow-hidden">
           {product.nombre}
         </h3>
         
         <div className="space-y-1 mb-6">
           {hasDeal ? (
             <>
-              <p className="text-gray-400 text-xs font-medium line-through ml-1">
+              <p className="text-bandha-text-muted text-xs font-medium line-through ml-1">
                 ${product.precio_individual.toLocaleString()}
               </p>
-              <div className="flex items-center gap-2 bg-[#00A650]/5 border border-[#00A650]/10 px-3 py-2.5 rounded-[1.25rem] w-fit shadow-sm relative overflow-hidden">
-                <p className="text-[22px] font-black text-gray-900 tracking-tighter leading-none tabular-nums">
+              <div className="flex items-center gap-2 bg-bandha-secondary/5 border border-bandha-secondary/10 px-3 py-2.5 rounded-[1.25rem] w-fit shadow-sm relative overflow-hidden">
+                <p className="text-[22px] font-black text-bandha-text tracking-tighter leading-none tabular-nums">
                   ${deal.precio_actual.toLocaleString()}
                 </p>
-                <div className="flex flex-col border-l border-[#00A650]/20 pl-2 leading-[0.8]">
-                    <span className="text-[11px] font-black text-[#00A650] uppercase tracking-tighter">PRECIO</span>
-                    <span className="text-[11px] font-black text-[#00A650] uppercase tracking-tighter">GRUPAL</span>
+                <div className="flex flex-col border-l border-bandha-secondary/20 pl-2 leading-[0.8]">
+                    <span className="text-[11px] font-black text-bandha-secondary uppercase tracking-tighter">PRECIO</span>
+                    <span className="text-[11px] font-black text-bandha-secondary uppercase tracking-tighter">GRUPAL</span>
                 </div>
               </div>
             </>
           ) : (
             <div className="flex flex-col gap-1">
-              <p className="text-[22px] font-black text-gray-900 tracking-tighter leading-none tabular-nums">
+              <p className="text-[22px] font-black text-bandha-text tracking-tighter leading-none tabular-nums">
                 ${product.precio_individual.toLocaleString()}
               </p>
-              <span className="text-[11px] font-black text-gray-400 uppercase tracking-tighter ml-1">PRECIO INDIVIDUAL</span>
+              <span className="text-[11px] font-black text-bandha-text-muted uppercase tracking-tighter ml-1">PRECIO INDIVIDUAL</span>
             </div>
           )}
         </div>
@@ -105,12 +105,12 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
                   </p>
               )}
 
-              <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden relative shadow-inner">
+              <div className="h-1.5 w-full bg-bandha-subtle rounded-full overflow-hidden relative shadow-inner">
                 <motion.div 
                   initial={{ width: 0 }}
                   whileInView={{ width: `${Math.min(100, progress)}%` }}
                   transition={{ duration: 1.5, ease: "circOut" }}
-                  className="h-full bg-gradient-to-r from-[#00A650] to-[#009EE3] rounded-full relative"
+                  className="h-full bg-gradient-to-r from-bandha-secondary to-bandha-primary rounded-full relative"
                 />
               </div>
             </div>
@@ -125,7 +125,7 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
           <div className="mt-auto pt-4">
             <Link 
               href={`/productos/${product.id}`}
-              className="w-full bg-[#F8F9FA] hover:bg-[#009EE3] hover:shadow-lg hover:shadow-[#009EE3]/20 text-gray-800 hover:text-white font-black py-4 rounded-xl transition-all flex items-center justify-center text-xs uppercase tracking-tight group/btn border border-gray-100"
+              className="w-full bg-bandha-subtle hover:bg-bandha-primary hover:shadow-lg hover:shadow-bandha-primary/20 text-bandha-text hover:text-white font-black py-4 rounded-xl transition-all flex items-center justify-center text-xs uppercase tracking-tight group/btn border border-bandha-border"
             >
               {hasDeal ? "Ver oferta" : "Ver detalle"}
               <ChevronRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />

@@ -81,10 +81,10 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-        <PackageCheck className="w-16 h-16 text-gray-300 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Tu carrito está vacío</h2>
-        <p className="text-gray-500 mb-6">No tenés productos para realizar el pago.</p>
-        <Link href="/" className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium bg-[#009EE3] hover:bg-[#00A650] text-white transition-colors">
+        <PackageCheck className="w-16 h-16 text-bandha-text-muted mb-4" />
+        <h2 className="text-2xl font-bold text-bandha-text mb-2">Tu carrito está vacío</h2>
+        <p className="text-bandha-text-secondary mb-6">No tenés productos para realizar el pago.</p>
+        <Link href="/" className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium bg-bandha-primary hover:bg-bandha-secondary text-white transition-colors">
           Volver a la tienda
         </Link>
       </div>
@@ -92,14 +92,14 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-[#F5F7FA] min-h-screen pb-12">
+    <div className="bg-bandha-bg min-h-screen pb-12">
       {/* Checkout Minimal Header */}
-      <header className="bg-white border-b py-4 px-6 md:px-12 flex items-center justify-between sticky top-0 z-10">
-        <Link href="/" className="flex items-center text-gray-500 hover:text-[#009EE3] transition-colors font-medium text-sm">
+      <header className="bg-bandha-surface border-b border-bandha-border py-4 px-6 md:px-12 flex items-center justify-between sticky top-0 z-10">
+        <Link href="/" className="flex items-center text-bandha-text-secondary hover:text-bandha-primary transition-colors font-medium text-sm">
           <ChevronLeft className="w-4 h-4 mr-1" /> Volver
         </Link>
-        <div className="text-xl font-black text-[#009EE3] tracking-tighter">BANDHA</div>
-        <div className="flex items-center text-green-600 !text-xs font-semibold gap-1">
+        <div className="text-xl font-black text-bandha-primary tracking-tighter">BANDHA</div>
+        <div className="flex items-center text-bandha-secondary !text-xs font-semibold gap-1">
           <ShieldCheck className="w-4 h-4" /> Pago Seguro
         </div>
       </header>
@@ -109,9 +109,9 @@ export default function CheckoutPage() {
           
           {/* Columna Izquierda: Formulario */}
           <div className="lg:w-2/3 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <Truck className="text-[#009EE3] w-5 h-5" />
+            <div className="bg-bandha-surface rounded-xl shadow-sm border border-bandha-border p-6 sm:p-8">
+              <h2 className="text-xl font-bold text-bandha-text mb-6 flex items-center gap-2">
+                <Truck className="text-bandha-primary w-5 h-5" />
                 Datos de Envío
               </h2>
               
@@ -161,8 +161,8 @@ export default function CheckoutPage() {
                     )}
                   />
 
-                  <div className="pt-4 border-t mt-6 mb-4">
-                    <h3 className="text-sm font-bold text-gray-800 mb-4">Dirección de Entrega</h3>
+                  <div className="pt-4 border-t border-bandha-border mt-6 mb-4">
+                    <h3 className="text-sm font-bold text-bandha-text mb-4">Dirección de Entrega</h3>
                   </div>
 
                   <FormField
@@ -213,18 +213,18 @@ export default function CheckoutPage() {
             </div>
 
             {/* Metodo de Pago Mock */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8">
-               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <CreditCard className="text-[#009EE3] w-5 h-5" />
+            <div className="bg-bandha-surface rounded-xl shadow-sm border border-bandha-border p-6 sm:p-8">
+               <h2 className="text-xl font-bold text-bandha-text mb-6 flex items-center gap-2">
+                <CreditCard className="text-bandha-primary w-5 h-5" />
                 Método de Pago
               </h2>
               
-              <div className="border border-[#009EE3] bg-[#F2FBFF] rounded-lg p-4 flex items-center justify-between cursor-pointer">
+              <div className="border border-bandha-primary bg-bandha-primary/5 rounded-lg p-4 flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full border-4 border-[#009EE3]"></div>
+                  <div className="w-5 h-5 rounded-full border-4 border-bandha-primary"></div>
                   <div>
-                    <p className="font-bold text-gray-800">Mercado Pago</p>
-                    <p className="text-xs text-gray-500">Tarjetas, efectivo o dinero en cuenta</p>
+                    <p className="font-bold text-bandha-text">Mercado Pago</p>
+                    <p className="text-xs text-bandha-text-muted">Tarjetas, efectivo o dinero en cuenta</p>
                   </div>
                 </div>
                 <div className="bg-white px-2 py-1 rounded shadow-sm text-[10px] font-black italic text-blue-500 border">
@@ -236,8 +236,8 @@ export default function CheckoutPage() {
 
           {/* Columna Derecha: Resumen de Compra */}
           <div className="lg:w-1/3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-24">
-              <h3 className="font-bold text-lg text-gray-800 mb-4 pb-4 border-b">Resumen de tu Orden</h3>
+            <div className="bg-bandha-surface rounded-xl shadow-sm border border-bandha-border p-6 sticky top-24">
+              <h3 className="font-bold text-lg text-bandha-text mb-4 pb-4 border-b border-bandha-border">Resumen de tu Orden</h3>
               
               <ScrollArea className="h-[250px] pr-4 mb-4">
                 <div className="space-y-4">
@@ -247,10 +247,10 @@ export default function CheckoutPage() {
                         <Image src={item.image || "/images/placeholder.jpg"} alt={item.name} fill className="object-cover" />
                       </div>
                       <div className="flex-1 flex flex-col justify-between py-1">
-                        <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-tight">{item.name}</p>
+                        <p className="text-sm font-medium text-bandha-text line-clamp-2 leading-tight">{item.name}</p>
                         <div className="flex justify-between items-center mt-1">
-                          <span className="text-xs text-gray-500">Cant: {item.quantity}</span>
-                          <span className="text-sm font-bold text-[#009EE3]">{formatCurrency(item.price * item.quantity)}</span>
+                          <span className="text-xs text-bandha-text-muted">Cant: {item.quantity}</span>
+                          <span className="text-sm font-bold text-bandha-primary">{formatCurrency(item.price * item.quantity)}</span>
                         </div>
                       </div>
                     </div>
@@ -261,13 +261,13 @@ export default function CheckoutPage() {
               <Separator className="my-4" />
               
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-gray-500 text-sm">
+                <div className="flex justify-between text-bandha-text-secondary text-sm">
                   <span>Subtotal ({totalItems} productos)</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-gray-500 text-sm">
+                <div className="flex justify-between text-bandha-text-secondary text-sm">
                   <span>Costo de Envío</span>
-                  <span className={shippingCost === 0 ? "text-green-600 font-medium" : ""}>
+                  <span className={shippingCost === 0 ? "text-bandha-secondary font-medium" : ""}>
                     {shippingCost === 0 ? "Gratis" : formatCurrency(shippingCost)}
                   </span>
                 </div>
@@ -275,8 +275,8 @@ export default function CheckoutPage() {
                 <Separator className="my-3" />
                 
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-gray-800 text-lg">Total a Pagar</span>
-                  <span className="font-black text-2xl text-[#009EE3]">{formatCurrency(total)}</span>
+                  <span className="font-bold text-bandha-text text-lg">Total a Pagar</span>
+                  <span className="font-black text-2xl text-bandha-primary">{formatCurrency(total)}</span>
                 </div>
               </div>
 
@@ -284,7 +284,7 @@ export default function CheckoutPage() {
                 type="submit" 
                 form="checkout-form"
                 disabled={isProcessing}
-                className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white h-14 text-lg font-bold shadow-md transition-all active:scale-[0.98]"
+                className="w-full bg-bandha-primary hover:bg-bandha-secondary text-white h-14 text-lg font-bold shadow-md transition-all active:scale-[0.98]"
               >
                 {isProcessing ? (
                   <>

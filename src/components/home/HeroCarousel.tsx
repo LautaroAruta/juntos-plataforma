@@ -39,9 +39,9 @@ export default function HeroCarousel({ deals }: HeroCarouselProps) {
 
   if (!deals || deals.length === 0) {
     return (
-      <div className="w-[400px] h-[400px] bg-white/10 rounded-[4rem] backdrop-blur-sm border border-white/20 flex flex-col items-center justify-center p-8 text-center">
-        <Users size={48} className="text-white/30 mb-4" />
-        <p className="text-white/50 font-bold uppercase tracking-widest text-xs">
+      <div className="w-[400px] h-[400px] bg-bandha-surface/10 rounded-[4rem] backdrop-blur-sm border border-bandha-border flex flex-col items-center justify-center p-8 text-center">
+        <Users size={48} className="text-bandha-text/30 mb-4" />
+        <p className="text-bandha-text/50 font-bold uppercase tracking-widest text-xs">
           Nuevas ofertas grupales próximamente
         </p>
       </div>
@@ -64,9 +64,9 @@ export default function HeroCarousel({ deals }: HeroCarouselProps) {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="absolute inset-0 flex flex-col"
         >
-          <div className="relative group w-full h-full bg-white rounded-[3.5rem] shadow-2xl shadow-black/20 overflow-hidden flex flex-col border border-white/20">
+          <div className="relative group w-full h-full bg-bandha-surface rounded-[3.5rem] shadow-2xl shadow-black/20 overflow-hidden flex flex-col border border-bandha-border">
             {/* Image Section */}
-            <div className="relative h-1/2 overflow-hidden bg-gray-100">
+            <div className="relative h-1/2 overflow-hidden bg-bandha-subtle">
               <img
                 src={currentDeal.product.imagen_principal || "/placeholder-product.jpg"}
                 alt={currentDeal.product.nombre}
@@ -75,7 +75,7 @@ export default function HeroCarousel({ deals }: HeroCarouselProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
               {/* FOMO Badge */}
-              <div className="absolute top-6 left-6 bg-[#E31B1B] text-white px-4 py-2 rounded-2xl shadow-xl border border-white/30 animate-bounce shadow-red-900/20 transform-gpu antialiased">
+              <div className="absolute top-6 left-6 bg-bandha-danger text-white px-4 py-2 rounded-2xl shadow-xl border border-white/30 animate-bounce shadow-red-900/20 transform-gpu antialiased">
                 <p className="text-xs font-black uppercase tracking-tight">
                   {missingParticipants === 1 
                     ? "¡ÚLTIMO CUPO!" 
@@ -85,27 +85,27 @@ export default function HeroCarousel({ deals }: HeroCarouselProps) {
             </div>
 
             {/* Content Section */}
-            <div className="p-8 flex flex-col flex-1 bg-white">
+            <div className="p-8 flex flex-col flex-1 bg-bandha-surface">
               <div className="mb-2">
-                <span className="text-[10px] font-black text-[#009EE3] uppercase tracking-widest bg-[#009EE3]/10 px-3 py-1 rounded-full">
+                <span className="text-[10px] font-black text-bandha-primary uppercase tracking-widest bg-bandha-primary/10 px-3 py-1 rounded-full">
                   Oferta Próxima a Cerrar
                 </span>
               </div>
-              <h3 className="text-gray-900 font-black text-xl leading-tight mb-4 line-clamp-2">
+              <h3 className="text-bandha-text font-black text-xl leading-tight mb-4 line-clamp-2">
                 {currentDeal.product.nombre}
               </h3>
               
               <div className="flex items-end gap-3 mb-6">
                 <div>
-                  <p className="text-gray-400 text-sm font-bold line-through">
+                  <p className="text-bandha-text-muted text-sm font-bold line-through">
                     ${currentDeal.product.precio_individual.toLocaleString()}
                   </p>
-                  <p className="text-3xl font-black text-[#00A650] tracking-tighter">
+                  <p className="text-3xl font-black text-bandha-secondary tracking-tighter">
                     ${currentDeal.precio_actual.toLocaleString()}
                   </p>
                 </div>
-                <div className="bg-[#00A650]/10 px-3 py-2 rounded-xl border border-[#00A650]/20">
-                  <p className="text-[#00A650] font-black text-xs uppercase tracking-widest">
+                <div className="bg-bandha-secondary/10 px-3 py-2 rounded-xl border border-bandha-secondary/20">
+                  <p className="text-bandha-secondary font-black text-xs uppercase tracking-widest">
                     Ahorro Masivo
                   </p>
                 </div>
@@ -114,7 +114,7 @@ export default function HeroCarousel({ deals }: HeroCarouselProps) {
               <div className="mt-auto">
                 <Link
                   href={`/productos/${currentDeal.product.id}`}
-                  className="w-full bg-gradient-to-r from-[#009EE3] to-[#00A650] text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center text-sm uppercase tracking-tight shadow-lg shadow-[#009EE3]/30 hover:shadow-[#009EE3]/50 hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full bg-gradient-to-r from-bandha-primary to-bandha-secondary text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center text-sm uppercase tracking-tight shadow-lg shadow-bandha-primary/30 hover:shadow-bandha-primary/50 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Unirme ahora
                   <ArrowRight size={18} className="ml-2" />
