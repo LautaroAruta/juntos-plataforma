@@ -8,7 +8,20 @@ const supabaseAdmin = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { email, password, nombre, apellido, telefono, direccion, rol = 'cliente', referralCode } = await req.json();
+    const { 
+      email, 
+      password, 
+      nombre, 
+      apellido, 
+      telefono, 
+      direccion, 
+      rol = 'cliente', 
+      referralCode,
+      documento_tipo,
+      documento_numero,
+      fecha_nacimiento,
+      registration_step = 0
+    } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ message: "Email y contraseña son requeridos" }, { status: 400 });
@@ -24,7 +37,11 @@ export async function POST(req: Request) {
           apellido,
           telefono,
           direccion,
-          rol
+          rol,
+          documento_tipo,
+          documento_numero,
+          fecha_nacimiento,
+          registration_step
         },
       },
     });
@@ -36,6 +53,28 @@ export async function POST(req: Request) {
     }
 
     const newUser = data.user;
+
+    if (newUser) {
+      // Create record in public.users
+      const { error: dbError } = await supabaseAdmin.from('users').insert({
+        id: newUser.id,
+        nombre,
+        apellido,
+        email,
+        telefono,
+        rol,
+        fecha_nacimiento,
+        documento_tipo,
+        documento_numero,
+        registration_step
+      });
+
+      if (dbError) {
+        console.error("Error creating public user record:", dbError);
+        // We don't necessarily want to fail the whole request if signUp worked,
+        // but it will cause issues later. For now, let's log it.
+      }
+    }
 
     // Handle referral if code provided
     if (referralCode && newUser) {

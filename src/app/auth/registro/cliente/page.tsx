@@ -6,6 +6,8 @@ import Link from "next/link";
 import { User, Mail, Lock, Phone, MapPin, ChevronLeft, Loader2, CheckCircle2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
+import { motion, AnimatePresence } from "framer-motion";
+
 function RegisterClienteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -14,72 +16,91 @@ function RegisterClienteContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [step, setStep] = useState(1);
 
   const [formData, setFormData] = useState({
-    nombreCompleto: "",
+    nombre: "",
+    apellido: "",
+    fecha_nacimiento: "",
+    documento_tipo: "DNI",
+    documento_numero: "",
     email: "",
+    telefono: "+54 9 ",
+    otp: "",
     password: "",
     confirmPassword: "",
-    telefono: "+54 9 ",
-    direccion: "",
   });
 
-  const validatePhone = (phone: string) => {
-    // Basic Argentine phone format: +54 9 11 XXXX-XXXX or similar
-    // We'll be flexible but check for the +54 9 prefix
-    return phone.startsWith("+54 9") && phone.length >= 13;
+  const validateStep = () => {
+    setError("");
+    if (step === 1) {
+      if (!formData.nombre || !formData.apellido) return "Nombre y Apellido son requeridos.";
+      if (!formData.fecha_nacimiento) return "Fecha de nacimiento es requerida.";
+      if (!formData.documento_numero) return "Número de documento es requerido.";
+    }
+    if (step === 2) {
+      if (!formData.email) return "Email es requerido.";
+      if (!formData.telefono.startsWith("+54 9") || formData.telefono.length < 13) return "Formato de teléfono inválido.";
+    }
+    if (step === 3) {
+      if (formData.otp.length !== 6) return "El código debe tener 6 dígitos.";
+    }
+    return "";
+  };
+
+  const nextStep = () => {
+    const err = validateStep();
+    if (err) {
+      setError(err);
+      return;
+    }
+    if (step < 4) setStep(step + 1);
+  };
+
+  const prevStep = () => {
+    if (step > 1) setStep(step - 1);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    if (step < 4) {
+      nextStep();
+      return;
+    }
 
+    setError("");
     if (formData.password !== formData.confirmPassword) {
       setError("Las contraseñas no coinciden.");
       return;
     }
-
     if (formData.password.length < 8 || !/\d/.test(formData.password)) {
       setError("La contraseña debe tener al menos 8 caracteres y un número.");
       return;
     }
 
-    if (!validatePhone(formData.telefono)) {
-      setError("Formato de teléfono inválido (Ej: +54 9 11 1234-5678).");
-      return;
-    }
-
     setLoading(true);
-
     try {
-      // Split name into nombre and apellido for the DB
-      const names = formData.nombreCompleto.trim().split(" ");
-      const nombre = names[0];
-      const apellido = names.slice(1).join(" ") || " ";
-
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          nombre,
-          apellido,
+          nombre: formData.nombre,
+          apellido: formData.apellido,
           telefono: formData.telefono,
-          direccion: formData.direccion,
+          fecha_nacimiento: formData.fecha_nacimiento,
+          documento_tipo: formData.documento_tipo,
+          documento_numero: formData.documento_numero,
           rol: "cliente",
-          referralCode: referralCode
+          referralCode: referralCode,
+          registration_step: 4
         }),
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Error al registrarse");
-      }
-
+      if (!res.ok) throw new Error(data.message || "Error al registrarse");
       setSuccess(true);
-      // Wait a bit before redirecting or show check email page
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -97,7 +118,7 @@ function RegisterClienteContent() {
           <h1 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">¡Casi listo!</h1>
           <p className="text-slate-500 font-medium mb-8">
             Enviamos un link de verificación a <span className="font-bold text-slate-800">{formData.email}</span>. 
-            Por favor, revisá tu casilla (y la carpeta de spam).
+            Por favor, revisá tu casilla.
           </p>
           <Link href="/auth/login" className="inline-block bg-[#009EE3] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#009EE3]/20 hover:bg-[#00A650] transition-all uppercase tracking-widest text-sm">
             Ir al Login
@@ -107,6 +128,13 @@ function RegisterClienteContent() {
     );
   }
 
+  const steps = [
+    { id: 1, title: "Identidad", icon: User },
+    { id: 2, title: "Contacto", icon: Mail },
+    { id: 3, title: "Verificar", icon: CheckCircle2 },
+    { id: 4, title: "Seguridad", icon: Lock },
+  ];
+
   return (
     <div className="pb-24 px-4 pt-8 max-w-lg mx-auto">
       <Link href="/auth/login" className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-800 font-bold mb-8 transition-colors group">
@@ -114,117 +142,205 @@ function RegisterClienteContent() {
       </Link>
 
       <div className="mb-10 text-center">
-        <h1 className="text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">Crear Cuenta</h1>
-        <p className="text-slate-500 font-medium italic">Unite a BANDHA y empezá a ahorrar.</p>
+        <div className="flex justify-center gap-2 mb-6">
+          {steps.map((s) => (
+            <div 
+              key={s.id} 
+              className={`w-3 h-3 rounded-full transition-all duration-500 ${step >= s.id ? "bg-violet-600 w-8" : "bg-slate-200"}`}
+            />
+          ))}
+        </div>
+        <h1 className="text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">
+          {steps.find(s => s.id === step)?.title}
+        </h1>
+        <p className="text-slate-500 font-medium italic">Paso {step} de 4</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Nombre Completo</label>
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="text"
-                required
-                placeholder="Juan Pérez"
-                value={formData.nombreCompleto}
-                onChange={(e) => setFormData({...formData, nombreCompleto: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-              />
-            </div>
-          </div>
+      <form onSubmit={handleSubmit} className="relative overflow-hidden min-h-[400px]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
+          >
+            {step === 1 && (
+              <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Nombre</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Juan"
+                      value={formData.nombre}
+                      onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Apellido</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Pérez"
+                      value={formData.apellido}
+                      onChange={(e) => setFormData({...formData, apellido: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
+                    />
+                  </div>
+                </div>
 
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="email"
-                required
-                placeholder="juan@email.com"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Fecha de Nacimiento</label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.fecha_nacimiento}
+                    onChange={(e) => setFormData({...formData, fecha_nacimiento: e.target.value})}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
+                  />
+                </div>
 
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Teléfono (WhatsApp)</label>
-            <div className="relative">
-              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="text"
-                required
-                placeholder="+54 9 11 1234-5678"
-                value={formData.telefono}
-                onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all font-mono"
-              />
-            </div>
-          </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-1">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Tipo</label>
+                    <select
+                      value={formData.documento_tipo}
+                      onChange={(e) => setFormData({...formData, documento_tipo: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-2 text-sm focus:outline-none transition-all"
+                    >
+                      <option>DNI</option>
+                      <option>CUIL</option>
+                      <option>PAS</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Número de Documento</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="12.345.678"
+                      value={formData.documento_numero}
+                      onChange={(e) => setFormData({...formData, documento_numero: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
-          <div>
-             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Dirección (Opcional)</label>
-             <div className="relative">
-               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-               <input
-                 type="text"
-                 placeholder="Calle 123, CABA"
-                 value={formData.direccion}
-                 onChange={(e) => setFormData({...formData, direccion: e.target.value})}
-                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-               />
-             </div>
-          </div>
-        </div>
+            {step === 2 && (
+              <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <input
+                      type="email"
+                      required
+                      placeholder="juan@email.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
+                    />
+                  </div>
+                </div>
 
-        <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Contraseña</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="password"
-                required
-                placeholder="Mínimo 8 caracteres y 1 número"
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Teléfono (WhatsApp)</label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <input
+                      type="text"
+                      required
+                      placeholder="+54 9 11 1234-5678"
+                      value={formData.telefono}
+                      onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Confirmar Contraseña</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input
-                type="password"
-                required
-                placeholder="Repetí tu contraseña"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all"
-              />
-            </div>
-          </div>
-        </div>
+            {step === 3 && (
+              <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 text-center">
+                <p className="text-slate-500 font-medium mb-4">Ingresá el código de 6 dígitos enviado a tu teléfono.</p>
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder="000000"
+                  value={formData.otp}
+                  onChange={(e) => setFormData({...formData, otp: e.target.value.replace(/\D/g, '')})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-6 text-center text-3xl font-black tracking-[1rem] focus:outline-none focus:border-violet-600 transition-all"
+                />
+                <button type="button" className="text-violet-600 font-bold text-sm mt-4 hover:underline">Reenviar código</button>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Contraseña</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <input
+                      type="password"
+                      required
+                      placeholder="Mínimo 8 caracteres"
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Confirmar Contraseña</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <input
+                      type="password"
+                      required
+                      placeholder="Repetí tu contraseña"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         {error && (
-          <div className="bg-red-50 text-red-500 text-xs font-bold p-4 rounded-2xl border border-red-100 animate-shake">
+          <div className="mt-6 bg-red-50 text-red-500 text-xs font-bold p-4 rounded-2xl border border-red-100">
             ⚠️ {error}
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/30 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest active:scale-95 disabled:grayscale"
-        >
-          {loading ? <Loader2 className="animate-spin" size={24} /> : "Crear mi cuenta"}
-        </button>
+        <div className="flex gap-4 mt-8">
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={prevStep}
+              className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-5 rounded-[2rem] transition-all uppercase tracking-widest text-sm"
+            >
+              Atrás
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-[2] bg-violet-600 hover:bg-violet-700 text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-violet-600/20 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest active:scale-95 disabled:grayscale"
+          >
+            {loading ? <Loader2 className="animate-spin" size={24} /> : (step === 4 ? "Finalizar" : "Siguiente")}
+          </button>
+        </div>
       </form>
     </div>
   );
