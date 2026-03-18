@@ -41,6 +41,7 @@ import Header from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import PurchaseNotification from "@/components/shared/PurchaseNotification";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -50,19 +51,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={cn("font-sans", geist.variable)}>
-      <body className={`${inter.variable} font-sans antialiased text-slate-800 bg-[#FFF8E7] min-h-screen flex flex-col`}>
-        <NextAuthProvider>
-          <Header />
+    <html lang="es" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased bg-bandha min-h-screen flex flex-col transition-colors duration-300`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NextAuthProvider>
+            <Header />
 
-          {/* Contenido principal */}
-          <main className="flex-1 w-full relative">
-            {children}
-          </main>
+            {/* Contenido principal */}
+            <main className="flex-1 w-full relative">
+              {children}
+            </main>
 
-          <PurchaseNotification />
+            <PurchaseNotification />
 
-          <footer className="bg-white border-t border-gray-200 pt-16 pb-8 px-6 mt-auto">
+            <footer className="bg-bandha-surface border-t border-bandha-border pt-16 pb-8 px-6 mt-auto">
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                 <div className="flex flex-col gap-6">
@@ -116,6 +123,7 @@ export default function RootLayout({
           </footer>
           <Toaster />
         </NextAuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

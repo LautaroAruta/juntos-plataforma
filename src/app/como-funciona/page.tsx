@@ -7,34 +7,34 @@ export default function ComoFuncionaPage() {
     {
       title: "Elegí tu oferta",
       description: "Navegá por el marketplace y encontrá el producto que necesitás entre cientos de ofertas grupales activas.",
-      icon: <ShoppingBag className="text-[#009EE3]" size={32} />,
-      color: "bg-[#FFF8E7]"
+      icon: <ShoppingBag className="text-bandha-primary" size={32} />,
+      color: "bg-bandha-subtle"
     },
     {
       title: "Unite al grupo",
       description: "Sumate a otros compradores. No pagás nada hasta que se complete el grupo. Cuantos más somos, más ahorramos.",
-      icon: <Users className="text-[#00A650]" size={32} />,
-      color: "bg-blue-50"
+      icon: <Users className="text-bandha-secondary" size={32} />,
+      color: "bg-bandha-primary/5"
     },
     {
       title: "Recibilo en tu casa",
       description: "Una vez que el grupo llega al mínimo de participantes, el proveedor procesa el envío y lo recibís en la puerta de tu casa.",
-      icon: <Truck className="text-gray-800" size={32} />,
-      color: "bg-gray-100"
+      icon: <Truck className="text-bandha-text" size={32} />,
+      color: "bg-bandha-subtle"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-[#FFF8E7] pb-24">
-      <div className="bg-white border-b border-gray-100 mb-12">
+    <div className="min-h-screen bg-bandha-bg pb-24">
+      <div className="bg-bandha-surface border-b border-bandha-border mb-12">
         <div className="max-w-4xl mx-auto px-6 py-16 md:py-24 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-[#009EE3] font-bold text-sm uppercase tracking-widest mb-8 hover:gap-3 transition-all">
+          <Link href="/" className="inline-flex items-center gap-2 text-bandha-primary font-bold text-sm uppercase tracking-widest mb-8 hover:gap-3 transition-all">
             <ArrowLeft size={16} /> Volver al Inicio
           </Link>
-          <h1 className="text-4xl md:text-6xl font-black text-gray-800 tracking-tighter uppercase mb-6">
-            ¿Cómo funciona <span className="text-[#009EE3]">BANDHA</span>?
+          <h1 className="text-4xl md:text-6xl font-black text-bandha-text tracking-tighter uppercase mb-6">
+            ¿Cómo funciona <span className="text-bandha-primary">BANDHA</span>?
           </h1>
-          <p className="text-gray-500 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-bandha-text-secondary text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
             Nuestra plataforma conecta personas para comprar por volumen directamente a fabricantes y distribuidores.
           </p>
         </div>
@@ -43,27 +43,27 @@ export default function ComoFuncionaPage() {
       <div className="max-w-5xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map((step, i) => (
-            <div key={i} className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col items-center text-center group hover:shadow-2xl hover:shadow-gray-200 transition-all">
+            <div key={i} className="bg-bandha-surface rounded-[2.5rem] p-10 shadow-sm border border-bandha-border flex flex-col items-center text-center group hover:shadow-2xl hover:shadow-bandha-primary/5 transition-all">
               <div className={`w-20 h-20 ${step.color} rounded-[2rem] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
                 {step.icon}
               </div>
-              <h3 className="text-2xl font-black text-gray-800 tracking-tight mb-4">{i + 1}. {step.title}</h3>
-              <p className="text-gray-500 font-medium leading-relaxed">
+              <h3 className="text-2xl font-black text-bandha-text tracking-tight mb-4">{i + 1}. {step.title}</h3>
+              <p className="text-bandha-text-secondary font-medium leading-relaxed">
                 {step.description}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-20 bg-gray-800 rounded-[3rem] p-12 md:p-16 text-white overflow-hidden relative">
+        <div className="mt-20 bg-bandha-surface-raised rounded-[3rem] p-12 md:p-16 text-bandha-text overflow-hidden relative border border-bandha-border">
           <div className="relative z-10 max-w-2xl">
             <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase mb-6">¿Tenés una empresa?</h2>
-            <p className="text-gray-400 text-lg mb-8">
+            <p className="text-bandha-text-secondary text-lg mb-8">
               Vendé tus productos a gran escala y simplificá tu logística. Unirte como proveedor es gratis.
             </p>
             <Link 
               href="/auth/login" 
-              className="inline-flex items-center gap-2 bg-[#009EE3] hover:bg-[#00A650] text-white font-black px-10 py-5 rounded-2xl shadow-xl shadow-[#009EE3]/20 transition-all uppercase tracking-tight"
+              className="inline-flex items-center gap-2 bg-bandha-primary hover:bg-bandha-secondary text-white font-black px-10 py-5 rounded-2xl shadow-xl shadow-bandha-primary/20 transition-all uppercase tracking-tight"
             >
               Registrar mi negocio
             </Link>

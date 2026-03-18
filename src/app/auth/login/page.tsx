@@ -66,18 +66,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-180px)] flex items-center justify-center p-6 bg-[#F5F5F5]">
-      <div className="w-full max-w-md bg-white rounded-lg p-8 md:p-12 shadow-sm border border-gray-200">
+    <div className="min-h-[calc(100vh-180px)] flex items-center justify-center p-6 bg-bandha-bg">
+      <div className="w-full max-w-md bg-bandha-surface rounded-lg p-8 md:p-12 shadow-sm border border-bandha-border">
         <div className="text-center mb-10">
-          <Link href="/" className="inline-block text-4xl font-black text-[#009EE3] tracking-tighter mb-8">
+          <Link href="/" className="inline-block text-4xl font-black text-bandha-primary tracking-tighter mb-8">
             BANDHA
           </Link>
-          <h1 className="text-xl font-bold text-gray-800">¡Hola! Para continuar, ingresá</h1>
+          <h1 className="text-xl font-bold text-bandha-text">¡Hola! Para continuar, ingresá</h1>
         </div>
 
         <button
           onClick={() => signIn("google", { callbackUrl: "/elegir-rol" })}
-          className="w-full bg-white border border-gray-300 text-gray-700 font-semibold py-3 rounded-md hover:bg-gray-50 transition-all flex items-center justify-center gap-3 shadow-sm active:scale-[0.98] mb-8"
+          className="w-full bg-bandha-surface border border-bandha-border text-bandha-text font-semibold py-3 rounded-md hover:bg-bandha-subtle transition-all flex items-center justify-center gap-3 shadow-sm active:scale-[0.98] mb-8"
         >
           <svg width="18" height="18" viewBox="0 0 18 18">
             <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
@@ -90,10 +90,10 @@ export default function LoginPage() {
 
         <div className="relative mb-10">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-100"></div>
+            <div className="w-full border-t border-bandha-border"></div>
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-white px-4 text-gray-400 font-medium">— o ingresá con email —</span>
+            <span className="bg-bandha-surface px-4 text-bandha-text-muted font-medium">— o ingresá con email —</span>
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export default function LoginPage() {
                 <FormItem>
                   <div className="flex justify-between items-center">
                     <FormLabel>Contraseña</FormLabel>
-                    <Link href="#" className="text-xs font-semibold text-[#009EE3] hover:text-[#00A650]">
+                    <Link href="#" className="text-xs font-semibold text-bandha-primary hover:text-bandha-secondary">
                       ¿Olvidaste tu contraseña?
                     </Link>
                   </div>
@@ -141,17 +141,17 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-bold h-12 rounded-md shadow-sm transition-all active:scale-[0.98] mt-4 text-base"
+              className="w-full bg-bandha-primary hover:bg-bandha-secondary text-white font-bold h-12 rounded-md shadow-sm transition-all active:scale-[0.98] mt-4 text-base"
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : "Ingresar"}
             </Button>
           </form>
         </Form>
 
-        <div className="mt-12 text-center border-t border-gray-100 pt-8">
-          <p className="text-sm text-gray-500">
+        <div className="mt-12 text-center border-t border-bandha-border pt-8">
+          <p className="text-sm text-bandha-text-secondary">
             ¿No tenés cuenta?{" "}
-            <Link href="/auth/registro/cliente" className="text-[#009EE3] font-bold hover:text-[#00A650]">
+            <Link href="/auth/registro/cliente" className="text-bandha-primary font-bold hover:text-bandha-secondary">
               Registrate
             </Link>
           </p>

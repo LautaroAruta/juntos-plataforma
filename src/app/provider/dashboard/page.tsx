@@ -288,7 +288,7 @@ export default function ProviderDashboard() {
               ¿Eliminar <br /> Producto?
             </h2>
             <p className="text-slate-500 font-medium mb-10 px-4">
-              Estás por eliminar <span className="text-slate-900 font-bold">"{productToDelete.name}"</span>. Esta acción es permanente y no se puede deshacer.
+              Estás por eliminar <span className="text-slate-900 font-bold">&quot;{productToDelete.name}&quot;</span>. Esta acción es permanente y no se puede deshacer.
             </p>
 
             <div className="flex flex-col gap-3">

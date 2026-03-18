@@ -16,7 +16,15 @@ export async function POST(req: Request) {
       telefono, 
       cuit, 
       categoria, 
-      descripcion 
+      descripcion,
+      direccion,
+      provincia,
+      localidad,
+      calle,
+      altura,
+      codigo_postal,
+      latitude,
+      longitude
     } = await req.json();
 
     if (!email || !password || !nombreEmpresa) {
@@ -55,6 +63,14 @@ export async function POST(req: Request) {
         cuit_rut: cuit,
         categoria: categoria,
         descripcion: descripcion,
+        direccion: direccion,
+        provincia: provincia,
+        localidad: localidad,
+        calle: calle,
+        altura: altura,
+        codigo_postal: codigo_postal,
+        latitude: latitude,
+        longitude: longitude,
         verificado: false
       });
 

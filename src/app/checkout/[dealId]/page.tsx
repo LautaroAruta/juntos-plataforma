@@ -18,10 +18,12 @@ import {
   MapPin,
   Store,
   Wallet,
-  ShoppingBag
+  ShoppingBag,
+  Search
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { formatCurrency } from "@/lib/utils";
 
 export default function CheckoutPage() {
   const { dealId } = useParams();
@@ -44,25 +46,36 @@ export default function CheckoutPage() {
           *,
           product:products (
             *,
-            provider:providers (id, nombre_empresa, telefono, direccion)
+            provider:providers (id, nombre_empresa, telefono),
+            providers (id, nombre_empresa, telefono)
           )
         `)
         .eq('id', dealId)
         .single();
       
       if (!dealError && dealData) {
+        if (!dealData.product) {
+          setLoading(false);
+          return;
+        }
         setDeal(dealData);
         
-        // 2. Fetch pickup points for this provider
-        const { data: pointsData } = await supabase
-          .from('pickup_points')
-          .select('*')
-          .eq('provider_id', dealData.product.provider.id)
-          .eq('active', true);
+        // Handle provider data safely (might be singular or plural)
+        const providerData = dealData.product.provider || 
+                             (Array.isArray(dealData.product.providers) ? dealData.product.providers[0] : dealData.product.providers);
         
-        if (pointsData) {
-          setPickupPoints(pointsData);
-          if (pointsData.length > 0) setSelectedPoint(pointsData[0]);
+        if (providerData?.id) {
+          // 2. Fetch pickup points for this provider
+          const { data: pointsData } = await supabase
+            .from('pickup_points')
+            .select('*')
+            .eq('provider_id', providerData.id)
+            .eq('active', true);
+          
+          if (pointsData) {
+            setPickupPoints(pointsData);
+            if (pointsData.length > 0) setSelectedPoint(pointsData[0]);
+          }
         }
 
         // 3. Fetch user wallet balance
@@ -134,6 +147,19 @@ export default function CheckoutPage() {
     );
   }
 
+  if (!deal && !loading) {
+    return (
+      <div className="min-h-screen bg-[#FFF8E7] flex flex-col items-center justify-center p-6 text-center">
+        <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Oferta no encontrada</h2>
+        <p className="text-gray-500 mb-6">La oferta que buscás ya no está disponible o el enlace es incorrecto.</p>
+        <Link href="/" className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium bg-[#009EE3] hover:bg-[#00A650] text-white transition-colors">
+          Volver al inicio
+        </Link>
+      </div>
+    );
+  }
+
   // -------------------------
   // MAIN RENDER
   // -------------------------
@@ -168,8 +194,22 @@ export default function CheckoutPage() {
                 points={pickupPoints} 
                 selectedPointId={selectedPoint?.id}
                 onSelectPoint={(point: any) => setSelectedPoint(point)}
-                center={selectedPoint ? [selectedPoint.latitude, selectedPoint.longitude] : undefined}
+                center={selectedPoint ? [
+                  typeof selectedPoint.latitude === 'string' ? parseFloat(selectedPoint.latitude) : selectedPoint.latitude, 
+                  typeof selectedPoint.longitude === 'string' ? parseFloat(selectedPoint.longitude) : selectedPoint.longitude
+                ] : [-34.6037, -58.3816]}
               />
+              {pickupPoints.length === 0 && (
+                <div className="bg-[#00AEEF]/5 rounded-[2.5rem] p-8 border border-[#00AEEF]/10 flex flex-col items-center text-center">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-[#00AEEF] mb-4 shadow-sm">
+                    <Search size={24} />
+                  </div>
+                  <h3 className="text-sm font-black text-slate-800 mb-1 uppercase tracking-tight">Expandí tu búsqueda</h3>
+                  <p className="text-xs text-slate-500 max-w-xs">
+                    No encontramos puntos cercanos, pero podés usar el buscador del mapa para encontrar puntos en otras ciudades de Argentina.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -231,12 +271,21 @@ export default function CheckoutPage() {
                <div className="space-y-4 text-sm border-b border-slate-50 pb-6 mb-8">
                   <div className="flex justify-between items-center text-slate-500 font-bold">
                     <span>Producto</span>
-                    <span className="text-slate-800">${deal?.precio_actual?.toLocaleString() || 0}</span>
+                    <span className="text-slate-800" suppressHydrationWarning>{formatCurrency(deal?.precio_actual)}</span>
                   </div>
                   <div className="flex justify-between items-center text-slate-500 font-bold">
                     <span>Envío</span>
                     <span className="text-green-500 uppercase text-[10px] font-black tracking-widest bg-green-50 px-2 py-1 rounded-md">GRATIS</span>
                   </div>
+
+                  {deal?.product?.precio_individual && (
+                    <div className="flex justify-between items-center bg-green-50/50 p-3 rounded-2xl border border-green-100/50">
+                      <span className="text-green-600 font-black text-[10px] uppercase tracking-widest">Tu Ahorro</span>
+                      <span className="text-green-600 font-black" suppressHydrationWarning>
+                        -{formatCurrency(deal.product.precio_individual - deal.precio_actual)}
+                      </span>
+                    </div>
+                  )}
                </div>
 
                {selectedPoint && (
@@ -269,12 +318,12 @@ export default function CheckoutPage() {
                   <span className="text-slate-400 font-black uppercase tracking-widest text-[10px] mb-1">Total a Pagar</span>
                   <div className="text-right">
                     {useRewards && (
-                      <span className="block text-sm font-bold text-slate-300 line-through">
-                        ${deal?.precio_actual?.toLocaleString() || 0}
+                      <span className="block text-sm font-bold text-slate-300 line-through" suppressHydrationWarning>
+                        {formatCurrency(deal?.precio_actual)}
                       </span>
                     )}
-                    <span className="text-4xl font-black text-slate-800 tracking-tighter">
-                      ${(deal?.precio_actual - (useRewards ? Math.min(walletBalance, deal.precio_actual) : 0)).toLocaleString() || 0}
+                    <span className="text-4xl font-black text-slate-800 tracking-tighter" suppressHydrationWarning>
+                      {formatCurrency(deal?.precio_actual - (useRewards ? Math.min(walletBalance, deal.precio_actual) : 0))}
                     </span>
                   </div>
                </div>

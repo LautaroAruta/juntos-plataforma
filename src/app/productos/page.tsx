@@ -2,6 +2,7 @@ import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Users, Timer, ChevronRight, ShoppingBag } from "lucide-react";
+import CountdownTimer from "@/components/shared/CountdownTimer";
 
 export default async function ProductosPage() {
   const supabase = await createClient();
@@ -14,6 +15,7 @@ export default async function ProductosPage() {
       product:products (*)
     `)
     .eq('estado', 'activo')
+    .gt('fecha_vencimiento', new Date().toISOString())
     .order('creado_en', { ascending: false });
 
   return (
@@ -83,9 +85,14 @@ export default async function ProductosPage() {
                           <Users size={14} className="text-[#009EE3]" />
                           {deal.participantes_actuales} de {deal.min_participantes} unidades
                         </span>
-                        <div className="flex items-center gap-1.5 text-red-500 bg-red-50 px-2 py-0.5 rounded-lg">
-                          <Timer size={14} />
-                          <span>2h 30min</span>
+                        <div className="flex items-center gap-1.5 text-red-500 bg-red-50 px-2 py-0.5 rounded-lg shrink-0">
+                          <CountdownTimer 
+                            targetDate={deal.fecha_vencimiento} 
+                            showIcon={true} 
+                            className="font-black text-[10px]" 
+                            iconSize={14}
+                            variant="simple"
+                          />
                         </div>
                       </div>
 

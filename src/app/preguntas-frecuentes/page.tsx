@@ -27,21 +27,21 @@ export default function FAQsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FFF8E7] pb-24">
-      <div className="bg-white border-b border-gray-100 mb-12">
+    <div className="min-h-screen bg-bandha-bg pb-24">
+      <div className="bg-bandha-surface border-b border-bandha-border mb-12">
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 text-[#009EE3] font-bold text-sm uppercase tracking-widest mb-8 hover:gap-3 transition-all">
+          <Link href="/" className="inline-flex items-center gap-2 text-bandha-primary font-bold text-sm uppercase tracking-widest mb-8 hover:gap-3 transition-all">
             <ArrowLeft size={16} /> Volver al Inicio
           </Link>
           <div className="flex justify-center mb-6">
-            <div className="p-4 bg-[#FFF8E7] rounded-2xl text-[#009EE3]">
+            <div className="p-4 bg-bandha-subtle rounded-2xl text-bandha-primary">
               <HelpCircle size={48} />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-gray-800 tracking-tighter uppercase mb-4">
+          <h1 className="text-4xl md:text-5xl font-black text-bandha-text tracking-tighter uppercase mb-4">
             Preguntas Frecuentes
           </h1>
-          <p className="text-gray-500 text-lg font-medium max-w-xl mx-auto">
+          <p className="text-bandha-text-secondary text-lg font-medium max-w-xl mx-auto">
             Todo lo que necesitás saber para empezar a ahorrar comprando en grupo.
           </p>
         </div>
@@ -50,11 +50,11 @@ export default function FAQsPage() {
       <div className="max-w-3xl mx-auto px-6">
         <div className="space-y-4">
           {faqs.map((faq, i) => (
-            <div key={i} className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 group">
-              <h3 className="text-xl font-black text-gray-800 tracking-tight mb-4 flex justify-between items-center group-hover:text-[#009EE3] transition-colors">
+            <div key={i} className="bg-bandha-surface rounded-3xl p-8 shadow-sm border border-bandha-border group">
+              <h3 className="text-xl font-black text-bandha-text tracking-tight mb-4 flex justify-between items-center group-hover:text-bandha-primary transition-colors">
                 {faq.q}
               </h3>
-              <p className="text-gray-500 font-medium leading-relaxed">
+              <p className="text-bandha-text-secondary font-medium leading-relaxed">
                 {faq.a}
               </p>
             </div>
@@ -62,10 +62,10 @@ export default function FAQsPage() {
         </div>
 
         <div className="mt-20 text-center">
-          <p className="text-gray-400 font-medium mb-6">¿Tenés otra duda?</p>
+          <p className="text-bandha-text-muted font-medium mb-6">¿Tenés otra duda?</p>
           <Link 
             href="#" 
-            className="text-[#009EE3] font-black uppercase tracking-widest hover:text-[#00A650] transition-colors border-b-2 border-[#009EE3]/20 pb-1"
+            className="text-bandha-primary font-black uppercase tracking-widest hover:text-bandha-secondary transition-colors border-b-2 border-bandha-primary/20 pb-1"
           >
             Contactanos por WhatsApp
           </Link>

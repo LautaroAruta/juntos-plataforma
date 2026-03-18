@@ -32,12 +32,17 @@ export default function ElegirRolPage() {
       if (role === "proveedor") {
         const { data: providerProfile } = await supabase
           .from("providers")
-          .select("id")
+          .select("id, estado_kyc, verificado")
           .eq("id", session.user.id)
           .single();
           
         if (providerProfile) {
-          targetPath = "/provider/dashboard";
+          // Si KYC aprobado o verificado → dashboard, sino → estado verificación
+          if (providerProfile.verificado || providerProfile.estado_kyc === "aprobado") {
+            targetPath = "/provider/dashboard";
+          } else {
+            targetPath = "/provider/estado-verificacion";
+          }
         }
       }
 
@@ -54,7 +59,21 @@ export default function ElegirRolPage() {
     }
   };
 
-  if (!session) return null;
+  if (session === undefined || (typeof window !== "undefined" && !session)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F5]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-violet-600 animate-spin" strokeWidth={2.5} />
+          <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    router.push("/auth/login");
+    return null;
+  }
 
   return (
     <div className="min-h-[calc(100vh-180px)] flex items-center justify-center p-6 bg-[#F5F5F5]">

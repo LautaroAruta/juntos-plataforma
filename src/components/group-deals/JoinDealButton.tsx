@@ -7,11 +7,12 @@ import { ShoppingCart, Users, Loader2, Share2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 
-export default function JoinDealButton({ dealId }: { dealId: string }) {
+export default function JoinDealButton({ dealId, targetDate }: { dealId: string, targetDate?: string | Date }) {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
+  const isExpired = targetDate ? new Date(targetDate).getTime() <= Date.now() : false;
 
   const handleJoin = async () => {
     if (!session) {
@@ -65,11 +66,20 @@ export default function JoinDealButton({ dealId }: { dealId: string }) {
   return (
     <button
       onClick={handleJoin}
-      disabled={loading}
-      className="w-full bg-[#00A650] hover:bg-[#008E4A] text-white font-black py-4 px-6 rounded-2xl shadow-lg shadow-[#00A650]/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-70 group"
+      disabled={loading || isExpired}
+      className={`w-full font-black py-4 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-70 group ${
+        isExpired 
+        ? "bg-gray-400 cursor-not-allowed shadow-none" 
+        : "bg-[#00A650] hover:bg-[#008E4A] text-white shadow-[#00A650]/20"
+      }`}
     >
       {loading ? (
         <Loader2 className="animate-spin" size={20} />
+      ) : isExpired ? (
+        <>
+          <ShoppingCart size={20} />
+          <span className="text-base uppercase tracking-tight">Oferta Expirada</span>
+        </>
       ) : (
         <>
           <Users size={20} className="group-hover:scale-110 transition-transform" />

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Lock, Phone, MapPin, ChevronLeft, Loader2, CheckCircle2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
-export default function RegisterCliente() {
+function RegisterClienteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const referralCode = searchParams.get("ref");
@@ -227,5 +227,17 @@ export default function RegisterCliente() {
         </button>
       </form>
     </div>
+  );
+}
+
+export default function RegisterCliente() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin text-[#009EE3]" size={48} />
+      </div>
+    }>
+      <RegisterClienteContent />
+    </Suspense>
   );
 }

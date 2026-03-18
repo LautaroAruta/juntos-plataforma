@@ -70,7 +70,7 @@ export default function StreakWidget({ streak }: StreakWidgetProps) {
             {streak} {streak === 1 ? 'Compra' : 'Compras'} Seguidas
           </h2>
           
-          <p className="text-slate-400 font-bold text-sm leading-relaxed max-w-xs">
+          <p className="text-white/60 font-bold text-sm leading-relaxed max-w-xs">
             {streak === 0 
               ? "Hacé tu primera compra para activar tu racha y ganar premios."
               : "¡No pierdas el fuego! Hacé una compra antes del domingo para mantener tu nivel."}
@@ -83,10 +83,10 @@ export default function StreakWidget({ streak }: StreakWidgetProps) {
             <Trophy size={28} />
           </div>
           <div className="text-center">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Próximo Premio</p>
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Próximo Premio</p>
             <p className="text-xl font-black text-white">$1.000 OFF</p>
           </div>
-          <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+          <div className="w-full h-1.5 bg-white/10 rounded-full mt-2 overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${(streak % 5) * 20}%` }}
