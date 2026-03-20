@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import ProductCard from "@/components/home/ProductCard";
 import { ChevronLeft, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { getCategoryBySlug } from "@/lib/constants/categories";
 import CategoryToolbar from "@/components/category/CategoryToolbar";
 
@@ -84,41 +85,53 @@ export default async function CategoryPage({
   // Filtrar productos que YA están mostrados como ofertas
   const secondaryProducts = (allProducts || []).filter(p => !validDeals.some(d => d.product.id === p.id));
 
-  const categoryConfigs: Record<string, string> = {
-      "tecnologia": "from-blue-600 to-indigo-700",
-      "moda": "from-pink-500 to-rose-700",
-      "alimentos": "from-green-500 to-emerald-700",
-      "hogar": "from-orange-500 to-amber-700",
-      "deportes": "from-red-500 to-orange-700",
-      "belleza": "from-purple-500 to-indigo-700",
-      "juguetes": "from-yellow-500 to-amber-600",
-      "herramientas": "from-gray-600 to-slate-800",
+  const categoryConfigs: Record<string, { gradient: string, image: string }> = {
+      "tecnologia": { gradient: "from-blue-950/90 via-blue-900/40 to-transparent", image: "/images/categories/tecnologia.png" },
+      "moda": { gradient: "from-rose-950/90 via-pink-900/40 to-transparent", image: "/images/categories/moda.png" },
+      "alimentos": { gradient: "from-green-950/90 via-emerald-900/40 to-transparent", image: "/images/categories/alimentos.png" },
+      "hogar": { gradient: "from-orange-950/90 via-amber-900/40 to-transparent", image: "/images/categories/hogar.png" },
+      "deportes": { gradient: "from-red-950/90 via-orange-900/40 to-transparent", image: "/images/categories/deportes.png" },
+      "belleza": { gradient: "from-purple-950/90 via-indigo-900/40 to-transparent", image: "/images/categories/belleza.png" },
+      "juguetes": { gradient: "from-amber-900/90 via-yellow-800/40 to-transparent", image: "/images/categories/juguetes.png" },
+      "herramientas": { gradient: "from-slate-950/90 via-gray-900/40 to-transparent", image: "/images/categories/herramientas.png" },
   };
 
-  const bgColor = categoryConfigs[category?.slug || ""] || "from-gray-600 to-slate-800";
+  const config = categoryConfigs[category?.slug || ""] || { gradient: "from-slate-900/80 to-gray-950/90", image: "" };
   const description = category?.description || "Explorá todas las ofertas de esta categoría.";
 
   return (
     <div className="min-h-screen bg-[#FFF8E7] pb-20">
       {/* Category Hero */}
-      <section className={`w-full bg-gradient-to-br ${bgColor} pt-12 pb-20 px-4 md:px-6 relative overflow-hidden`}>
-        <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mt-48 blur-3xl" />
-        </div>
+      <section className={`w-full pt-12 pb-20 px-4 md:px-6 relative overflow-hidden h-[450px] md:h-[550px] flex items-center`}>
+        {/* Background Image */}
+        {config.image && (
+          <div className="absolute inset-0 z-0">
+            <Image 
+              src={config.image} 
+              alt={categoryDisplayName}
+              fill
+              className="object-cover object-right md:object-center"
+              priority
+              quality={100}
+            />
+            {/* Dynamic Overlay based on category color */}
+            <div className={`absolute inset-0 bg-gradient-to-r ${config.gradient} z-10`} />
+          </div>
+        )}
         
-        <div className="max-w-7xl mx-auto relative z-10">
+        <div className="max-w-7xl mx-auto w-full relative z-20">
           <Link 
             href="/" 
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white font-bold text-xs uppercase tracking-widest mb-8 transition-colors"
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white font-bold text-xs uppercase tracking-widest mb-12 transition-colors"
           >
             <ChevronLeft size={16} /> Volver al Inicio
           </Link>
           
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4 leading-none">
+            <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6 leading-none animate-in fade-in slide-in-from-left-4 duration-700">
               {categoryDisplayName}
             </h1>
-            <p className="text-white/80 text-lg md:text-xl font-medium max-w-xl">
+            <p className="text-white/80 text-lg md:text-2xl font-medium max-w-xl animate-in fade-in slide-in-from-left-6 duration-1000 delay-100">
               {description}
             </p>
           </div>
@@ -126,14 +139,14 @@ export default async function CategoryPage({
       </section>
 
       {/* Results Section */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 -mt-10 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 -mt-10 relative z-30">
         
         <CategoryToolbar totalResults={validDeals.length} />
 
         {/* Primary Grid: Active Deals */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 min-h-[200px]">
            {validDeals.length === 0 ? (
-             <div className="col-span-full bg-white rounded-[3rem] p-20 text-center border-2 border-dashed border-gray-100">
+             <div className="col-span-full bg-white rounded-[3rem] p-20 text-center border-2 border-dashed border-gray-100 shadow-sm">
                 <ShoppingBag size={48} className="mx-auto text-gray-200 mb-4" />
                 <h2 className="text-xl font-black text-gray-800 uppercase tracking-tighter mb-2">
                     {dealsError ? "Error al cargar ofertas" : "No hay ofertas activas"}
@@ -154,7 +167,7 @@ export default async function CategoryPage({
         {/* Secondary Grid: Individual Products without active deals */}
         {secondaryProducts.length > 0 && (
             <div className="mt-20">
-                <h2 className="text-xl font-black text-gray-800 uppercase tracking-tighter mb-8">Todos los productos en {categoryDisplayName}</h2>
+                <h2 className="text-xl font-black text-gray-800 uppercase tracking-tighter mb-8 pl-2 border-l-4 border-gray-800">Todos los productos en {categoryDisplayName}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
                     {secondaryProducts.map((product: any) => (
                         <ProductCard key={product.id} product={product} />
