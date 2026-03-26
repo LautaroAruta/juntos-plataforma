@@ -45,7 +45,9 @@ export function validateCUIT(cuit: string): { valid: boolean; message: string } 
  * Auto-formatea CUIT mientras se escribe: XX-XXXXXXXX-X
  */
 export function formatCUIT(input: string): string {
+  // Solo dejar números
   const clean = input.replace(/\D/g, "").slice(0, 11);
+  
   if (clean.length <= 2) return clean;
   if (clean.length <= 10) return `${clean.slice(0, 2)}-${clean.slice(2)}`;
   return `${clean.slice(0, 2)}-${clean.slice(2, 10)}-${clean.slice(10)}`;

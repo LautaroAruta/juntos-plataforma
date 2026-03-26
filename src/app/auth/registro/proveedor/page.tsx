@@ -23,12 +23,14 @@ import {
   Info,
   Hash,
   Landmark,
+  Package,
+  CheckCircle2,
+  RefreshCcw,
   ArrowRight,
   ArrowLeft,
   Shield,
   Store,
-  UserCircle,
-  Package
+  UserCircle
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -45,8 +47,9 @@ import {
   PROVINCIAS_AR,
   CATEGORIES,
 } from "@/lib/validators";
+import { createClient } from "@/lib/supabase/client";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 // ─── INPUT HELPER ─────────────────────────────────────────
 interface InputFieldProps {
@@ -60,6 +63,7 @@ interface InputFieldProps {
   value: string;
   onChange: (val: string) => void;
   fieldErrors: Record<string, string>;
+  isSuccess?: boolean;
 }
 
 const InputField = ({
@@ -73,6 +77,7 @@ const InputField = ({
   value,
   onChange,
   fieldErrors,
+  isSuccess = false,
 }: InputFieldProps) => (
   <div>
     <label className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">
@@ -87,11 +92,18 @@ const InputField = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={`w-full bg-slate-50 border ${
-          fieldErrors[name] ? "border-red-300 ring-2 ring-red-100" : "border-slate-100"
-        } rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all ${
+          fieldErrors[name] 
+            ? "border-red-300 ring-2 ring-red-100" 
+            : isSuccess 
+              ? "border-green-400 ring-2 ring-green-50"
+              : "border-slate-100"
+        } rounded-2xl py-4 pl-12 pr-12 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all ${
           mono ? "font-mono" : ""
         }`}
       />
+      {isSuccess && !fieldErrors[name] && (
+        <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 animate-in zoom-in duration-300" size={18} strokeWidth={2.5} />
+      )}
     </div>
     {fieldErrors[name] && (
       <p className="text-red-500 text-[11px] font-bold mt-1.5 px-1 animate-in fade-in slide-in-from-top-1 duration-200">
@@ -131,11 +143,14 @@ export default function RegisterProveedor() {
     titularCuenta: "",
     latitude: null as number | null,
     longitude: null as number | null,
+    otp: "",
+    isVerified: false,
   });
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     if (session?.user) {
@@ -228,8 +243,13 @@ export default function RegisterProveedor() {
         if (!formData.categoria) errors.categoria = "Seleccioná una categoría";
         break;
 
-      case 3: {
+      case 3:
+        if (!formData.isVerified) errors.otp = "Debes verificar tu email para continuar";
+        break;
+
+      case 4: {
         if (!formData.cuit.trim()) {
+// ... rest of fiscal logic (shifted)
           errors.cuit = "El CUIT es obligatorio";
         } else {
           const cuitResult = validateCUIT(formData.cuit);
@@ -274,8 +294,60 @@ export default function RegisterProveedor() {
     return Object.keys(errors).length === 0;
   };
 
-  const nextStep = () => {
+  const triggerOTP = async () => {
+    setResending(true);
+    setLoading(true);
+    setError("");
+    const supabase = createClient();
+    try {
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: formData.email,
+        options: { shouldCreateUser: true }
+      });
+      if (otpError) throw otpError;
+    } catch (err: any) {
+      setError("Error al enviar el código: " + err.message);
+    } finally {
+      setLoading(false);
+      setResending(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (formData.otp.length !== 6) return;
+    setLoading(true);
+    setError("");
+    const supabase = createClient();
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: formData.email,
+        token: formData.otp,
+        type: 'signup'
+      });
+      
+      if (verifyError) {
+        const { error: retryError } = await supabase.auth.verifyOtp({
+          email: formData.email,
+          token: formData.otp,
+          type: 'email'
+        });
+        if (retryError) throw retryError;
+      }
+
+      setFormData(prev => ({ ...prev, isVerified: true }));
+      setStep(4);
+    } catch (err: any) {
+      setError("Código inválido o expirado.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const nextStep = async () => {
     if (validateStep(step)) {
+      if (step === 2) {
+        await triggerOTP();
+      }
       setStep(step + 1);
       setError("");
     }
@@ -523,8 +595,60 @@ export default function RegisterProveedor() {
           </div>
         )}
 
-        {/* ─── STEP 3: Datos Fiscales ───────────────────── */}
+        {/* ─── STEP 3: Verificación de Email ───────────── */}
         {step === 3 && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 text-center">
+              <div className="w-20 h-20 bg-violet-50 text-violet-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                <Mail size={40} strokeWidth={2.5} />
+              </div>
+              <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase mb-2">Verifica tu correo</h2>
+              <p className="text-slate-500 font-medium mb-8">
+                Enviamos un código de 6 dígitos a:<br/>
+                <span className="text-slate-800 font-bold">{formData.email}</span>
+              </p>
+
+              <div className="relative mb-6">
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder="000000"
+                  value={formData.otp}
+                  onChange={(e) => updateField("otp", e.target.value.replace(/\D/g, ""))}
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2rem] py-6 text-center text-4xl font-black tracking-[1.2rem] focus:outline-none focus:border-violet-600 transition-all placeholder:text-slate-200"
+                />
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={handleVerifyOTP}
+                  disabled={loading || formData.otp.length !== 6}
+                  className="w-full bg-violet-600 hover:bg-violet-700 text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-violet-600/20 transition-all flex items-center justify-center gap-3 text-base uppercase tracking-tight disabled:opacity-50"
+                >
+                  {loading ? <Loader2 className="animate-spin" size={20} /> : "Verificar y Continuar"}
+                </button>
+                
+                <button
+                  onClick={triggerOTP}
+                  disabled={loading || resending}
+                  className="text-slate-400 hover:text-violet-600 font-bold text-xs flex items-center justify-center gap-2 transition-colors py-2"
+                >
+                  <RefreshCcw size={14} className={loading ? "animate-spin" : ""} /> Reenviar código
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={prevStep}
+              className="w-full bg-slate-100 text-slate-600 font-black py-5 rounded-[2rem] hover:bg-slate-200 transition-all flex items-center justify-center gap-2 uppercase tracking-tight text-sm"
+            >
+              <ArrowLeft size={18} /> Volver a datos de contacto
+            </button>
+          </div>
+        )}
+
+        {/* ─── STEP 4: Datos Fiscales ───────────────────── */}
+        {step === 4 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 space-y-5">
               <h2 className="text-xl font-black text-slate-800 tracking-tight mb-1">Datos Fiscales</h2>
@@ -537,7 +661,26 @@ export default function RegisterProveedor() {
                 tooltip="Tu Clave Única de Identificación Tributaria. Necesario para facturación electrónica y cumplimiento fiscal."
                 mono
                 value={formData.cuit}
-                onChange={(v) => updateField("cuit", formatCUIT(v))}
+                onChange={(v) => {
+                  const formatted = formatCUIT(v);
+                  updateField("cuit", formatted);
+                  
+                  // Validación en vivo si tiene 11 números
+                  const raw = formatted.replace(/-/g, "");
+                  if (raw.length === 11) {
+                    const result = validateCUIT(raw);
+                    if (!result.valid) {
+                      setFieldErrors(prev => ({ ...prev, cuit: result.message }));
+                    } else {
+                      setFieldErrors(prev => {
+                        const next = { ...prev };
+                        delete next.cuit;
+                        return next;
+                      });
+                    }
+                  }
+                }}
+                isSuccess={formData.cuit.replace(/-/g, "").length === 11 && !fieldErrors.cuit}
                 fieldErrors={fieldErrors}
               />
 
@@ -750,8 +893,8 @@ export default function RegisterProveedor() {
           </div>
         )}
 
-        {/* ─── STEP 4: Datos Bancarios ──────────────────── */}
-        {step === 4 && (
+        {/* ─── STEP 5: Datos Bancarios ──────────────────── */}
+        {step === 5 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 space-y-5">
               <h2 className="text-xl font-black text-slate-800 tracking-tight mb-1">Datos Bancarios</h2>
@@ -811,8 +954,8 @@ export default function RegisterProveedor() {
           </div>
         )}
 
-        {/* ─── STEP 5: Resumen y Confirmación ───────────── */}
-        {step === 5 && (
+        {/* ─── STEP 6: Resumen y Confirmación ───────────── */}
+        {step === 6 && (
           <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 space-y-6">
               <h2 className="text-xl font-black text-slate-800 tracking-tight">Revisá tus datos</h2>

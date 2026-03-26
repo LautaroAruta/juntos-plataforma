@@ -3,8 +3,9 @@
 import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Lock, Phone, MapPin, ChevronLeft, Loader2, CheckCircle2 } from "lucide-react";
+import { User, Mail, Lock, Phone, MapPin, ChevronLeft, Loader2, CheckCircle2, RefreshCcw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,7 +14,9 @@ function RegisterClienteContent() {
   const searchParams = useSearchParams();
   const referralCode = searchParams.get("ref");
   
+  const supabase = createClient();
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [step, setStep] = useState(1);
@@ -29,6 +32,7 @@ function RegisterClienteContent() {
     otp: "",
     password: "",
     confirmPassword: "",
+    isVerified: false,
   });
 
   const validateStep = () => {
@@ -43,18 +47,74 @@ function RegisterClienteContent() {
       if (!formData.telefono.startsWith("+54 9") || formData.telefono.length < 13) return "Formato de teléfono inválido.";
     }
     if (step === 3) {
-      if (formData.otp.length !== 6) return "El código debe tener 6 dígitos.";
+      if (!formData.isVerified) return "Debes verificar tu email con el código de 6 dígitos.";
     }
     return "";
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     const err = validateStep();
     if (err) {
       setError(err);
       return;
     }
+
+    if (step === 2) {
+      // Al pasar de contacto a verificación, mandamos el OTP
+      await triggerOTP();
+    }
+
     if (step < 4) setStep(step + 1);
+  };
+
+  const triggerOTP = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: formData.email,
+        options: {
+          shouldCreateUser: true, // Esto crea el usuario en auth.users si no existe
+        }
+      });
+      if (otpError) throw otpError;
+    } catch (err: any) {
+      setError("Error al enviar el código: " + err.message);
+      // No avanzamos de paso si falla el envío? 
+      // En realidad para debug/experiencia mejor dejarlo pero avisar.
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (formData.otp.length !== 6) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: formData.email,
+        token: formData.otp,
+        type: 'signup'
+      });
+      
+      if (verifyError) {
+        // Intentar con type 'signin' por si ya existía el registro en auth.users
+        const { error: retryError } = await supabase.auth.verifyOtp({
+          email: formData.email,
+          token: formData.otp,
+          type: 'email'
+        });
+        if (retryError) throw retryError;
+      }
+
+      setFormData(prev => ({ ...prev, isVerified: true }));
+      setStep(4);
+    } catch (err: any) {
+      setError("Código inválido o expirado. Intentá de nuevo.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const prevStep = () => {
@@ -235,18 +295,21 @@ function RegisterClienteContent() {
             {step === 2 && (
               <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email</label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email de Verificación</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                     <input
                       type="email"
                       required
-                      placeholder="juan@email.com"
+                      placeholder="tu@email.com"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all font-bold"
                     />
                   </div>
+                  <p className="text-[10px] text-slate-400 font-medium px-1 mt-2">
+                    * Te enviaremos un código de seguridad a esta casilla.
+                  </p>
                 </div>
 
                 <div>
@@ -268,16 +331,46 @@ function RegisterClienteContent() {
 
             {step === 3 && (
               <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 text-center">
-                <p className="text-slate-500 font-medium mb-4">Ingresá el código de 6 dígitos enviado a tu teléfono.</p>
+                <div className="w-16 h-16 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                   <Mail size={32} />
+                </div>
+                <h2 className="text-xl font-black text-slate-800 tracking-tight uppercase">Verifica tu Email</h2>
+                <p className="text-slate-500 font-medium mb-6">Enviamos un código de 6 dígitos a <br/><span className="text-slate-800 font-bold">{formData.email}</span></p>
+                
                 <input
                   type="text"
                   maxLength={6}
                   placeholder="000000"
                   value={formData.otp}
-                  onChange={(e) => setFormData({...formData, otp: e.target.value.replace(/\D/g, '')})}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setFormData({...formData, otp: val});
+                    if (val.length === 6) {
+                      // Opcional: Auto-verificar al llegar a 6
+                    }
+                  }}
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-6 text-center text-3xl font-black tracking-[1rem] focus:outline-none focus:border-violet-600 transition-all"
                 />
-                <button type="button" className="text-violet-600 font-bold text-sm mt-4 hover:underline">Reenviar código</button>
+                
+                <div className="flex flex-col gap-3 mt-6">
+                  <button 
+                    type="button" 
+                    onClick={handleVerifyOTP}
+                    disabled={loading || formData.otp.length !== 6}
+                    className="w-full bg-violet-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-violet-200 uppercase tracking-widest text-xs disabled:opacity-50"
+                  >
+                    {loading ? <Loader2 className="animate-spin mx-auto" size={16} /> : "Verificar Código"}
+                  </button>
+                  
+                  <button 
+                    type="button" 
+                    onClick={triggerOTP}
+                    disabled={resending || loading}
+                    className="text-slate-400 font-bold text-xs hover:text-violet-600 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <RefreshCcw size={12} className={resending ? "animate-spin" : ""} /> Reenviar código
+                  </button>
+                </div>
               </div>
             )}
 
@@ -335,7 +428,7 @@ function RegisterClienteContent() {
           )}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (step === 3 && !formData.isVerified)}
             className="flex-[2] bg-violet-600 hover:bg-violet-700 text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-violet-600/20 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest active:scale-95 disabled:grayscale"
           >
             {loading ? <Loader2 className="animate-spin" size={24} /> : (step === 4 ? "Finalizar" : "Siguiente")}

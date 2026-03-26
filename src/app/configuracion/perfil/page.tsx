@@ -25,9 +25,12 @@ import {
   Edit2,
   History,
   Save,
-  Loader2
+  Loader2,
+  CheckCircle2,
+  AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatCUIT, validateCUIT } from "@/lib/validators";
 
 // --- Subcomponents ---
 
@@ -53,7 +56,7 @@ const SidebarItem = ({ id, title, icon: Icon, active, onClick }: SectionProps) =
   </button>
 );
 
-const InputField = ({ label, placeholder, type = "text", value, onChange, icon: Icon }: any) => (
+const InputField = ({ label, placeholder, type = "text", value, onChange, icon: Icon, error, success, mono }: any) => (
   <div className="space-y-2">
     <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
     <div className="relative group">
@@ -63,9 +66,21 @@ const InputField = ({ label, placeholder, type = "text", value, onChange, icon: 
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all font-medium text-slate-700 placeholder:text-slate-300"
+        className={`w-full bg-slate-50 border ${
+          error ? "border-red-300 ring-2 ring-red-100" : success ? "border-green-400 ring-2 ring-green-50" : "border-slate-100"
+        } rounded-2xl py-3.5 pl-12 pr-12 text-sm focus:outline-none focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500 transition-all font-medium text-slate-700 placeholder:text-slate-300 ${
+          mono ? "font-mono" : ""
+        }`}
       />
+      {success && !error && (
+        <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 animate-in zoom-in duration-300" size={18} strokeWidth={2.5} />
+      )}
     </div>
+    {error && (
+      <p className="text-red-500 text-[10px] font-bold mt-1 px-1 flex items-center gap-1 animate-in fade-in slide-in-from-top-1">
+        <AlertCircle size={10} /> {error}
+      </p>
+    )}
   </div>
 );
 
@@ -118,6 +133,7 @@ export default function ProfileSettingsPage() {
     moneda: "ARS",
     tema: "light"
   });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (session?.user) {
@@ -134,6 +150,31 @@ export default function ProfileSettingsPage() {
   }, [session]);
 
   const updateField = (field: string, val: any) => {
+    if (field === "cuit") {
+      const formatted = formatCUIT(val);
+      setFormData(prev => ({ ...prev, [field]: formatted }));
+      
+      const raw = formatted.replace(/-/g, "");
+      if (raw.length === 11) {
+        const result = validateCUIT(raw);
+        if (!result.valid) {
+          setFieldErrors(prev => ({ ...prev, cuit: result.message }));
+        } else {
+          setFieldErrors(prev => {
+            const next = { ...prev };
+            delete next.cuit;
+            return next;
+          });
+        }
+      } else {
+        setFieldErrors(prev => {
+          const next = { ...prev };
+          delete next.cuit;
+          return next;
+        });
+      }
+      return;
+    }
     setFormData(prev => ({ ...prev, [field]: val }));
   };
 
@@ -357,7 +398,15 @@ export default function ProfileSettingsPage() {
                     animate={{ opacity: 1, x: 0 }} 
                     className="space-y-6"
                   >
-                    <InputField label="CUIT" icon={Banknote} value={formData.cuit} onChange={(v: any) => updateField("cuit", v)} />
+                    <InputField 
+                      label="CUIT" 
+                      icon={Banknote} 
+                      value={formData.cuit} 
+                      onChange={(v: any) => updateField("cuit", v)} 
+                      mono
+                      error={fieldErrors.cuit}
+                      success={formData.cuit.replace(/-/g, "").length === 11 && !fieldErrors.cuit}
+                    />
                     <div className="p-6 bg-violet-50 rounded-3xl border border-violet-100 flex items-start gap-4">
                       <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white shrink-0">
                         <ShieldCheck size={20} />

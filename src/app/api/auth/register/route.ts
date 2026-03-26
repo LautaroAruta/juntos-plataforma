@@ -27,37 +27,65 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Email y contraseña son requeridos" }, { status: 400 });
     }
 
-    // Register user in Supabase Auth
-    const { data, error } = await supabaseAdmin.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          nombre,
-          apellido,
-          telefono,
-          direccion,
-          rol,
-          documento_tipo,
-          documento_numero,
-          fecha_nacimiento,
-          registration_step
-        },
-      },
-    });
+    // 1. Check if user already exists in Auth (e.g. from OTP flow)
+    const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
+    const existingAuthUser = listData.users.find(u => u.email === email);
 
-    if (error) {
-      let message = error.message;
-      if (message.includes("User already registered")) message = "El usuario ya se encuentra registrado.";
-      return NextResponse.json({ message }, { status: 400 });
+    let authUser = null;
+
+    if (existingAuthUser) {
+      // Update existing user with password and metadata
+      const { data: updateData, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+        existingAuthUser.id,
+        { 
+          password,
+          user_metadata: {
+            nombre,
+            apellido,
+            telefono,
+            direccion,
+            rol,
+            documento_tipo,
+            documento_numero,
+            fecha_nacimiento,
+            registration_step
+          }
+        }
+      );
+      if (updateError) throw updateError;
+      authUser = updateData.user;
+    } else {
+      // Traditional Register user in Supabase Auth
+      const { data, error } = await supabaseAdmin.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            nombre,
+            apellido,
+            telefono,
+            direccion,
+            rol,
+            documento_tipo,
+            documento_numero,
+            fecha_nacimiento,
+            registration_step
+          },
+        },
+      });
+
+      if (error) {
+        let message = error.message;
+        if (message.includes("User already registered")) message = "El usuario ya se encuentra registrado.";
+        return NextResponse.json({ message }, { status: 400 });
+      }
+      authUser = data.user;
     }
 
-    const newUser = data.user;
-
-    if (newUser) {
-      // Create record in public.users
-      const { error: dbError } = await supabaseAdmin.from('users').insert({
-        id: newUser.id,
+    if (authUser) {
+      // Upsert record in public.users
+      const { error: dbError } = await supabaseAdmin.from('users').upsert({
+        id: authUser.id,
         nombre,
         apellido,
         email,
@@ -67,7 +95,7 @@ export async function POST(req: Request) {
         documento_tipo,
         documento_numero,
         registration_step
-      });
+      }, { onConflict: 'email' });
 
       if (dbError) {
         console.error("Error creating public user record:", dbError);
@@ -77,7 +105,7 @@ export async function POST(req: Request) {
     }
 
     // Handle referral if code provided
-    if (referralCode && newUser) {
+    if (referralCode && authUser) {
       const { data: referrer, error: referrerError } = await supabaseAdmin
         .from('users')
         .select('id')
@@ -87,13 +115,13 @@ export async function POST(req: Request) {
       if (!referrerError && referrer) {
         await supabaseAdmin.from('referrals').insert({
           referrer_id: referrer.id,
-          referred_id: newUser.id,
+          referred_id: authUser.id,
           status: 'pending'
         });
       }
     }
 
-    return NextResponse.json({ message: "Usuario creado exitosamente", user: newUser }, { status: 201 });
+    return NextResponse.json({ message: "Usuario creado exitosamente", user: authUser }, { status: 201 });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json({ message: "Error interno del servidor" }, { status: 500 });

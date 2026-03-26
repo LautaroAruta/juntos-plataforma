@@ -1,6 +1,6 @@
 "use client";
 
-import { User, Building2, FileText, Landmark, CheckCircle } from "lucide-react";
+import { User, Building2, FileText, Landmark, CheckCircle, Shield } from "lucide-react";
 
 interface FormStepperProps {
   currentStep: number;
@@ -10,6 +10,7 @@ interface FormStepperProps {
 const STEPS = [
   { icon: User, label: "Tipo" },
   { icon: Building2, label: "Negocio" },
+  { icon: Shield, label: "Verificar" },
   { icon: FileText, label: "Fiscal" },
   { icon: Landmark, label: "Banco" },
   { icon: CheckCircle, label: "Confirmar" },
