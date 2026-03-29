@@ -14,6 +14,7 @@ import {
   Trash2,
   Edit2,
   Share2,
+  QrCode,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -27,7 +28,8 @@ export default function ProviderDashboard() {
   const [stats, setStats] = useState({
     totalSales: "$0",
     activeParticipants: 0,
-    completedDeals: 0
+    completedDeals: 0,
+    isMpConnected: false
   });
   const [loading, setLoading] = useState(true);
   const [productToDelete, setProductToDelete] = useState<{id: string, name: string} | null>(null);
@@ -47,7 +49,8 @@ export default function ProviderDashboard() {
     setStats({
       totalSales: "$245.800",
       activeParticipants: 142,
-      completedDeals: 18
+      completedDeals: 18,
+      isMpConnected: false // Will be updated by fetchProducts
     });
   }
 
@@ -59,6 +62,15 @@ export default function ProviderDashboard() {
        setLoading(false);
        return;
     }
+
+    // Fetch provider connection status
+    const { data: provider } = await supabase
+      .from('providers')
+      .select('mp_access_token')
+      .eq('id', providerId)
+      .single();
+
+    setStats(prev => ({ ...prev, isMpConnected: !!provider?.mp_access_token }));
 
     const { data, error } = await supabase
       .from('products')
@@ -138,6 +150,30 @@ export default function ProviderDashboard() {
           </Link>
         </div>
 
+        {/* Mercado Pago Connection Alert */}
+        {!stats.isMpConnected && (
+          <div className="bg-[#009EE3] rounded-[2.5rem] p-8 text-white shadow-xl shadow-[#009EE3]/20 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group">
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+            
+            <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
+              <div className="w-20 h-20 bg-white/20 rounded-[2rem] flex items-center justify-center backdrop-blur-md">
+                <AlertCircle size={40} className="text-white" />
+              </div>
+              <div className="text-center md:text-left space-y-2">
+                <h2 className="text-2xl font-black uppercase tracking-tight leading-none">Vinculá tu Mercado Pago</h2>
+                <p className="text-white/80 font-medium max-w-md">Para poder recibir el 99.5% de tus ventas automáticamente, es necesario que vincules tu cuenta.</p>
+              </div>
+            </div>
+
+            <Link
+              href={`/api/provider/mp-connect?state=${btoa(JSON.stringify({ provider_id: session?.user?.id }))}`}
+              className="bg-white text-[#009EE3] px-10 py-5 rounded-2xl font-black shadow-xl hover:bg-slate-50 active:scale-95 transition-all relative z-10 whitespace-nowrap uppercase tracking-tighter"
+            >
+              CONECTAR AHORA
+            </Link>
+          </div>
+        )}
+
         {/* Stats & Chart Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-white">
@@ -151,7 +187,14 @@ export default function ProviderDashboard() {
           <div className="flex flex-col gap-6">
             <StatCard title="Ventas Totales" value={stats.totalSales} icon={<TrendingUp className="text-green-500" />} color="bg-green-50" />
             <StatCard title="Participantes" value={stats.activeParticipants.toString()} icon={<Users className="text-blue-500" />} color="bg-blue-50" />
-            <StatCard title="Deals Cerrados" value={stats.completedDeals.toString()} icon={<CheckCircle2 className="text-[#009EE3]" />} color="bg-sky-50" />
+            <Link href="/provider/scanner">
+              <StatCard 
+                title="Escanear QR" 
+                value="Validar" 
+                icon={<QrCode className="text-purple-500" />} 
+                color="bg-purple-50" 
+              />
+            </Link>
           </div>
         </div>
 

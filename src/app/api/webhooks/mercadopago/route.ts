@@ -52,10 +52,7 @@ export async function POST(req: Request) {
 
         if (orderError) console.error("Error creating order:", orderError);
 
-        // 3. Increment participation in Group Deal
-        const { error: rpcError } = await supabase.rpc('join_group_deal', { target_deal_id: dealId });
-        
-        if (rpcError) console.error("RPC Error (join_group_deal):", rpcError);
+        // 3. (REMOVED) Increment participation in Group Deal is now handled automatically by PostgreSQL Trigger when order is 'pagado'
         
         // 4. Record the payment record
         await supabase.from('payments').insert([{

@@ -134,6 +134,28 @@ export default function ProfileSettingsPage() {
     tema: "light"
   });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [mpConnected, setMpConnected] = useState(false);
+  const [providerId, setProviderId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function checkMPStatus() {
+      if (session?.user?.id && isProvider) {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const { data: provider } = await supabase
+          .from('providers')
+          .select('id, mp_access_token')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (provider) {
+          setProviderId(provider.id);
+          setMpConnected(!!provider.mp_access_token);
+        }
+      }
+    }
+    checkMPStatus();
+  }, [session, isProvider]);
 
   useEffect(() => {
     if (session?.user) {
@@ -196,6 +218,7 @@ export default function ProfileSettingsPage() {
       ? [
           { id: "negocio", title: "Datos del Negocio", icon: Building2 },
           { id: "facturacion", title: "Facturación", icon: Banknote },
+          { id: "mercadopago", title: "Mercado Pago", icon: CreditCard },
         ]
       : [
           { id: "direcciones", title: "Mis Direcciones", icon: MapPin },
@@ -521,6 +544,59 @@ export default function ProfileSettingsPage() {
                        >
                          Cambiar
                        </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "mercadopago" && isProvider && (
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    className="space-y-6"
+                  >
+                    <div className="flex flex-col items-center justify-center py-10 border-2 border-dashed border-slate-100 rounded-[2.5rem] bg-slate-50/30">
+                      <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${mpConnected ? "bg-green-50 text-green-500" : "bg-blue-50 text-[#009EE3]"}`}>
+                        {mpConnected ? <CheckCircle2 size={40} /> : <CreditCard size={40} />}
+                      </div>
+                      <h3 className="text-xl font-black text-slate-800 mb-2">
+                        {mpConnected ? "Cuenta Vinculada" : "Conectá tu Mercado Pago"}
+                      </h3>
+                      <p className="text-sm text-slate-400 font-medium text-center max-w-[280px] mb-8 leading-relaxed">
+                        {mpConnected 
+                          ? "Tu cuenta está lista para recibir pagos y aplicar comisiones automáticamente." 
+                          : "Necesitás vincular tu cuenta para poder recibir el dinero de tus ventas de forma automática."}
+                      </p>
+
+                      {!mpConnected ? (
+                        <button 
+                          onClick={() => {
+                            const state = btoa(JSON.stringify({ provider_id: providerId }));
+                            window.location.href = `/api/provider/mp-connect?state=${state}`;
+                          }}
+                          className="bg-[#009EE3] hover:bg-blue-600 text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-blue-200 transition-all uppercase tracking-tight text-sm"
+                        >
+                          Vincular Ahora
+                        </button>
+                      ) : (
+                        <button 
+                          className="text-red-400 hover:text-red-500 font-black text-xs uppercase tracking-widest transition-colors"
+                          onClick={() => {
+                            if(confirm("¿Estás seguro que querés desvincular tu cuenta? Esto afectará tus ventas activas.")) alert("Funcionalidad de desvinculación a implementar");
+                          }}
+                        >
+                          Desvincular Cuenta
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                        <ShieldCheck size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-slate-700 uppercase tracking-tight">Seguridad en los Pagos</p>
+                        <p className="text-[11px] text-slate-400 font-medium mt-1">BANDHA nunca almacena tus credenciales bancarias. La conexión se realiza de forma segura a través del sistema oficial de Mercado Pago.</p>
+                      </div>
                     </div>
                   </motion.div>
                 )}

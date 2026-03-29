@@ -9,7 +9,8 @@ import {
   LogOut, 
   ChevronDown,
   ShieldCheck,
-  UserCircle
+  UserCircle,
+  ShoppingBag
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -108,6 +109,18 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                   <span>Panel Admin</span>
                 </Link>
               )}
+
+              {/* MIS COMPRAS LINK */}
+              <Link
+                href="/perfil/compras"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-bold text-bandha-text hover:bg-bandha-subtle transition-all group/item"
+              >
+                <div className="w-8 h-8 rounded-lg bg-bandha-subtle flex items-center justify-center text-bandha-text-secondary group-hover/item:text-bandha-primary transition-colors">
+                  <ShoppingBag size={16} strokeWidth={2.5} />
+                </div>
+                <span>Mis Compras</span>
+              </Link>
 
               {/* Common profile setting */}
               <Link

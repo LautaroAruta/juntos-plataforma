@@ -331,7 +331,7 @@ export default function CheckoutPage() {
                <button
                   onClick={handlePayment}
                   disabled={creatingPreference || !selectedPoint}
-                  className="w-full bg-[#009EE3] hover:bg-[#0077CC] disabled:bg-slate-100 disabled:text-slate-300 disabled:cursor-not-allowed text-white font-black py-5 rounded-[2rem] shadow-xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-widest group mb-6 active:scale-[0.98]"
+                  className="w-full bg-[#009EE3] hover:bg-[#0077CC] disabled:bg-slate-100 disabled:text-slate-300 disabled:cursor-not-allowed text-white font-black py-5 rounded-[2rem] shadow-xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-widest group mb-4 active:scale-[0.98]"
                 >
                   {creatingPreference ? <Loader2 className="animate-spin" size={20} /> : (
                     <>
@@ -339,6 +339,42 @@ export default function CheckoutPage() {
                     </>
                   )}
                </button>
+
+               {/* TEST BYPASS BUTTON */}
+               {process.env.NODE_ENV === 'development' && (
+                 <button
+                   type="button"
+                   disabled={creatingPreference || !selectedPoint}
+                   onClick={async () => {
+                     setCreatingPreference(true);
+                     try {
+                        const providerData = deal?.product?.provider || 
+                                           (Array.isArray(deal?.product?.providers) ? deal?.product?.providers[0] : deal?.product?.providers);
+
+                        const res = await fetch('/api/payments/test-pay', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            dealId: deal.id,
+                            userId: (await supabase.auth.getUser()).data.user?.id,
+                            amount: deal.precio_actual - (useRewards ? Math.min(walletBalance, deal.precio_actual) : 0),
+                            providerId: providerData?.id
+                          })
+                        });
+                        if (res.ok) {
+                          router.push("/checkout/success?payment_id=test_" + Date.now());
+                        }
+                     } catch (e) {
+                       console.error(e);
+                     } finally {
+                       setCreatingPreference(false);
+                     }
+                   }}
+                   className="w-full py-4 border-2 border-dashed border-amber-200 text-amber-600 bg-amber-50 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-amber-100 transition-all mb-6"
+                 >
+                   ⚡️ Simular Pago Éxito (Modo Test)
+                 </button>
+               )}
 
                <div className="space-y-3">
                  <div className="flex items-start gap-4 bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100/50">

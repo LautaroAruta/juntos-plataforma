@@ -20,6 +20,13 @@ export async function POST(req: Request) {
       .single();
 
     if (error || !deal) throw new Error("Deal no encontrado");
+    
+    // 1.5 Check if provider is connected
+    if (!deal.product.provider.mp_access_token) {
+      return NextResponse.json({ 
+        message: "El proveedor no ha vinculado su cuenta de Mercado Pago. No se puede procesar el pago dividido." 
+      }, { status: 400 });
+    }
 
     // 2. Get platform commission
     const { data: config } = await supabase

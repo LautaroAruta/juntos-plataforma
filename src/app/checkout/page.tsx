@@ -284,17 +284,53 @@ export default function CheckoutPage() {
                 type="submit" 
                 form="checkout-form"
                 disabled={isProcessing}
-                className="w-full bg-bandha-primary hover:bg-bandha-secondary text-white h-14 text-lg font-bold shadow-md transition-all active:scale-[0.98]"
+                className="w-full bg-[#009EE3] hover:bg-blue-600 text-white h-14 text-lg font-bold shadow-md transition-all active:scale-[0.98]"
               >
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Procesando Pago Segurizado...
+                    Procesando...
                   </>
                 ) : (
                   "Pagar con Mercado Pago"
                 )}
               </Button>
+
+              {/* TEST BYPASS BUTTON */}
+              {process.env.NODE_ENV === 'development' && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (isProcessing) return;
+                    setIsProcessing(true);
+                    try {
+                      // Get first item deal logic (since it's a simple cart for now)
+                      const dealId = items[0]?.id; // Ensure this is a deal UUID
+                      const res = await fetch('/api/payments/test-pay', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          dealId: dealId,
+                          userId: null, // Anonymous for test
+                          amount: total,
+                          providerId: items[0]?.providerId // Should be in the item
+                        })
+                      });
+                      if (res.ok) {
+                        clearCart();
+                        router.push("/checkout/success?payment_id=test_" + Date.now());
+                      }
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      setIsProcessing(false);
+                    }
+                  }}
+                  className="w-full mt-4 py-3 border-2 border-dashed border-amber-200 text-amber-600 bg-amber-50 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-amber-100 transition-all"
+                >
+                  ⚡️ Simular Pago Éxito (Modo Test)
+                </button>
+              )}
               <p className="text-center text-xs text-gray-400 mt-4 px-2">
                 Al hacer clic en &quot;Pagar&quot;, serás redirigido a la plataforma segura de Mercado Pago.
               </p>

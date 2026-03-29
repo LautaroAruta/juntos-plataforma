@@ -11,6 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "BANDHA | Compras Grupales",
   description: "Plataforma de comercio grupal. Únete a un grupo y obtén los mejores descuentos directamente de fábrica.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   openGraph: {
     title: "BANDHA | Compras Grupales",
     description: "Comprá en grupo, pagá menos. Unite a una oferta grupal en tu barrio.",
@@ -33,6 +34,9 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   manifest: "/manifest.json",
+};
+
+export const viewport = {
   themeColor: "#00AEEF",
 };
 
@@ -51,8 +55,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased bg-bandha min-h-screen flex flex-col transition-colors duration-300`}>
+    <html lang="es" className={cn(geist.variable)} suppressHydrationWarning>
+      <body className={cn(inter.variable, "antialiased bg-bandha min-h-screen flex flex-col transition-colors duration-300")} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
