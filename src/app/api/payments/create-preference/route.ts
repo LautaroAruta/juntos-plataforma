@@ -41,35 +41,47 @@ export async function POST(req: Request) {
     const totalAmount = deal.precio_actual - (useRewards ? Number(rewardsAmount) : 0);
     const marketplaceFee = totalAmount * (commissionPercent / 100);
 
+    const appUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_NGROK_URL || 'http://localhost:3000';
+    const publicUrl = process.env.NEXT_PUBLIC_NGROK_URL || appUrl;
+    
+    console.log(">>> DEBUG MP URLS:");
+    console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+    console.log("NEXT_PUBLIC_NGROK_URL:", process.env.NEXT_PUBLIC_NGROK_URL);
+    console.log("appUrl:", appUrl);
+    console.log("publicUrl:", publicUrl);
+
     // 3. Create MP Preference
     const preference = new Preference(client);
-    const result = await preference.create({
-      body: {
-        items: [
-          {
-            id: deal.product.id,
-            title: `BANDHA: ${deal.product.nombre}`,
-            quantity: 1,
-            unit_price: totalAmount,
-            currency_id: 'ARS',
-          }
-        ],
-        marketplace_fee: marketplaceFee,
-        back_urls: {
-          success: `${process.env.NEXTAUTH_URL}/checkout/success`,
-          failure: `${process.env.NEXTAUTH_URL}/checkout/failure`,
-          pending: `${process.env.NEXTAUTH_URL}/checkout/pending`,
-        },
-        auto_return: 'approved',
-        notification_url: `${process.env.NEXTAUTH_URL}/api/webhooks/mercadopago`,
-        external_reference: deal.id,
-        metadata: {
-          pickup_point_id: pickupPointId,
-          deal_id: deal.id,
-          rewards_amount: useRewards ? rewardsAmount : 0
+    
+    const preferenceBody = {
+      items: [
+        {
+          id: deal.product.id,
+          title: `BANDHA: ${deal.product.nombre}`,
+          quantity: 1,
+          unit_price: totalAmount,
+          currency_id: 'ARS',
         }
+      ],
+      marketplace_fee: marketplaceFee,
+      back_urls: {
+        success: `${publicUrl}/checkout/success`,
+        failure: `${publicUrl}/checkout/failure`,
+        pending: `${publicUrl}/checkout/pending`,
+      },
+      auto_return: 'approved',
+      notification_url: `${publicUrl}/api/webhooks/mercadopago`,
+      external_reference: deal.id,
+      metadata: {
+        pickup_point_id: pickupPointId,
+        deal_id: deal.id,
+        rewards_amount: useRewards ? rewardsAmount : 0
       }
-    });
+    };
+    
+    console.log(">>> DEBUG PREFERENCE BODY:", JSON.stringify(preferenceBody, null, 2));
+
+    const result = await preference.create({ body: preferenceBody as any });
 
     return NextResponse.json({ id: result.id, init_point: result.init_point });
   } catch (error: any) {

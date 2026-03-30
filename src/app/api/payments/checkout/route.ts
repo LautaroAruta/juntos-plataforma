@@ -16,6 +16,10 @@ export async function POST(req: Request) {
 
     const preference = new Preference(client);
 
+    const appUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_NGROK_URL || 'http://localhost:3000';
+    
+    const publicUrl = process.env.NEXT_PUBLIC_NGROK_URL || appUrl;
+    
     const body = {
       items: items.map((item: any) => ({
         id: item.id,
@@ -25,9 +29,9 @@ export async function POST(req: Request) {
         currency_id: "ARS",
       })),
       back_urls: {
-        success: `${process.env.NEXTAUTH_URL}/checkout/success`,
-        failure: `${process.env.NEXTAUTH_URL}/checkout/error`,
-        pending: `${process.env.NEXTAUTH_URL}/checkout/pending`,
+        success: `${publicUrl}/checkout/success`,
+        failure: `${publicUrl}/checkout/error`,
+        pending: `${publicUrl}/checkout/pending`,
       },
       auto_return: "approved",
       notification_url: `${process.env.NEXT_PUBLIC_NGROK_URL}/api/webhooks/mercadopago`,

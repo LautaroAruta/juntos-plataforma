@@ -66,9 +66,13 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log("NextAuth: signIn callback triggered", { provider: account?.provider, email: user.email });
       if (account?.provider === "google") {
         const email = user.email;
-        if (!email) return false;
+        if (!email) {
+          console.error("NextAuth: No email found in Google profile");
+          return false;
+        }
 
         // Check if user exists in public.users
         const { data: existingUser } = await supabase
