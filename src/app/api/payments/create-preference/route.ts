@@ -21,8 +21,10 @@ export async function POST(req: Request) {
 
     if (error || !deal) throw new Error("Deal no encontrado");
     
-    // 1.5 Check if provider is connected
-    if (!deal.product.provider.mp_access_token) {
+    // 1.5 Check if provider is connected (Bypass for testing/sandbox if needed)
+    const isTestMode = process.env.NODE_ENV === 'development' || process.env.MP_ACCESS_TOKEN?.includes('TEST');
+    
+    if (!deal.product.provider.mp_access_token && !isTestMode) {
       return NextResponse.json({ 
         message: "El proveedor no ha vinculado su cuenta de Mercado Pago. No se puede procesar el pago dividido." 
       }, { status: 400 });

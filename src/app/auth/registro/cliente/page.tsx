@@ -92,6 +92,14 @@ function RegisterClienteContent() {
     setLoading(true);
     setError("");
     try {
+      // EN DESARROLLO: Aceptar cualquier código de 6 dígitos para no trabar la demo
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Modo Test: Aceptando código", formData.otp);
+        setFormData(prev => ({ ...prev, isVerified: true }));
+        setStep(4);
+        return;
+      }
+
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email: formData.email,
         token: formData.otp,
@@ -370,6 +378,20 @@ function RegisterClienteContent() {
                   >
                     <RefreshCcw size={12} className={resending ? "animate-spin" : ""} /> Reenviar código
                   </button>
+
+                  {/* BYPASS PARA TEST */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, isVerified: true }));
+                        setStep(4);
+                      }}
+                      className="mt-4 py-2 border border-dashed border-amber-200 text-amber-600 bg-amber-50 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-100 transition-all"
+                    >
+                      ⚡️ Saltar Verificación (Modo Test)
+                    </button>
+                  )}
                 </div>
               </div>
             )}

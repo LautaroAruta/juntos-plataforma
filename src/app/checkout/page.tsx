@@ -60,16 +60,35 @@ export default function CheckoutPage() {
   const onSubmit = async (values: CheckoutFormValues) => {
     setIsProcessing(true);
     
-    // Simulate API call to backend to generate MercadoPago Preference ID
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // 1. Crear la preferencia de pago en nuestro backend
+      const response = await fetch("/api/payments/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items,
+          total,
+          metadata: {
+            fullName: values.fullName,
+            email: values.email,
+            phone: values.phone,
+            address: `${values.address}, ${values.city}`,
+            zipCode: values.zipCode,
+            deal_id: items[0]?.id, // Suponiendo que el primer item es el deal
+          }
+        }),
+      });
+
+      if (!response.ok) throw new Error("Error al crear la preferencia");
+
+      const data = await response.json();
       
-      // In a real app, we'd redirect to the MercadoPago URL returned by our backend
-      // `window.location.href = data.init_point;`
-      
-      // For this mock, we'll simulate a successful payment and clear the cart
-      clearCart();
-      router.push("/checkout/success");
+      // 2. Redirigir al usuario al Checkout Pro de Mercado Pago
+      if (data.init_point) {
+        window.location.href = data.init_point;
+      } else {
+        throw new Error("No se recibió el punto de inicio de pago");
+      }
       
     } catch (error) {
       console.error("Error processing payment", error);

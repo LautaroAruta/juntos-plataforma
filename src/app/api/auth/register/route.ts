@@ -76,11 +76,36 @@ export async function POST(req: Request) {
 
       if (error) {
         let message = error.message;
-        if (message.includes("User already registered")) message = "El usuario ya se encuentra registrado.";
-        if (message.includes("Email rate limit exceeded")) message = "Límite de correos excedido. Por favor, intenta de nuevo en una hora o contacta a soporte.";
-        return NextResponse.json({ message }, { status: 400 });
+        
+        // Error especial para bypass en desarrollo
+        if (message.includes("Email rate limit exceeded") && process.env.NODE_ENV === 'development') {
+          console.warn("Rate limit exceeded, fallback to admin.createUser");
+          const { data: adminData, error: adminError } = await supabaseAdmin.auth.admin.createUser({
+            email,
+            password,
+            email_confirm: true,
+            user_metadata: {
+              nombre,
+              apellido,
+              telefono,
+              direccion,
+              rol,
+              documento_tipo,
+              documento_numero,
+              fecha_nacimiento,
+              registration_step
+            }
+          });
+          if (adminError) throw adminError;
+          authUser = adminData.user;
+        } else {
+          if (message.includes("User already registered")) message = "El usuario ya se encuentra registrado.";
+          if (message.includes("Email rate limit exceeded")) message = "Límite de correos excedido. Por favor, intenta de nuevo en una hora o contacta a soporte.";
+          return NextResponse.json({ message }, { status: 400 });
+        }
+      } else {
+        authUser = data.user;
       }
-      authUser = data.user;
     }
 
     if (authUser) {
