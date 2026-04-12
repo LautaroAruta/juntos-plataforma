@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { ChevronRight } from "lucide-react";
 
 interface ProductGalleryProps {
   images: string[];
@@ -10,61 +11,48 @@ interface ProductGalleryProps {
 }
 
 export default function ProductGallery({ images, mainImage, productName, discount }: ProductGalleryProps) {
-  // Use index-based selection to avoid issues with duplicate URLs if they ever happen
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Combine images, bringing mainImage to front if it's not already there
-  // Actually, the database 'imagenes' array should have all images.
   const allImages = images && images.length > 0 ? images : [mainImage || "/placeholder-product.jpg"];
   const currentImage = allImages[selectedIndex] || mainImage || "/placeholder-product.jpg";
 
   return (
-    <div className="lg:w-3/5 relative bg-white border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col">
+    <div className="w-full relative bg-white flex flex-col gap-4">
       {/* Main Image Display */}
-      <div className="relative aspect-square md:aspect-[4/3] w-full flex items-center justify-center p-8 lg:p-12">
+      <div className="relative aspect-square w-full flex items-center justify-center p-2">
         <img 
           src={currentImage} 
           alt={productName} 
-          className="max-h-full max-w-full object-contain transition-all duration-300"
+          className="max-h-full max-w-full object-contain transition-all duration-500 ease-in-out"
         />
         {discount && discount > 0 && (
-          <div className="absolute top-6 left-6 md:top-8 md:left-8 bg-gradient-to-br from-[#009EE3] to-[#00A650] text-white font-black text-xs md:text-sm px-4 py-2 rounded-2xl shadow-[0_10px_30px_rgba(0,158,227,0.3)] uppercase tracking-wider animate-in fade-in slide-in-from-top-4 duration-700">
-            {discount}% AHORRO
+          <div className="absolute top-4 left-4 bg-white border border-gray-100 text-[#00A650] font-bold text-xs px-3 py-1.5 rounded-full shadow-sm">
+            {discount}% OFF GRUPAL
           </div>
         )}
       </div>
       
       {/* Thumbnails */}
-      {allImages.length > 1 && (
-        <div className="flex gap-4 p-6 overflow-x-auto justify-center md:justify-start border-t border-gray-50 scrollbar-hide">
-          {allImages.map((img, idx) => (
-            <button
-              key={`${img}-${idx}`}
-              onClick={() => setSelectedIndex(idx)}
-              className={`w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden p-1 transition-all flex-shrink-0 ${
-                selectedIndex === idx 
-                  ? "border-2 border-[#009EE3] shadow-md scale-105" 
-                  : "border border-gray-100 opacity-60 hover:opacity-100"
-              }`}
-            >
-              <img 
-                src={img} 
-                className="w-full h-full object-cover rounded-lg" 
-                alt={`${productName} thumbnail ${idx + 1}`} 
-              />
-            </button>
-          ))}
-        </div>
-      )}
-      
-      {/* Fallback for single image to maintain layout consistency */}
-      {allImages.length === 1 && (
-        <div className="flex gap-4 p-6 justify-center md:justify-start border-t border-gray-50">
-          <div className="w-16 h-16 rounded-xl border-2 border-[#009EE3] overflow-hidden p-1">
-             <img src={currentImage} className="w-full h-full object-cover rounded-lg" alt={productName} />
-          </div>
-        </div>
-      )}
+      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1">
+        {allImages.map((img, idx) => (
+          <button
+            key={`${img}-${idx}`}
+            onClick={() => setSelectedIndex(idx)}
+            className={`w-14 h-14 md:w-16 md:h-16 rounded-lg overflow-hidden border transition-all flex-shrink-0 relative ${
+              selectedIndex === idx 
+                ? "border-[#3483FA] ring-1 ring-[#3483FA]" 
+                : "border-gray-100 hover:border-gray-200"
+            }`}
+          >
+            <img 
+              src={img} 
+              className="w-full h-full object-cover" 
+              alt={`${productName} thumbnail ${idx + 1}`} 
+            />
+            {selectedIndex !== idx && <div className="absolute inset-0 bg-white/40" />}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

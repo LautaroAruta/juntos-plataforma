@@ -19,7 +19,15 @@ export async function POST(req: Request) {
     // 1. Find the order with this token
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('*, provider:providers!inner(id, user_id)')
+      .select(`
+        *,
+        user:users (nombre, apellido),
+        pickup_point:pickup_points (name, address),
+        group_deal:group_deals (
+          product:products (nombre, imagen_principal)
+        ),
+        provider:providers!inner(id, user_id)
+      `)
       .eq('delivery_token', token)
       .single();
 
@@ -52,16 +60,33 @@ export async function POST(req: Request) {
       .eq('id', order.id);
 
     if (updateError) throw updateError;
+    
+    // 5. Send delivery confirmation email
+    if (order.user?.email) {
+      const { sendOrderDeliveredEmail } = await import("@/lib/notifications/resend");
+      const productName = order.group_deal?.product?.nombre || "un producto";
+      await sendOrderDeliveredEmail(order.user.email, order.id, productName);
+    }
 
-    // 5. Optional: Record in Hub/Reception if applicable
-    // ...
+    // 6. Push In-app Notification
+    await supabase.from('notifications').insert({
+      user_id: order.user_id,
+      title: '¡Pedido Entregado!',
+      message: `Confirmamos la entrega de: ${order.group_deal?.product?.nombre || 'Producto'}`,
+      type: 'order',
+      link: '/perfil/compras'
+    });
 
     return NextResponse.json({ 
       success: true, 
       message: "Pedido entregado con éxito",
       orderDetails: {
           id: order.id,
-          productName: order.cantidad + "x Producto" // Could join more info if needed
+          productName: order.group_deal?.product?.nombre || "Producto",
+          productImage: order.group_deal?.product?.imagen_principal,
+          customerName: `${order.user?.nombre} ${order.user?.apellido}`,
+          pickupPointName: order.pickup_point?.name || "Proveedor (Directo)",
+          total: order.total
       }
     });
 

@@ -35,26 +35,28 @@ export default function FlashSale({ deal }: FlashSaleProps) {
 
   return (
     <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
-      <div className="relative bg-gradient-to-br from-bandha-primary to-bandha-secondary rounded-[3rem] overflow-hidden shadow-2xl shadow-bandha-primary/20">
-        {/* Background Decorative Elements */}
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Zap size={300} className="text-white -rotate-12 translate-x-20 -translate-y-20" />
+      <div className="relative bg-black border-2 border-black overflow-hidden shadow-[8px_8px_0px_0px_rgba(255,92,0,1)]">
+        {/* Background Decorative Elements (Grid) */}
+        <div className="absolute inset-0 z-0 opacity-10">
+          <div className="absolute top-0 left-1/4 w-[1px] h-full bg-white" />
+          <div className="absolute top-0 left-2/4 w-[1px] h-full bg-white" />
+          <div className="absolute top-0 left-3/4 w-[1px] h-full bg-white" />
         </div>
 
-        <div className="relative z-10 flex flex-col lg:flex-row items-center gap-10 p-8 md:p-16">
+        <div className="relative z-10 flex flex-col lg:flex-row items-center gap-10 p-8 md:p-14">
           {/* Image Section */}
           <div className="flex-1 w-full lg:w-auto">
             <motion.div 
-              whileHover={{ scale: 1.02 }}
-              className="relative aspect-square md:aspect-video lg:aspect-square bg-bandha-surface rounded-[2.5rem] overflow-hidden shadow-xl"
+              whileHover={{ scale: 1.01 }}
+              className="relative aspect-square md:aspect-video lg:aspect-square bg-white border-2 border-black overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
             >
               <img 
                 src={deal.product.imagen_principal || "/placeholder-product.jpg"} 
                 alt={deal.product.nombre}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover p-8"
               />
-              <div className="absolute top-6 left-6 bg-amber-400 text-black font-black px-6 py-2 rounded-2xl shadow-lg border-2 border-white">
-                <span className="text-sm uppercase tracking-widest">{percentageSaved}% OFF</span>
+              <div className="absolute top-6 left-6 bg-[#FF5C00] text-white font-black px-4 py-2 border border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                <span className="text-xs uppercase tracking-[0.2em]">{percentageSaved}% OFF</span>
               </div>
             </motion.div>
           </div>
@@ -62,13 +64,13 @@ export default function FlashSale({ deal }: FlashSaleProps) {
           {/* Content Section */}
           <div className="flex-1 text-white space-y-8">
             <div className="flex items-center gap-3">
-              <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-white/30 flex items-center gap-2">
-                <Zap size={14} strokeWidth={2.5} className="text-yellow-400 fill-yellow-400" />
+              <span className="bg-white text-black px-3 py-1.5 border border-black text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(255,92,0,1)]">
+                <Zap size={14} strokeWidth={3} className="text-[#FF5C00] fill-[#FF5C00]" />
                 Super Oferta del Día
               </span>
               <CountdownTimer 
                 targetDate={deal.fecha_vencimiento} 
-                className="bg-black/20 text-white border border-white/10" 
+                className="bg-black text-white border border-white/20 px-3 py-1.5 text-[11px] font-black" 
               />
             </div>
 
@@ -102,28 +104,30 @@ export default function FlashSale({ deal }: FlashSaleProps) {
               </div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="space-y-3">
-              <div className="flex justify-between text-xs font-black uppercase tracking-widest text-white/80">
+            {/* Progress Bar (Brutalist) */}
+            <div className="space-y-4">
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.3em] text-white/60">
                 <span>Progreso del grupo</span>
-                <span>{Math.round(progress)}% completado</span>
+                <span className="text-white">{Math.round(progress)}% completado</span>
               </div>
-              <div className="h-3 w-full bg-white/20 rounded-full overflow-hidden border border-white/10">
+              <div className="h-4 w-full bg-white/10 border border-white/20 overflow-hidden relative">
                 <motion.div 
                   initial={{ width: 0 }}
                   whileInView={{ width: `${Math.min(100, progress)}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="h-full bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"
-                />
+                  className="h-full bg-[#FF5C00] relative"
+                >
+                   <div className="absolute inset-0 bg-white/10 animate-pulse" />
+                </motion.div>
               </div>
             </div>
 
             <Link 
               href={`/productos/${deal.product.id}`}
-              className="inline-flex items-center gap-4 bg-white dark:bg-amber-400 text-bandha-secondary dark:text-black font-black py-5 px-12 rounded-[2rem] shadow-2xl hover:scale-[1.05] active:scale-[0.98] transition-all text-lg uppercase tracking-tight group"
+              className="inline-flex items-center justify-center gap-4 bg-white text-black font-black py-5 px-12 border border-black shadow-[4px_4px_0px_0px_rgba(255,92,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(255,92,0,1)] transition-all text-sm uppercase tracking-widest group"
             >
               Unirme a la oferta
-              <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" strokeWidth={3} />
             </Link>
           </div>
         </div>

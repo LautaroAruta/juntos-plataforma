@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
-    const { dealId, userId, amount, providerId } = await req.json();
+    const { dealId, userId, amount, providerId, useRewards, rewardsAmount = 0 } = await req.json();
     const supabase = await createClient();
 
     // 1. Crear la orden directamente como 'pagado'
@@ -23,15 +23,21 @@ export async function POST(req: Request) {
 
     if (orderError) throw orderError;
 
-    // 2. Obtener configuración de comisión
-    const { data: config } = await supabase
-      .from('commission_config')
-      .select('porcentaje')
-      .eq('activo', true)
-      .single();
+    // 2. Obtener configuración de comisión (con fallback seguro)
+    let commissionPercent = 0.5;
+    try {
+      const { data: config } = await supabase
+        .from('commission_config')
+        .select('porcentaje')
+        .eq('activo', true)
+        .single();
+      
+      if (config) commissionPercent = config.porcentaje;
+    } catch (e) {
+      console.warn("Using default commission: 0.5%");
+    }
     
-    const commissionPercent = config?.porcentaje || 0.5;
-    const commissionAmount = Number(amount) * (commissionPercent / 100);
+    const commissionAmount = Number(amount || 0) * (commissionPercent / 100);
 
     // 3. Registrar el pago en nuestra tabla (Simulando lo que haría el webhook)
     const { error: paymentError } = await supabase
@@ -47,6 +53,16 @@ export async function POST(req: Request) {
       }]);
 
     if (paymentError) throw paymentError;
+    
+    // 4. Handle Wallet Deductions and Referral Rewards (Simulated)
+    try {
+      const { processPurchaseRewards } = await import("@/lib/services/rewardService");
+      if (userId && order.id) {
+        await processPurchaseRewards(userId, order.id, Number(rewardsAmount));
+      }
+    } catch (e) {
+      console.error("Error processing simulation rewards:", e);
+    }
 
     return NextResponse.json({ success: true, orderId: order.id });
 

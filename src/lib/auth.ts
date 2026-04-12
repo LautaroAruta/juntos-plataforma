@@ -20,6 +20,7 @@ declare module "next-auth" {
       perfilCompleto?: boolean;
       referral_code?: string;
       registration_step?: number;
+      wallet_balance?: number;
     };
   }
 }
@@ -86,13 +87,15 @@ export const authOptions: NextAuthOptions = {
           const role = email === "aruta839@gmail.com" ? "admin" : "nuevo";
           
           // Create new user record
+          const { generateReferralCode } = await import("@/lib/utils");
           const { error: createError } = await supabase.from("users").insert({
             id: randomUUID(),
             nombre: profile?.name?.split(" ")[0] || "Usuario",
             apellido: profile?.name?.split(" ").slice(1).join(" ") || "Google",
             email: email,
             rol: role,
-            avatar_url: user.image
+            avatar_url: user.image,
+            referral_code: generateReferralCode()
           });
 
           if (createError) {
@@ -118,6 +121,8 @@ export const authOptions: NextAuthOptions = {
         session.user.referral_code = token.referral_code as string;
         // @ts-ignore
         session.user.registration_step = token.registration_step as number;
+        // @ts-ignore
+        session.user.wallet_balance = token.wallet_balance as number;
       }
       return session;
     },
@@ -136,18 +141,25 @@ export const authOptions: NextAuthOptions = {
       if (token.email) {
         const { data: dbUser } = await supabase
           .from("users")
-          .select("id, rol, telefono, referral_code, registration_step")
+          .select("id, rol, telefono, referral_code, registration_step, wallet_balance")
           .eq("email", token.email)
           .single();
         
         if (dbUser) {
           token.id = dbUser.id;
-          token.rol = dbUser.rol || null; // Null means they need to pick a role
+          // Only allow aruta839@gmail.com to have the admin role
+          const finalRol = (dbUser.rol === "admin" && token.email === "aruta839@gmail.com") 
+            ? "admin" 
+            : (dbUser.rol === "admin" ? "cliente" : dbUser.rol);
+          
+          token.rol = finalRol || null;
           token.perfilCompleto = !!dbUser.telefono;
           // @ts-ignore
           token.referral_code = dbUser.referral_code;
           // @ts-ignore
           token.registration_step = dbUser.registration_step;
+          // @ts-ignore
+          token.wallet_balance = dbUser.wallet_balance;
         } else {
           // If user exists in auth but not in public.users (Edge case)
           token.rol = null;

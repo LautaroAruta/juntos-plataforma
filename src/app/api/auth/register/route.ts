@@ -1,5 +1,23 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { generateReferralCode } from "@/lib/utils";
+import { sendPremiumEmail } from "@/lib/services/emailService";
+
+const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  nombre: z.string().min(2),
+  apellido: z.string().min(2),
+  telefono: z.string().optional(),
+  direccion: z.string().optional(),
+  rol: z.enum(['cliente', 'proveedor']).default('cliente'),
+  referralCode: z.string().optional(),
+  documento_tipo: z.string().optional(),
+  documento_numero: z.string().optional(),
+  fecha_nacimiento: z.string().optional(),
+  registration_step: z.number().optional(),
+});
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +26,14 @@ const supabaseAdmin = createClient(
 
 export async function POST(req: Request) {
   try {
+    const json = await req.json();
+    
+    // 0. Validation
+    const result = registerSchema.safeParse(json);
+    if (!result.success) {
+      return NextResponse.json({ message: "Datos de registro inválidos", errors: result.error.flatten().fieldErrors }, { status: 400 });
+    }
+
     const { 
       email, 
       password, 
@@ -15,13 +41,13 @@ export async function POST(req: Request) {
       apellido, 
       telefono, 
       direccion, 
-      rol = 'cliente', 
+      rol, 
       referralCode,
       documento_tipo,
       documento_numero,
       fecha_nacimiento,
       registration_step = 0
-    } = await req.json();
+    } = result.data;
 
     if (!email || !password) {
       return NextResponse.json({ message: "Email y contraseña son requeridos" }, { status: 400 });
@@ -108,7 +134,20 @@ export async function POST(req: Request) {
       }
     }
 
+    let referredById = null;
+    if (referralCode) {
+      const { data: referrer } = await supabaseAdmin
+        .from('users')
+        .select('id')
+        .eq('referral_code', referralCode)
+        .single();
+      if (referrer) referredById = referrer.id;
+    }
+
     if (authUser) {
+      // 2. Generate referral code for the new user
+      const userReferralCode = generateReferralCode();
+
       // Upsert record in public.users
       const { error: dbError } = await supabaseAdmin.from('users').upsert({
         id: authUser.id,
@@ -120,32 +159,34 @@ export async function POST(req: Request) {
         fecha_nacimiento,
         documento_tipo,
         documento_numero,
-        registration_step
+        registration_step,
+        referral_code: userReferralCode,
+        referred_by_id: referredById // Link the referrer here
       }, { onConflict: 'email' });
 
       if (dbError) {
         console.error("Error creating public user record:", dbError);
-        // We don't necessarily want to fail the whole request if signUp worked,
-        // but it will cause issues later. For now, let's log it.
+      } else {
+        // 2.1 Send Welcome Email
+        try {
+          await sendPremiumEmail({
+            to: email,
+            subject: "¡Bienvenido a BANDHA! 🐧",
+            title: `¡Hola ${nombre}!`,
+            body: `<p>Estamos felices de tenerte con nosotros. BANDHA es la forma más inteligente de comprar: <strong>juntos</strong>.</p>
+                   <p>Tu cuenta ya está activa. Empezá a ahorrar uniéndote a ofertas grupales en tu barrio o invitando a tus amigos para ganar saldo.</p>
+                   <p>Tu código de referido es: <strong>${userReferralCode}</strong></p>`,
+            buttonText: "Explorar Ofertas",
+            buttonLink: "https://bandha.com.ar/productos"
+          });
+        } catch (emailErr) {
+          console.error("Error sending welcome email:", emailErr);
+        }
       }
     }
 
-    // Handle referral if code provided
-    if (referralCode && authUser) {
-      const { data: referrer, error: referrerError } = await supabaseAdmin
-        .from('users')
-        .select('id')
-        .eq('referral_code', referralCode)
-        .single();
-
-      if (!referrerError && referrer) {
-        await supabaseAdmin.from('referrals').insert({
-          referrer_id: referrer.id,
-          referred_id: authUser.id,
-          status: 'pending'
-        });
-      }
-    }
+    // The referred_by_id is already handled in the upsert above, 
+    // and the tr_referral_bonus trigger awards the $500 automatically.
 
     return NextResponse.json({ message: "Usuario creado exitosamente", user: authUser }, { status: 201 });
   } catch (error) {

@@ -74,17 +74,20 @@ export default function Header() {
 
   if (!mounted) {
     return (
-      <header className="sticky top-0 z-50 bg-bandha-surface border-b border-bandha-border shadow-sm px-4 py-2 md:py-3 h-[64px] md:h-[72px]">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 md:gap-8 opacity-0">
-          <AnimatedLogo />
-        </div>
-      </header>
+      <div className="w-full px-4 pt-4 sticky top-0 z-50 pointer-events-none">
+        <header className="max-w-7xl mx-auto pointer-events-auto bg-white/70 backdrop-blur-xl border border-gray-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-full px-4 py-2 md:py-3 h-[64px] md:h-[72px]">
+          <div className="flex items-center justify-between gap-4 md:gap-8 opacity-0">
+            <AnimatedLogo />
+          </div>
+        </header>
+      </div>
     );
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-bandha-surface border-b border-bandha-border shadow-sm px-4 py-2 md:py-3 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 md:gap-8">
+    <div className="w-full px-4 pt-4 sticky top-0 z-50">
+      <header className="max-w-7xl mx-auto bg-white/75 backdrop-blur-2xl border border-gray-200/50 shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-full px-5 py-2 md:py-2.5 transition-all duration-300">
+        <div className="flex items-center justify-between gap-4 md:gap-8">
         {/* Logo */}
         <AnimatedLogo />
 
@@ -103,13 +106,13 @@ export default function Header() {
                 setIsDropdownOpen(true);
               }}
               onFocus={() => setIsDropdownOpen(true)}
-              className="w-full bg-bandha-surface border border-bandha-border rounded shadow-sm py-2 px-4 text-sm focus:border-bandha-primary transition-all outline-none pr-10 text-bandha-text placeholder:text-bandha-text-muted"
+              className="w-full bg-gray-100/80 border border-transparent rounded-full py-2.5 px-5 text-sm focus:bg-white focus:shadow-[0_4px_20px_rgb(0,0,0,0.05)] focus:border-gray-200 transition-all outline-none pr-12 text-black placeholder:text-gray-500"
             />
             <button 
               type="submit"
-              className="absolute right-0 top-0 h-full flex items-center pr-3 border-l border-bandha-border bg-transparent text-bandha-text-muted hover:text-bandha-primary transition-colors"
+              className="absolute right-1 top-1 bottom-1 aspect-square flex items-center justify-center rounded-full bg-transparent text-gray-400 hover:text-black hover:bg-gray-100 transition-all"
             >
-              {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+              {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} strokeWidth={2.5} />}
             </button>
           </form>
 
@@ -165,8 +168,8 @@ export default function Header() {
         </div>
 
         {/* Mobile Search Icon */}
-        <button className="sm:hidden text-bandha-text-secondary p-2">
-          <Search size={22} />
+        <button className="sm:hidden text-black p-2 bg-gray-100 rounded-full">
+          <Search size={20} />
         </button>
 
         {/* Navigation & Auth */}
@@ -174,35 +177,40 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <div className="hidden md:flex items-center gap-6">
-              <Link href="/productos" className="text-xs font-semibold text-gray-400 hover:text-bandha-text transition-colors uppercase tracking-tight">Ofertas</Link>
-              <Link href="/como-funciona" className="text-xs font-semibold text-gray-400 hover:text-bandha-text transition-colors uppercase tracking-tight">Ayuda</Link>
+              <Link href="/productos" className="text-xs font-bold text-gray-500 hover:text-black transition-colors">Ofertas</Link>
+              <Link href="/como-funciona" className="text-xs font-bold text-gray-500 hover:text-black transition-colors">Ayuda</Link>
             </div>
 
-            <div className="h-4 w-[1px] bg-bandha-border hidden md:block"></div>
+            <div className="h-5 w-[1px] bg-gray-200 hidden md:block"></div>
 
             {session ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <UserDropdown user={session.user} />
-                <CartDrawer />
+                <div className="bg-gray-100 p-1.5 rounded-full flex items-center justify-center">
+                  <CartDrawer />
+                </div>
               </div>
             ) : (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <Link 
                   href="/auth/login"
-                  className="text-xs font-bold text-bandha-text-secondary hover:text-bandha-primary transition-all whitespace-nowrap px-4 py-2 bg-bandha-subtle rounded-xl border border-bandha-border hover:border-bandha-primary/30"
+                  className="text-xs font-bold text-white bg-black hover:bg-gray-800 transition-all whitespace-nowrap px-6 py-2.5 rounded-full shadow-[0_4px_14px_rgb(0,0,0,0.15)]"
                 >
                   Ingresar
                 </Link>
-                <CartDrawer />
+                <div className="bg-gray-100 p-1.5 rounded-full flex items-center justify-center hover:bg-gray-200 cursor-pointer transition-colors">
+                  <CartDrawer />
+                </div>
               </div>
             )}
             
-            <button className="md:hidden p-1 text-bandha-text-secondary">
-              <Menu size={24} />
+            <button className="md:hidden p-2 text-black bg-gray-100 rounded-full">
+              <Menu size={20} />
             </button>
           </div>
         </nav>
       </div>
-    </header>
+     </header>
+    </div>
   );
 }

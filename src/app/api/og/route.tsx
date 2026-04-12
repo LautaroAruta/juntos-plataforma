@@ -22,184 +22,166 @@ export async function GET(request: NextRequest) {
           height: '100%',
           width: '100%',
           display: 'flex',
-          flexDirection: 'row',
-          backgroundColor: '#FFF8E7',
+          flexDirection: 'column',
+          backgroundColor: '#0F172A', // Slate 900 for premium feel
           fontFamily: 'Inter, sans-serif',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        {/* Left: Product Image */}
-        <div
+        {/* Background Decorative Gradient */}
+        <div 
           style={{
-            width: '50%',
+            position: 'absolute',
+            top: -200,
+            right: -200,
+            width: 600,
+            height: 600,
+            background: 'radial-gradient(circle, rgba(0, 158, 227, 0.15) 0%, rgba(0, 158, 227, 0) 70%)',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '40px',
-            position: 'relative',
           }}
-        >
-          {image ? (
-            <img
-              src={image}
-              alt={title}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                borderRadius: '32px',
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#f0f0f0',
-                borderRadius: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '48px',
-                color: '#ccc',
-              }}
-            >
-              📦
+        />
+        
+        <div style={{ display: 'flex', flexDirection: 'row', height: '100%', width: '100%', zIndex: 10 }}>
+          {/* Left: Content */}
+          <div
+            style={{
+              width: '60%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              padding: '60px 40px 60px 60px',
+              gap: '24px',
+            }}
+          >
+            {/* Logo area */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              <div style={{ backgroundColor: '#009EE3', width: '32px', height: '32px', borderRadius: '8px' }} />
+              <div style={{ fontSize: '28px', fontWeight: '900', color: 'white', letterSpacing: '-0.05em' }}>BANDHA</div>
             </div>
-          )}
-          {/* Discount Badge */}
-          {parseInt(discount) > 0 && (
+
+            {/* Title */}
             <div
               style={{
-                position: 'absolute',
-                top: '60px',
-                left: '60px',
-                background: 'linear-gradient(135deg, #009EE3, #00A650)',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '20px',
-                fontSize: '28px',
+                fontSize: '56px',
                 fontWeight: '900',
+                color: 'white',
+                lineHeight: 1.05,
+                letterSpacing: '-0.04em',
                 display: 'flex',
-                alignItems: 'center',
               }}
             >
-              {discount}% AHORRO
+              {title.length > 50 ? title.substring(0, 47) + '...' : title}
             </div>
-          )}
-        </div>
 
-        {/* Right: Info */}
-        <div
-          style={{
-            width: '50%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            padding: '48px 48px 48px 16px',
-            gap: '16px',
-          }}
-        >
-          {/* Brand */}
-          <div
-            style={{
-              fontSize: '24px',
-              fontWeight: '900',
-              color: '#009EE3',
-              letterSpacing: '-0.02em',
-              display: 'flex',
-            }}
-          >
-            BANDHA
-          </div>
-
-          {/* Title */}
-          <div
-            style={{
-              fontSize: '40px',
-              fontWeight: '900',
-              color: '#1e293b',
-              lineHeight: 1.1,
-              letterSpacing: '-0.03em',
-              display: 'flex',
-            }}
-          >
-            {title.length > 60 ? title.substring(0, 57) + '...' : title}
-          </div>
-
-          {/* Prices */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {parseInt(originalPrice) > parseInt(price) && (
-              <div
-                style={{
-                  fontSize: '22px',
-                  color: '#94a3b8',
-                  textDecoration: 'line-through',
-                  display: 'flex',
+            {/* Prices & Discount Row */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontSize: '24px', color: '#64748B', textDecoration: 'line-through', marginBottom: '4px' }}>
+                  ${parseInt(originalPrice).toLocaleString()}
+                </div>
+                <div style={{ fontSize: '72px', fontWeight: '900', color: '#00A650', lineHeight: 1, letterSpacing: '-0.05em' }}>
+                  ${parseInt(price).toLocaleString()}
+                </div>
+              </div>
+              
+              <div 
+                style={{ 
+                  backgroundColor: '#00A650', 
+                  color: 'white', 
+                  padding: '8px 16px', 
+                  borderRadius: '12px', 
+                  fontSize: '28px', 
+                  fontWeight: '900',
+                  marginBottom: '10px'
                 }}
               >
-                ${parseInt(originalPrice).toLocaleString()}
+                {discount}% OFF
               </div>
-            )}
+            </div>
+
+            {/* Status Button / CTA */}
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                backgroundColor: 'rgba(0, 166, 80, 0.08)',
-                padding: '16px 24px',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#94A3B8',
+                padding: '20px 32px',
                 borderRadius: '24px',
-                border: '2px solid rgba(0, 166, 80, 0.15)',
+                fontSize: '24px',
+                fontWeight: '700',
+                marginTop: '16px',
+                width: 'fit-content'
               }}
             >
-              <div
-                style={{
-                  fontSize: '52px',
-                  fontWeight: '900',
-                  color: '#1e293b',
-                  letterSpacing: '-0.04em',
-                  lineHeight: 1,
-                  display: 'flex',
-                }}
-              >
-                ${parseInt(price).toLocaleString()}
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  borderLeft: '2px solid rgba(0, 166, 80, 0.2)',
-                  paddingLeft: '12px',
-                }}
-              >
-                <div style={{ fontSize: '14px', fontWeight: '900', color: '#00A650', display: 'flex' }}>
-                  OFERTA
+              {remaining > 0 ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ color: '#009EE3' }}>⚡️</span>
+                  <span>Faltan solo <b style={{ color: 'white', marginLeft: '4px' }}>{remaining} vecinos</b></span>
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: '900', color: '#00A650', display: 'flex' }}>
-                  GRUPAL
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ color: '#00A650' }}>✅</span>
+                  <span style={{ color: 'white' }}>¡Oferta Desbloqueada!</span>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
-          {/* CTA */}
+          {/* Right: Product Image with specialized frame */}
           <div
             style={{
+              width: '40%',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              backgroundColor: '#009EE3',
-              color: 'white',
-              padding: '18px 32px',
-              borderRadius: '24px',
-              fontSize: '20px',
-              fontWeight: '900',
-              marginTop: '8px',
-              letterSpacing: '-0.01em',
+              justifyContent: 'center',
+              padding: '40px 60px 40px 0',
             }}
           >
-            {remaining > 0
-              ? `¡Falta${remaining === 1 ? '' : 'n'} solo ${remaining} para desbloquear!`
-              : '¡Oferta desbloqueada! Unite ahora'}
+            <div 
+              style={{ 
+                width: '100%', 
+                height: '80%', 
+                position: 'relative',
+                display: 'flex',
+                borderRadius: '40px',
+                overflow: 'hidden',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}
+            >
+              {image ? (
+                <img
+                  src={image}
+                  alt={title}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                />
+              ) : (
+                <div style={{ width: '100%', height: '100%', backgroundColor: '#1E293B', display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
+                  <span style={{ fontSize: '80px', margin: 'auto' }}>📦</span>
+                </div>
+              )}
+              
+              {/* Overlay for depth */}
+              <div 
+                style={{ 
+                  position: 'absolute', 
+                  bottom: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: '40%', 
+                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.8), transparent)',
+                  display: 'flex'
+                }} 
+              />
+            </div>
           </div>
         </div>
       </div>

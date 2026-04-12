@@ -10,7 +10,8 @@ import {
   ChevronDown,
   ShieldCheck,
   UserCircle,
-  ShoppingBag
+  ShoppingBag,
+  Gift
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,6 +27,7 @@ interface UserDropdownProps {
 
 export default function UserDropdown({ user }: UserDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close when clicking outside
@@ -39,24 +41,24 @@ export default function UserDropdown({ user }: UserDropdownProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const isAdmin = user.rol === "admin";
-  const isProvider = user.rol === "proveedor";
+  const isAdmin = user.rol === "admin" && user.email === "aruta839@gmail.com";
+  const isProvider = user.rol === "proveedor" || user.rol === "admin";
   const firstName = user.name?.split(" ")[0] || "Usuario";
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-bandha-subtle transition-all border border-transparent hover:border-bandha-border"
+        className="flex items-center gap-2 group p-1 pr-3 rounded-full hover:bg-gray-100 transition-all border border-transparent"
       >
-        <div className="w-8 h-8 rounded-full bg-bandha-subtle flex items-center justify-center text-bandha-text-secondary overflow-hidden border border-bandha-border group-hover:border-bandha-primary transition-all">
-          {user.image ? (
-            <img src={user.image} alt="" className="w-full h-full object-cover" />
+        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 overflow-hidden border border-gray-300 group-hover:border-black transition-all">
+          {user.image && !imgError && user.image.length > 5 ? (
+            <img src={user.image} alt="" className="w-full h-full object-cover" onError={() => setImgError(true)} />
           ) : (
             <UserCircle size={20} strokeWidth={2.5} />
           )}
         </div>
-        <span className="text-xs font-black text-bandha-text-secondary hidden md:block uppercase tracking-tighter">
+        <span className="text-xs font-bold text-gray-600 hidden md:block">
           {firstName}
         </span>
         <ChevronDown 
@@ -133,6 +135,22 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                 </div>
                 <span>Configuración de Perfil</span>
               </Link>
+              
+              {/* BILLETERA LINK */}
+              {!isProvider && (
+                <Link
+                  href="/perfil/billetera"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-bold text-violet-600 hover:bg-violet-50 transition-all border border-transparent hover:border-violet-100"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600">
+                    <Gift size={16} strokeWidth={2.5} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span>Mi Billetera</span>
+                  </div>
+                </Link>
+              )}
 
               <div className="h-px bg-bandha-border my-2 mx-2" />
 

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
 const PickupMap = dynamic(() => import("@/components/shared/PickupMap"), {
-  loading: () => <div className="h-[400px] w-full bg-slate-50 animate-pulse rounded-[2.5rem]" />,
+  loading: () => <div className="h-[400px] w-full bg-gray-50 animate-pulse rounded-[2.5rem]" />,
   ssr: false,
 });
 
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
   // -------------------------
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFF8E7] pb-24 pt-8">
+      <div className="min-h-screen bg-[#F5F5F7] pb-24 pt-8">
         <div className="max-w-6xl mx-auto px-4 lg:px-8">
            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-8" />
            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -149,9 +149,9 @@ export default function CheckoutPage() {
 
   if (!deal && !loading) {
     return (
-      <div className="min-h-screen bg-[#FFF8E7] flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center p-6 text-center">
         <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Oferta no encontrada</h2>
+        <h2 className="text-2xl font-bold text-black mb-2">Oferta no encontrada</h2>
         <p className="text-gray-500 mb-6">La oferta que buscás ya no está disponible o el enlace es incorrecto.</p>
         <Link href="/" className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium bg-[#009EE3] hover:bg-[#00A650] text-white transition-colors">
           Volver al inicio
@@ -164,12 +164,12 @@ export default function CheckoutPage() {
   // MAIN RENDER
   // -------------------------
   return (
-    <div className="min-h-screen bg-[#FFF8E7] pb-24 md:pb-12 pt-4">
+    <div className="min-h-screen bg-[#F5F5F7] pb-24 md:pb-12 pt-4">
       <div className="max-w-6xl mx-auto px-4 md:px-8 pt-4">
         
         <Link 
           href={deal?.product ? `/productos/${deal.product.id}` : "/"}
-          className="inline-flex items-center gap-2 text-[#009EE3] hover:text-[#00A650] font-bold text-sm mb-6 transition-colors group"
+          className="inline-flex items-center gap-2 text-black hover:text-[#00A650] font-bold text-sm mb-6 transition-colors group"
         >
           <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> Volver al producto
         </Link>
@@ -180,10 +180,10 @@ export default function CheckoutPage() {
           <div className="lg:w-2/3 space-y-12">
             
             <div className="space-y-4">
-              <h1 className="text-2xl md:text-3xl font-black text-gray-800 tracking-tight leading-tight">
+              <h1 className="text-2xl md:text-3xl font-black text-black tracking-tight leading-tight">
                 ¿Dónde querés retirar tu compra?
               </h1>
-              <p className="text-slate-500 font-medium">
+              <p className="text-gray-500 font-medium">
                 Seleccioná el punto de retiro más cercano o retiralo directamente del proveedor.
               </p>
             </div>
@@ -201,11 +201,11 @@ export default function CheckoutPage() {
               />
               {pickupPoints.length === 0 && (
                 <div className="bg-[#00AEEF]/5 rounded-[2.5rem] p-8 border border-[#00AEEF]/10 flex flex-col items-center text-center">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-[#00AEEF] mb-4 shadow-sm">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black mb-4 shadow-sm">
                     <Search size={24} />
                   </div>
-                  <h3 className="text-sm font-black text-slate-800 mb-1 uppercase tracking-tight">Expandí tu búsqueda</h3>
-                  <p className="text-xs text-slate-500 max-w-xs">
+                  <h3 className="text-sm font-black text-black mb-1 uppercase tracking-tight">Expandí tu búsqueda</h3>
+                  <p className="text-xs text-gray-500 max-w-xs">
                     No encontramos puntos cercanos, pero podés usar el buscador del mapa para encontrar puntos en otras ciudades de Argentina.
                   </p>
                 </div>
@@ -213,20 +213,20 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-black text-gray-800 tracking-tight leading-tight">
+              <h2 className="text-2xl md:text-3xl font-black text-black tracking-tight leading-tight">
                 ¿Cómo querés pagar?
               </h2>
-              <p className="text-slate-500 font-medium">Tus pagos están protegidos por Mercado Pago.</p>
+              <p className="text-gray-500 font-medium">Tus pagos están protegidos por Mercado Pago.</p>
             </div>
 
             {/* SECCION: PAGO */}
-            <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 divide-y divide-slate-50">
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 divide-y divide-gray-50">
                <div className="flex items-start gap-5 pb-8">
                  <div className="w-12 h-12 rounded-2xl bg-[#FFF8E7] flex items-center justify-center shrink-0">
-                   <Wallet className="text-[#009EE3]" size={24} />
+                   <Wallet className="text-black" size={24} />
                  </div>
                  <div className="flex-1">
-                   <h3 className="text-lg font-black text-gray-800 mb-1">Mercado Pago</h3>
+                   <h3 className="text-lg font-black text-black mb-1">Mercado Pago</h3>
                    <p className="text-sm text-gray-500 font-medium leading-relaxed">
                      Podés pagar con tus tarjetas de débito, crédito o saldo en cuenta.
                    </p>
@@ -234,15 +234,15 @@ export default function CheckoutPage() {
                </div>
 
                <div className="pt-8 space-y-4">
-                 <div className="border-2 border-slate-50 bg-slate-50/30 rounded-[2rem] p-5 flex items-center gap-4 group hover:border-[#00AEEF]/30 transition-all cursor-pointer">
-                    <div className="w-14 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 uppercase text-center leading-tight shrink-0 group-hover:text-[#00AEEF]">
+                 <div className="border-2 border-gray-50 bg-[#F5F5F7]/30 rounded-[2rem] p-5 flex items-center gap-4 group hover:border-[#00AEEF]/30 transition-all cursor-pointer">
+                    <div className="w-14 h-10 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400 uppercase text-center leading-tight shrink-0 group-hover:text-black">
                        MERCADO<br/>PAGO
                     </div>
                     <div className="flex-1">
-                      <span className="block text-sm font-black text-slate-800 uppercase tracking-tight">Todo en un solo lugar</span>
-                      <span className="block text-xs text-slate-400 font-bold">Tarjeta, Débito o Efectivo</span>
+                      <span className="block text-sm font-black text-black uppercase tracking-tight">Todo en un solo lugar</span>
+                      <span className="block text-xs text-gray-400 font-bold">Tarjeta, Débito o Efectivo</span>
                     </div>
-                    <CheckCircle2 className="text-[#00AEEF]" size={24} />
+                    <CheckCircle2 className="text-black" size={24} />
                  </div>
                </div>
             </div>
@@ -251,29 +251,29 @@ export default function CheckoutPage() {
 
           {/* COLUMNA DERECHA: Resumen */}
           <div className="lg:w-1/3">
-            <div className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-slate-200/50 border border-slate-50 sticky top-24">
-               <h3 className="text-xs font-black text-slate-400 mb-8 uppercase tracking-[0.2em] border-b border-slate-50 pb-6 flex items-center gap-2">
-                 <ShoppingBag size={14} className="text-[#00AEEF]" /> Resumen de compra
+            <div className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-gray-200/50 border border-gray-50 sticky top-24">
+               <h3 className="text-xs font-black text-gray-400 mb-8 uppercase tracking-[0.2em] border-b border-gray-50 pb-6 flex items-center gap-2">
+                 <ShoppingBag size={14} className="text-black" /> Resumen de compra
                </h3>
                
                <div className="flex gap-5 mb-8">
-                 <div className="w-20 h-20 rounded-[1.5rem] border border-slate-100 overflow-hidden shrink-0 shadow-sm">
+                 <div className="w-20 h-20 rounded-[1.5rem] border border-gray-100 overflow-hidden shrink-0 shadow-sm">
                    <img src={deal?.product?.imagen_principal || "/placeholder.jpg"} className="w-full h-full object-cover" />
                  </div>
                  <div>
-                   <h4 className="font-black text-sm text-slate-800 leading-snug line-clamp-2 mb-2">{deal?.product?.nombre}</h4>
-                   <span className="inline-flex text-[10px] font-black bg-[#FFF8E7] text-[#009EE3] px-3 py-1 rounded-full uppercase tracking-widest ring-1 ring-[#009EE3]/20">
+                   <h4 className="font-black text-sm text-black leading-snug line-clamp-2 mb-2">{deal?.product?.nombre}</h4>
+                   <span className="inline-flex text-[10px] font-black bg-[#FFF8E7] text-black px-3 py-1 rounded-full uppercase tracking-widest ring-1 ring-[#009EE3]/20">
                      OFERTA GRUPAL
                    </span>
                  </div>
                </div>
 
-               <div className="space-y-4 text-sm border-b border-slate-50 pb-6 mb-8">
-                  <div className="flex justify-between items-center text-slate-500 font-bold">
+               <div className="space-y-4 text-sm border-b border-gray-50 pb-6 mb-8">
+                  <div className="flex justify-between items-center text-gray-500 font-bold">
                     <span>Producto</span>
-                    <span className="text-slate-800" suppressHydrationWarning>{formatCurrency(deal?.precio_actual)}</span>
+                    <span className="text-black" suppressHydrationWarning>{formatCurrency(deal?.precio_actual)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-500 font-bold">
+                  <div className="flex justify-between items-center text-gray-500 font-bold">
                     <span>Envío</span>
                     <span className="text-green-500 uppercase text-[10px] font-black tracking-widest bg-green-50 px-2 py-1 rounded-md">GRATIS</span>
                   </div>
@@ -289,40 +289,40 @@ export default function CheckoutPage() {
                </div>
 
                {selectedPoint && (
-                 <div className="bg-slate-50 rounded-2xl p-4 mb-4 space-y-2">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Punto de Retiro Seleccionado</p>
+                 <div className="bg-[#F5F5F7] rounded-2xl p-4 mb-4 space-y-2">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Punto de Retiro Seleccionado</p>
                     <div className="flex gap-2">
-                      <MapPin size={14} className="text-[#00AEEF] shrink-0 mt-0.5" />
-                      <p className="text-xs font-black text-slate-700">{selectedPoint.name}</p>
+                      <MapPin size={14} className="text-black shrink-0 mt-0.5" />
+                      <p className="text-xs font-black text-gray-700">{selectedPoint.name}</p>
                     </div>
                  </div>
                )}
 
                {walletBalance > 0 && (
-                 <div className={`mb-8 p-5 rounded-3xl border-2 transition-all cursor-pointer ${useRewards ? 'border-[#00AEEF] bg-[#E8F7FF]' : 'border-slate-50 bg-slate-50/50'}`}
+                 <div className={`mb-8 p-5 rounded-3xl border-2 transition-all cursor-pointer ${useRewards ? 'border-black bg-gray-50' : 'border-[#F5F5F7] bg-[#F5F5F7]/50'}`}
                       onClick={() => setUseRewards(!useRewards)}>
                     <div className="flex items-center justify-between mb-2">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tus Recompensas</p>
-                       <div className={`w-10 h-5 rounded-full relative transition-colors ${useRewards ? 'bg-[#00AEEF]' : 'bg-slate-200'}`}>
+                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tus Recompensas</p>
+                       <div className={`w-10 h-5 rounded-full relative transition-colors ${useRewards ? 'bg-black' : 'bg-gray-200'}`}>
                           <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${useRewards ? 'left-6' : 'left-1'}`} />
                        </div>
                     </div>
                     <div className="flex items-center gap-2">
-                       <span className="text-sm font-black text-slate-800">Usar ${walletBalance.toLocaleString()}</span>
-                       <span className="text-[10px] font-black text-[#00AEEF] uppercase bg-white px-2 py-0.5 rounded-full border border-[#00AEEF]/20">Dcto. Extra</span>
+                       <span className="text-sm font-black text-black">Usar ${walletBalance.toLocaleString()}</span>
+                       <span className="text-[10px] font-black text-black uppercase bg-white px-2 py-0.5 rounded-full border border-black/20">Dcto. Extra</span>
                     </div>
                  </div>
                )}
 
                <div className="flex justify-between items-end mb-10">
-                  <span className="text-slate-400 font-black uppercase tracking-widest text-[10px] mb-1">Total a Pagar</span>
+                  <span className="text-gray-400 font-black uppercase tracking-widest text-[10px] mb-1">Total a Pagar</span>
                   <div className="text-right">
                     {useRewards && (
-                      <span className="block text-sm font-bold text-slate-300 line-through" suppressHydrationWarning>
+                      <span className="block text-sm font-bold text-gray-300 line-through" suppressHydrationWarning>
                         {formatCurrency(deal?.precio_actual)}
                       </span>
                     )}
-                    <span className="text-4xl font-black text-slate-800 tracking-tighter" suppressHydrationWarning>
+                    <span className="text-4xl font-black text-black tracking-tighter" suppressHydrationWarning>
                       {formatCurrency(deal?.precio_actual - (useRewards ? Math.min(walletBalance, deal.precio_actual) : 0))}
                     </span>
                   </div>
@@ -331,7 +331,7 @@ export default function CheckoutPage() {
                <button
                   onClick={handlePayment}
                   disabled={creatingPreference || !selectedPoint}
-                  className="w-full bg-[#009EE3] hover:bg-[#0077CC] disabled:bg-slate-100 disabled:text-slate-300 disabled:cursor-not-allowed text-white font-black py-5 rounded-[2rem] shadow-xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-widest group mb-4 active:scale-[0.98]"
+                  className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed text-white font-black py-5 rounded-[2rem] shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-widest group mb-4 active:scale-[0.98]"
                 >
                   {creatingPreference ? <Loader2 className="animate-spin" size={20} /> : (
                     <>
@@ -358,7 +358,9 @@ export default function CheckoutPage() {
                             dealId: deal.id,
                             userId: (await supabase.auth.getUser()).data.user?.id,
                             amount: deal.precio_actual - (useRewards ? Math.min(walletBalance, deal.precio_actual) : 0),
-                            providerId: providerData?.id
+                            providerId: providerData?.id,
+                            useRewards,
+                            rewardsAmount: useRewards ? Math.min(walletBalance, deal.precio_actual) : 0
                           })
                         });
                         if (res.ok) {
@@ -377,24 +379,24 @@ export default function CheckoutPage() {
                )}
 
                <div className="space-y-3">
-                 <div className="flex items-start gap-4 bg-slate-50/50 p-5 rounded-[2rem] border border-slate-100/50">
-                   <ShieldCheck className="text-[#00AEEF] shrink-0" size={24} />
+                 <div className="flex items-start gap-4 bg-[#F5F5F7]/50 p-5 rounded-[2rem] border border-gray-100/50">
+                   <ShieldCheck className="text-black shrink-0" size={24} />
                    <div>
-                     <p className="text-xs font-black text-slate-800 uppercase tracking-tight mb-1">Compra Blindada</p>
-                     <p className="text-[10px] text-slate-400 leading-relaxed font-bold">
+                     <p className="text-xs font-black text-black uppercase tracking-tight mb-1">Compra Blindada</p>
+                     <p className="text-[10px] text-gray-400 leading-relaxed font-bold">
                        Si el grupo no se completa en el tiempo límite, se te devuelve el dinero automáticamente.
                      </p>
                    </div>
                  </div>
-                 <div className="flex items-center justify-center gap-4 py-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                 <div className="flex items-center justify-center gap-4 py-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                    <span className="flex items-center gap-1.5">
                      🔒 Pago Seguro
                    </span>
-                   <span className="text-slate-200">|</span>
+                   <span className="text-gray-200">|</span>
                    <span className="flex items-center gap-1.5">
                      🛡️ Mercado Pago
                    </span>
-                   <span className="text-slate-200">|</span>
+                   <span className="text-gray-200">|</span>
                    <span className="flex items-center gap-1.5">
                      ✓ SSL 256-bit
                    </span>

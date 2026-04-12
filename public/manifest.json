@@ -1,16 +1,38 @@
 {
-  "name": "JUNTOS | Compras Grupales",
-  "short_name": "JUNTOS",
-  "description": "Ahorramos juntos, compramos mejor. La revolución del ahorro grupal.",
+  "name": "BANDHA | Compras Grupales",
+  "short_name": "BANDHA",
+  "description": "Plataforma de ahorro comunitario. Comprá en grupo con tus vecinos.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F5F5",
-  "theme_color": "#00AEEF",
+  "background_color": "#ffffff",
+  "theme_color": "#009EE3",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Mis Pedidos",
+      "url": "/perfil/compras",
+      "icons": [{ "src": "/icons/shortcut-orders.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Billetera",
+      "url": "/perfil/billetera",
+      "icons": [{ "src": "/icons/shortcut-wallet.png", "sizes": "96x96" }]
+    }
+  ],
+  "categories": ["shopping", "social"],
+  "screenshots": [],
+  "lang": "es-AR"
 }

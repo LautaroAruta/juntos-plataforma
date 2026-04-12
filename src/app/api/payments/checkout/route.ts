@@ -8,7 +8,7 @@ const client = new MercadoPagoConfig({
 
 export async function POST(req: Request) {
   try {
-    const { items, total, metadata } = await req.json();
+    const { items, total, metadata, rewardsUsed = 0 } = await req.json();
     const supabase = await createClient();
     
     // Validar sesión del usuario (opcional si es anónimo)
@@ -39,8 +39,20 @@ export async function POST(req: Request) {
       metadata: {
         ...metadata,
         user_id: user?.id || null,
+        rewards_used: rewardsUsed
       },
     };
+
+    // If rewards were used, add a discount item
+    if (rewardsUsed > 0) {
+      body.items.push({
+        id: "discount",
+        title: "Descuento Billetera BANDHA",
+        quantity: 1,
+        unit_price: -rewardsUsed,
+        currency_id: "ARS",
+      } as any);
+    }
 
     const response = await preference.create({ body });
 

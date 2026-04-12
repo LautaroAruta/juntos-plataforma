@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Lock, Phone, MapPin, ChevronLeft, Loader2, CheckCircle2, RefreshCcw } from "lucide-react";
+import { User, Mail, Lock, Phone, MapPin, ChevronLeft, Loader2, CheckCircle2, RefreshCcw, Gift } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -12,7 +12,18 @@ import { motion, AnimatePresence } from "framer-motion";
 function RegisterClienteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const referralCode = searchParams.get("ref");
+  const referralCodeFromUrl = searchParams.get("ref");
+  const [referralCode, setReferralCode] = useState<string | null>(referralCodeFromUrl);
+
+  useEffect(() => {
+    if (!referralCode) {
+      const stored = localStorage.getItem("bandha_ref");
+      if (stored) {
+        console.log("BANDHA: Using stored referral code:", stored);
+        setReferralCode(stored);
+      }
+    }
+  }, [referralCode]);
   
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
@@ -178,18 +189,20 @@ function RegisterClienteContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 text-center">
-        <div className="max-w-md bg-white rounded-[3rem] p-12 shadow-2xl shadow-[#009EE3]/10 border border-slate-50">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-50 text-green-500 mb-8">
+      <div className="min-h-screen flex items-center justify-center p-6 text-center bg-brand-warm py-24">
+        <div className="max-w-md bg-white boutique-card p-12 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-sage/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50" />
+          
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand-sage/5 text-brand-sage mb-8">
             <CheckCircle2 size={48} />
           </div>
-          <h1 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">¡Casi listo!</h1>
-          <p className="text-slate-500 font-medium mb-8">
-            Enviamos un link de verificación a <span className="font-bold text-slate-800">{formData.email}</span>. 
-            Por favor, revisá tu casilla.
+          <h1 className="text-3xl font-black font-serif text-brand-charcoal mb-4 tracking-tighter">¡Casi listo!</h1>
+          <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+            Enviamos un link de verificación a <span className="font-bold text-brand-charcoal">{formData.email}</span>. 
+            Por favor, revisá tu casilla para activar tu cuenta.
           </p>
-          <Link href="/auth/login" className="inline-block bg-[#009EE3] text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-[#009EE3]/20 hover:bg-[#00A650] transition-all uppercase tracking-widest text-sm">
-            Ir al Login
+          <Link href="/auth/login" className="btn-boutique w-full">
+            Ir al Acceso
           </Link>
         </div>
       </div>
@@ -204,259 +217,282 @@ function RegisterClienteContent() {
   ];
 
   return (
-    <div className="pb-24 px-4 pt-8 max-w-lg mx-auto">
-      <Link href="/auth/login" className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-800 font-bold mb-8 transition-colors group">
-        <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Volver al Login
-      </Link>
+    <div className="min-h-screen bg-brand-warm pb-32 px-4 pt-16">
+      <div className="max-w-lg mx-auto">
+        <Link href="/auth/login" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-charcoal mb-12 transition-colors group">
+          <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Volver al Login
+        </Link>
 
-      <div className="mb-10 text-center">
-        <div className="flex justify-center gap-2 mb-6">
-          {steps.map((s) => (
-            <div 
-              key={s.id} 
-              className={`w-3 h-3 rounded-full transition-all duration-500 ${step >= s.id ? "bg-violet-600 w-8" : "bg-slate-200"}`}
-            />
-          ))}
+        <div className="mb-14 text-center">
+          <div className="flex justify-center gap-3 mb-8">
+            {steps.map((s) => (
+              <div 
+                key={s.id} 
+                className={`h-1 rounded-full transition-all duration-700 ${step >= s.id ? "bg-brand-charcoal w-10" : "bg-stone-200 w-4"}`}
+              />
+            ))}
+          </div>
+          <div className="space-y-3">
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-camel block">Paso {step} de 4</span>
+             <h1 className="text-4xl font-black font-serif text-brand-charcoal tracking-tighter">
+               {steps.find(s => s.id === step)?.title}
+             </h1>
+          </div>
+          
+          {referralCode && (
+            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-brand-sage/5 text-brand-sage rounded-full border border-brand-sage/10">
+              <Gift size={16} />
+              <span className="text-[10px] font-black uppercase tracking-widest">
+                Referido con éxito
+              </span>
+            </div>
+          )}
         </div>
-        <h1 className="text-4xl font-black text-slate-800 tracking-tighter uppercase mb-2">
-          {steps.find(s => s.id === step)?.title}
-        </h1>
-        <p className="text-slate-500 font-medium italic">Paso {step} de 4</p>
-      </div>
 
-      <form onSubmit={handleSubmit} className="relative overflow-hidden min-h-[400px]">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            {step === 1 && (
-              <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Nombre</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Juan"
-                      value={formData.nombre}
-                      onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Apellido</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Pérez"
-                      value={formData.apellido}
-                      onChange={(e) => setFormData({...formData, apellido: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Fecha de Nacimiento</label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.fecha_nacimiento}
-                    onChange={(e) => setFormData({...formData, fecha_nacimiento: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
-                  />
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-1">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Tipo</label>
-                    <select
-                      value={formData.documento_tipo}
-                      onChange={(e) => setFormData({...formData, documento_tipo: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-2 text-sm focus:outline-none transition-all"
-                    >
-                      <option>DNI</option>
-                      <option>CUIL</option>
-                      <option>PAS</option>
-                    </select>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Número de Documento</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="12.345.678"
-                      value={formData.documento_numero}
-                      onChange={(e) => setFormData({...formData, documento_numero: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email de Verificación</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                    <input
-                      type="email"
-                      required
-                      placeholder="tu@email.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all font-bold"
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-400 font-medium px-1 mt-2">
-                    * Te enviaremos un código de seguridad a esta casilla.
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Teléfono (WhatsApp)</label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                    <input
-                      type="text"
-                      required
-                      placeholder="+54 9 11 1234-5678"
-                      value={formData.telefono}
-                      onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50 text-center">
-                <div className="w-16 h-16 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                   <Mail size={32} />
-                </div>
-                <h2 className="text-xl font-black text-slate-800 tracking-tight uppercase">Verifica tu Email</h2>
-                <p className="text-slate-500 font-medium mb-6">Enviamos un código de 6 dígitos a <br/><span className="text-slate-800 font-bold">{formData.email}</span></p>
-                
-                <input
-                  type="text"
-                  maxLength={6}
-                  placeholder="000000"
-                  value={formData.otp}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, '');
-                    setFormData({...formData, otp: val});
-                    if (val.length === 6) {
-                      // Opcional: Auto-verificar al llegar a 6
-                    }
-                  }}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-6 text-center text-3xl font-black tracking-[1rem] focus:outline-none focus:border-violet-600 transition-all"
-                />
-                
-                <div className="flex flex-col gap-3 mt-6">
-                  <button 
-                    type="button" 
-                    onClick={handleVerifyOTP}
-                    disabled={loading || formData.otp.length !== 6}
-                    className="w-full bg-violet-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-violet-200 uppercase tracking-widest text-xs disabled:opacity-50"
-                  >
-                    {loading ? <Loader2 className="animate-spin mx-auto" size={16} /> : "Verificar Código"}
-                  </button>
+        <form onSubmit={handleSubmit} className="relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.02 }}
+              transition={{ duration: 0.5, ease: "anticipate" }}
+              className="space-y-8"
+            >
+              {step === 1 && (
+                <div className="space-y-6 bg-white boutique-card p-10 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-stone/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-30" />
                   
-                  <button 
-                    type="button" 
-                    onClick={triggerOTP}
-                    disabled={resending || loading}
-                    className="text-slate-400 font-bold text-xs hover:text-violet-600 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <RefreshCcw size={12} className={resending ? "animate-spin" : ""} /> Reenviar código
-                  </button>
+                  <div className="grid grid-cols-2 gap-6 relative z-10">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Nombre</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Juan"
+                        value={formData.nombre}
+                        onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                        className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 px-4 text-sm focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Apellido</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Pérez"
+                        value={formData.apellido}
+                        onChange={(e) => setFormData({...formData, apellido: e.target.value})}
+                        className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 px-4 text-sm focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all font-medium"
+                      />
+                    </div>
+                  </div>
 
-                  {/* BYPASS PARA TEST */}
-                  {process.env.NODE_ENV === 'development' && (
+                  <div className="relative z-10">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Nacimiento</label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.fecha_nacimiento}
+                      onChange={(e) => setFormData({...formData, fecha_nacimiento: e.target.value})}
+                      className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 px-4 text-sm focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all font-medium"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-6 relative z-10">
+                    <div className="col-span-1">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Tipo</label>
+                      <select
+                        value={formData.documento_tipo}
+                        onChange={(e) => setFormData({...formData, documento_tipo: e.target.value})}
+                        className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 px-3 text-sm focus:outline-none transition-all font-bold appearance-none"
+                      >
+                        <option>DNI</option>
+                        <option>CUIL</option>
+                        <option>PAS</option>
+                      </select>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Número de Documento</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="12.345.678"
+                        value={formData.documento_numero}
+                        onChange={(e) => setFormData({...formData, documento_numero: e.target.value})}
+                        className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 px-4 text-sm focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="space-y-6 bg-white boutique-card p-10 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-brand-stone/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-30" />
+                  
+                  <div className="relative z-10">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Email de Verificación</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                      <input
+                        type="email"
+                        required
+                        placeholder="tu@email.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all font-bold"
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-medium px-1 mt-3 italic tracking-tight">
+                      * Enviaremos un código de seguridad a esta casilla.
+                    </p>
+                  </div>
+
+                  <div className="relative z-10">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Teléfono (WhatsApp)</label>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                      <input
+                        type="text"
+                        required
+                        placeholder="+54 9 11 1234-5678"
+                        value={formData.telefono}
+                        onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                        className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="space-y-8 bg-white boutique-card p-10 text-center relative overflow-hidden">
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-brand-stone/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-30" />
+                  
+                  <div className="w-20 h-20 bg-brand-stone flex items-center justify-center rounded-3xl text-brand-charcoal mx-auto relative z-10">
+                     <Mail size={32} />
+                  </div>
+                  
+                  <div className="space-y-2 relative z-10">
+                    <h2 className="text-2xl font-black font-serif text-brand-charcoal tracking-tighter">Validar Casilla</h2>
+                    <p className="text-slate-500 font-medium text-sm leading-relaxed px-4">
+                      Introducí el código de 6 dígitos enviado a:<br/>
+                      <span className="text-brand-charcoal font-bold">{formData.email}</span>
+                    </p>
+                  </div>
+                  
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="000000"
+                    value={formData.otp}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setFormData({...formData, otp: val});
+                    }}
+                    className="w-full bg-stone-50 border border-stone-100 rounded-2xl py-8 text-center text-4xl font-black tracking-[1rem] focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all relative z-10"
+                  />
+                  
+                  <div className="flex flex-col gap-4 relative z-10">
                     <button 
                       type="button" 
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, isVerified: true }));
-                        setStep(4);
-                      }}
-                      className="mt-4 py-2 border border-dashed border-amber-200 text-amber-600 bg-amber-50 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-100 transition-all"
+                      onClick={handleVerifyOTP}
+                      disabled={loading || formData.otp.length !== 6}
+                      className="btn-boutique w-full h-14 rounded-xl disabled:opacity-50"
                     >
-                      ⚡️ Saltar Verificación (Modo Test)
+                      {loading ? <Loader2 className="animate-spin mx-auto" size={16} /> : "Verificar Identidad"}
                     </button>
-                  )}
-                </div>
-              </div>
-            )}
+                    
+                    <button 
+                      type="button" 
+                      onClick={triggerOTP}
+                      disabled={resending || loading}
+                      className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-brand-charcoal transition-colors flex items-center justify-center gap-2"
+                    >
+                      <RefreshCcw size={14} className={resending ? "animate-spin" : ""} /> Solicitar nuevo código
+                    </button>
 
-            {step === 4 && (
-              <div className="space-y-4 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Contraseña</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                    <input
-                      type="password"
-                      required
-                      placeholder="Mínimo 8 caracteres"
-                      value={formData.password}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
-                    />
+                    {process.env.NODE_ENV === 'development' && (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, isVerified: true }));
+                          setStep(4);
+                        }}
+                        className="mt-4 p-3 border border-stone-100 text-brand-camel bg-brand-stone rounded-xl text-[9px] font-black uppercase tracking-[0.2em] hover:bg-stone-100 transition-all"
+                      >
+                        ⚡️ Bypass Verificación (Test)
+                      </button>
+                    )}
                   </div>
                 </div>
+              )}
 
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Confirmar Contraseña</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                    <input
-                      type="password"
-                      required
-                      placeholder="Repetí tu contraseña"
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-violet-600/5 focus:border-violet-600 transition-all"
-                    />
+              {step === 4 && (
+                <div className="space-y-6 bg-white boutique-card p-10 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-brand-stone/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-30" />
+                  
+                  <div className="relative z-10">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Contraseña</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                      <input
+                        type="password"
+                        required
+                        placeholder="Mínimo 8 caracteres"
+                        value={formData.password}
+                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="relative z-10">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Confirmar Contraseña</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                      <input
+                        type="password"
+                        required
+                        placeholder="••••••••"
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                        className="w-full bg-stone-50 border border-stone-100 rounded-xl py-4 pl-12 pr-4 text-sm focus:ring-2 focus:ring-brand-camel/20 focus:border-brand-camel transition-all font-medium"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
+              )}
+            </motion.div>
+          </AnimatePresence>
 
-        {error && (
-          <div className="mt-6 bg-red-50 text-red-500 text-xs font-bold p-4 rounded-2xl border border-red-100">
-            ⚠️ {error}
-          </div>
-        )}
-
-        <div className="flex gap-4 mt-8">
-          {step > 1 && (
-            <button
-              type="button"
-              onClick={prevStep}
-              className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-5 rounded-[2rem] transition-all uppercase tracking-widest text-sm"
-            >
-              Atrás
-            </button>
+          {error && (
+            <div className="mt-8 bg-red-50 text-red-600 text-[10px] font-bold p-4 rounded-xl border border-red-100 uppercase tracking-widest text-center animate-shake">
+              {error}
+            </div>
           )}
-          <button
-            type="submit"
-            disabled={loading || (step === 3 && !formData.isVerified)}
-            className="flex-[2] bg-violet-600 hover:bg-violet-700 text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-violet-600/20 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-widest active:scale-95 disabled:grayscale"
-          >
-            {loading ? <Loader2 className="animate-spin" size={24} /> : (step === 4 ? "Finalizar" : "Siguiente")}
-          </button>
-        </div>
-      </form>
+
+          <div className="flex gap-4 mt-12 relative z-10">
+            {step > 1 && (
+              <button
+                type="button"
+                onClick={prevStep}
+                className="flex-1 bg-white border border-stone-100 text-brand-charcoal font-black py-5 rounded-2xl transition-all uppercase tracking-widest text-[10px] hover:bg-stone-50 active:scale-95"
+              >
+                Atrás
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={loading || (step === 3 && !formData.isVerified)}
+              className="flex-[2] btn-boutique h-16 rounded-2xl shadow-xl shadow-brand-charcoal/5 flex items-center justify-center gap-3 text-xs active:scale-95 disabled:grayscale"
+            >
+              {loading ? <Loader2 className="animate-spin text-white" size={24} /> : (step === 4 ? "Finalizar Registro" : "Continuar")}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

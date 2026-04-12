@@ -66,18 +66,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-180px)] flex items-center justify-center p-6 bg-bandha-bg">
-      <div className="w-full max-w-md bg-bandha-surface rounded-lg p-8 md:p-12 shadow-sm border border-bandha-border">
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-block text-4xl font-black text-bandha-primary tracking-tighter mb-8">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#F5F5F7] py-24">
+      <div className="w-full max-w-md bg-white rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-gray-100 p-10 md:p-14 relative overflow-hidden">
+        
+        <div className="text-center mb-12 relative z-10">
+          <Link href="/" className="inline-block text-4xl font-black text-black tracking-tighter mb-8 hover:opacity-70 transition-opacity">
             BANDHA
           </Link>
-          <h1 className="text-xl font-bold text-bandha-text">¡Hola! Para continuar, ingresá</h1>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-black text-black tracking-tighter">Acceso</h1>
+          </div>
         </div>
 
         <button
           onClick={() => signIn("google", { callbackUrl: "/elegir-rol" })}
-          className="w-full bg-bandha-surface border border-bandha-border text-bandha-text font-semibold py-3 rounded-md hover:bg-bandha-subtle transition-all flex items-center justify-center gap-3 shadow-sm active:scale-[0.98] mb-8"
+          className="w-full bg-[#F5F5F7] text-black font-bold py-4 rounded-full flex items-center justify-center gap-3 shadow-none hover:bg-gray-200 transition-all active:scale-[0.98] mb-10 text-xs uppercase tracking-widest"
         >
           <svg width="18" height="18" viewBox="0 0 18 18">
             <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
@@ -90,25 +93,29 @@ export default function LoginPage() {
 
         <div className="relative mb-10">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-bandha-border"></div>
+            <div className="w-full border-t border-gray-100"></div>
           </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-bandha-surface px-4 text-bandha-text-muted font-medium">— o ingresá con email —</span>
+          <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+            <span className="bg-white px-4">o vía email</span>
           </div>
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>E-mail</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-widest text-gray-500">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: usuario@mail.com" {...field} />
+                    <Input 
+                      placeholder="usuario@mail.com" 
+                      className="h-14 bg-gray-50 border-gray-100 rounded-2xl focus:ring-gray-100 focus:border-black transition-all font-medium pt-7 pb-3 px-4 shadow-none" 
+                      {...field} 
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] uppercase font-bold tracking-tight" />
                 </FormItem>
               )}
             />
@@ -119,21 +126,26 @@ export default function LoginPage() {
               render={({ field }) => (
                 <FormItem>
                   <div className="flex justify-between items-center">
-                    <FormLabel>Contraseña</FormLabel>
-                    <Link href="#" className="text-xs font-semibold text-bandha-primary hover:text-bandha-secondary">
-                      ¿Olvidaste tu contraseña?
+                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-gray-500">Contraseña</FormLabel>
+                    <Link href="#" className="text-[10px] font-bold text-blue-600 hover:text-blue-800 uppercase tracking-widest transition-colors">
+                      ¿Olvidaste?
                     </Link>
                   </div>
                   <FormControl>
-                    <Input type="password" placeholder="Ingresá tu contraseña" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••••••" 
+                      className="h-14 bg-gray-50 border-gray-100 rounded-2xl focus:ring-gray-100 focus:border-black transition-all font-medium pt-7 pb-3 px-4 shadow-none tracking-[0.2em]" 
+                      {...field} 
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] uppercase font-bold tracking-tight" />
                 </FormItem>
               )}
             />
 
             {error && (
-              <div className="bg-red-50 text-red-600 text-xs p-3 rounded-md border border-red-100 font-medium text-center">
+              <div className="bg-red-50 text-red-600 text-[10px] p-3 rounded-lg border border-red-100 font-bold uppercase tracking-widest text-center">
                 {error}
               </div>
             )}
@@ -141,18 +153,18 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-bandha-primary hover:bg-bandha-secondary text-white font-bold h-12 rounded-md shadow-sm transition-all active:scale-[0.98] mt-4 text-base"
+              className="w-full bg-black hover:bg-gray-800 text-white font-black py-7 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-widest mt-8"
             >
-              {loading ? <Loader2 className="animate-spin" size={20} /> : "Ingresar"}
+              {loading ? <Loader2 className="animate-spin" size={20} /> : "Iniciar sesión"}
             </Button>
           </form>
         </Form>
 
-        <div className="mt-12 text-center border-t border-bandha-border pt-8">
-          <p className="text-sm text-bandha-text-secondary">
-            ¿No tenés cuenta?{" "}
-            <Link href="/auth/registro/cliente" className="text-bandha-primary font-bold hover:text-bandha-secondary">
-              Registrate
+        <div className="mt-14 text-center">
+          <p className="text-xs font-semibold text-gray-500">
+            ¿Primera vez en BANDHA?{" "}
+            <Link href="/auth/registro" className="text-black font-black hover:underline transition-all underline-offset-4">
+              Creá tu cuenta gratis
             </Link>
           </p>
         </div>

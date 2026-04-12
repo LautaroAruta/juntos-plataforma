@@ -40,6 +40,25 @@ function ChangeView({ center }: { center: [number, number] }) {
   return null;
 }
 
+function MapEvents({ onLocationSelect, isPicker }: { onLocationSelect?: (lat: number, lng: number) => void, isPicker?: boolean }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (!isPicker || !onLocationSelect) return;
+    
+    const handleClick = (e: L.LeafletMouseEvent) => {
+      onLocationSelect(e.latlng.lat, e.latlng.lng);
+    };
+    
+    map.on('click', handleClick);
+    return () => {
+      map.off('click', handleClick);
+    };
+  }, [map, isPicker, onLocationSelect]);
+  
+  return null;
+}
+
 export default function PickupMap({ 
   points = [], 
   selectedPointId, 
@@ -101,6 +120,7 @@ export default function PickupMap({
               </Marker>
             );
           })}
+          <MapEvents onLocationSelect={onLocationSelect} isPicker={isPicker} />
         </MapContainer>
 
         <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
