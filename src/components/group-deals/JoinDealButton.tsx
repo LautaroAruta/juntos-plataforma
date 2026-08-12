@@ -67,10 +67,10 @@ export default function JoinDealButton({ dealId, targetDate }: { dealId: string,
     <button
       onClick={handleJoin}
       disabled={loading || isExpired}
-      className={`w-full font-black py-4 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-70 group ${
+      className={`w-full font-black py-4.5 px-8 border border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-3 transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-70 group uppercase text-[11px] tracking-[0.2em] ${
         isExpired 
-        ? "bg-gray-400 cursor-not-allowed shadow-none" 
-        : "bg-[#00A650] hover:bg-[#008E4A] text-white shadow-[#00A650]/20"
+        ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none" 
+        : "bg-[#FF5C00] text-white hover:bg-[#FF7A00]"
       }`}
     >
       {loading ? (
@@ -83,7 +83,7 @@ export default function JoinDealButton({ dealId, targetDate }: { dealId: string,
       ) : (
         <>
           <Users size={20} className="group-hover:scale-110 transition-transform" />
-          <span className="text-base uppercase tracking-tight">Comprar en grupo</span>
+          <span className="text-base uppercase tracking-tighter">Comprar en grupo</span>
         </>
       )}
     </button>

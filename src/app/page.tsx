@@ -19,10 +19,14 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import CountdownTimer from "@/components/shared/CountdownTimer";
 import HeroCarousel from "@/components/home/HeroCarousel";
-import FlashSale from "@/components/home/FlashSale";
+
 import ProductCard from "@/components/home/ProductCard";
 import BenefitsBar from "@/components/home/BenefitsBar";
 import { CATEGORIES } from "@/lib/constants/categories";
+
+import SocialTicker from "@/components/home/SocialTicker";
+import NeighborhoodHighlights from "@/components/home/NeighborhoodHighlights";
+import HomeReferralBanner from "@/components/home/HomeReferralBanner";
 import * as LucideIcons from "lucide-react";
 
 export default async function Home() {
@@ -66,25 +70,21 @@ export default async function Home() {
     <div className="flex flex-col gap-12 sm:gap-16 pb-20">
       
       {/* SECCIÓN 1 — Banner hero */}
-      <section className="relative w-full overflow-hidden bg-bandha-bg md:bg-transparent px-4 sm:px-6 md:px-0">
-        <div className="max-w-7xl mx-auto md:mt-8">
-          <div className="relative w-full h-[300px] md:h-[450px] rounded-none md:rounded-[3rem] overflow-hidden bg-gradient-to-br from-bandha-primary to-bandha-secondary flex items-center shadow-2xl shadow-bandha-primary/20">
-            {/* Background pattern/elements */}
-            <div className="absolute inset-0 overflow-hidden opacity-10">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mt-48 blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-bandha-bg rounded-full -ml-32 -mb-32 blur-2xl"></div>
-            </div>
-
-            <div className="relative z-10 px-8 md:px-20 max-w-2xl">
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight tracking-tighter">
-                Comprá en grupo y pagá menos
+      <section className="relative w-full overflow-hidden bg-white px-4 sm:px-6 md:px-0">
+        <div className="max-w-7xl mx-auto md:mt-16 mb-16">
+          <div className="relative w-full rounded-none md:rounded-[3rem] overflow-hidden bg-white flex flex-col md:flex-row items-center border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] py-12 md:py-24">
+            
+            <div className="relative z-10 px-8 md:px-20 max-w-3xl flex flex-col justify-center">
+              <span className="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs mb-6">Bandha Deals</span>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-black mb-6 leading-[0.9] tracking-tighter">
+                Comprá en grupo y pagá menos.
               </h1>
-              <p className="text-white/90 text-lg md:text-2xl mb-8 font-medium">
-                Cuantos más somos, más ahorramos
+              <p className="text-gray-500 text-lg md:text-2xl mb-10 font-medium">
+                Cuantos más somos, más ahorramos.
               </p>
               <Link 
                 href="/productos"
-                className="inline-flex items-center gap-3 bg-white dark:bg-bandha-bg text-bandha-secondary font-black py-4 px-10 rounded-2xl shadow-xl hover:bg-gray-50 dark:hover:bg-bandha-surface transition-all text-sm md:text-lg uppercase tracking-tight group"
+                className="inline-flex items-center gap-3 bg-black text-white font-bold py-5 px-12 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] hover:bg-gray-900 transition-all text-sm md:text-lg tracking-tight group self-start"
               >
                 Ver ofertas grupales
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -92,7 +92,7 @@ export default async function Home() {
             </div>
 
             {/* Visual element (Carousel of deals about to close) */}
-            <div className="hidden lg:flex absolute right-10 xl:right-20 top-1/2 -translate-y-1/2 w-[400px] xl:w-[450px] items-center justify-center transform rotate-2">
+            <div className="hidden lg:flex absolute right-10 xl:right-20 top-1/2 -translate-y-1/2 w-[380px] xl:w-[420px] items-center justify-center">
                <HeroCarousel deals={dealsForCarousel} />
             </div>
           </div>
@@ -101,7 +101,7 @@ export default async function Home() {
 
       {/* SECCIÓN 1.2 — Beneficios y Medios de Pago */}
       <BenefitsBar />
-
+      <SocialTicker />
 
       {/* SECCIÓN 2 — Categorías destacadas */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
@@ -146,8 +146,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* SECCIÓN 2.5 — Flash Sale del Día */}
-      {flashSaleDeal && <FlashSale deal={flashSaleDeal} />}
+
 
       {/* SECCIÓN 3 — Ofertas grupales activas */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
@@ -175,6 +174,9 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Neighborhood Highlights */}
+      <NeighborhoodHighlights />
+
       {/* SECCIÓN 4 — Productos destacados */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
         <h2 className="text-xl md:text-2xl font-black text-bandha-text uppercase tracking-tighter mb-10">Más productos destacados</h2>
@@ -188,33 +190,37 @@ export default async function Home() {
 
       {/* How it works Banner */}
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6">
-        <div className="bg-bandha-surface rounded-[3rem] p-10 md:p-20 shadow-sm border border-bandha-border flex flex-col md:flex-row items-center gap-12">
-          <div className="flex-1 space-y-8">
-            <h2 className="text-3xl md:text-4xl font-black text-bandha-text leading-tight tracking-tighter uppercase">¿Cómo funciona BANDHA?</h2>
-            <div className="grid grid-cols-1 gap-6">
+        <div className="bg-bandha-surface rounded-[4rem] p-12 md:p-24 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-center gap-16">
+          <div className="flex-1 space-y-12">
+            <h2 className="text-4xl md:text-6xl font-black text-black leading-[0.9] tracking-tighter">¿Cómo funciona BANDHA?</h2>
+            <div className="grid grid-cols-1 gap-10">
               {[
                 { step: "1", title: "Elegí tu oferta", text: "Buscá el producto que necesitás entre cientos de ofertas grupales activas." },
                 { step: "2", title: "Unite al grupo", text: "Sumate a otros compradores para llegar al precio mayorista." },
-                { step: "3", title: "Recibilo en tu casa", text: "Una vez que el grupo se completa, el proveedor envía tu pedido." }
+                { step: "3", title: "Recibilo en casa", text: "Una vez que el grupo se completa, el proveedor envía tu pedido directamente a tu puerta." }
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-6 items-start">
-                  <div className="w-10 h-10 rounded-xl bg-bandha-primary/10 flex-shrink-0 flex items-center justify-center text-bandha-primary font-black">{item.step}</div>
+                  <div className="w-12 h-12 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center text-black font-black text-lg">{item.step}</div>
                   <div>
-                    <h5 className="font-black text-bandha-text uppercase tracking-tight mb-1">{item.title}</h5>
-                    <p className="text-bandha-text-secondary text-sm leading-relaxed">{item.text}</p>
+                    <h5 className="font-extrabold text-black text-xl mb-1 tracking-tight">{item.title}</h5>
+                    <p className="text-gray-500 text-base leading-relaxed max-w-sm">{item.text}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
           <div className="flex-1 w-full flex justify-center">
-            <div className="relative w-full aspect-square max-w-sm bg-bandha-subtle rounded-[4rem] border-8 border-bandha-surface shadow-2xl flex items-center justify-center overflow-hidden">
-               <Truck size={120} className="text-bandha-primary opacity-20 transform -rotate-12" />
-               <div className="absolute inset-0 bg-gradient-to-t from-bandha-primary/10 to-transparent"></div>
+            <div className="relative w-full aspect-square max-w-md bg-white rounded-[4rem] shadow-[0_30px_60px_rgba(0,0,0,0.06)] border border-gray-50 flex items-center justify-center overflow-hidden">
+               <Truck size={140} className="text-black opacity-10 transform -rotate-12" />
             </div>
           </div>
         </div>
       </section>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-16 mb-20 relative z-20">
+        <HomeReferralBanner />
+      </div>
+
     </div>
   );
 }

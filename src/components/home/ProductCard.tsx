@@ -30,7 +30,7 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="group bg-bandha-surface rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-bandha-primary/10 transition-all duration-500 flex flex-col border border-bandha-border relative h-full hover:-translate-y-1"
+      className="group bg-white rounded-[3rem] overflow-hidden shadow-[0_10px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgb(0,0,0,0.08)] transition-all duration-500 flex flex-col border border-gray-100 relative h-full hover:-translate-y-2"
     >
       {/* Image Section */}
       <div className="relative aspect-square overflow-hidden bg-bandha-subtle border-b border-bandha-border flex-shrink-0">
@@ -48,32 +48,32 @@ export default function ProductCard({ deal, product: directProduct }: ProductCar
 
       {/* Content Section */}
       <div className="p-7 flex flex-col flex-1">
-        <h3 className="text-bandha-text font-black text-[17px] leading-tight mb-4 group-hover:text-bandha-primary transition-colors line-clamp-2 h-[2.6rem] overflow-hidden">
+        <h3 className="text-black font-black text-xl leading-tight mb-4 group-hover:text-gray-600 transition-colors line-clamp-2 h-[2.8rem] overflow-hidden tracking-tight">
           {product.nombre}
         </h3>
         
         <div className="space-y-1 mb-6">
           {hasDeal ? (
             <>
-              <p className="text-bandha-text-muted text-xs font-medium line-through ml-1" suppressHydrationWarning>
+              <p className="text-gray-400 text-sm font-medium line-through ml-2" suppressHydrationWarning>
                 {formatCurrency(product.precio_individual)}
               </p>
-              <div className="flex items-center gap-2 bg-bandha-secondary/5 border border-bandha-secondary/10 px-3 py-2.5 rounded-[1.25rem] w-fit shadow-sm relative overflow-hidden">
-                <p className="text-[22px] font-black text-bandha-text tracking-tighter leading-none tabular-nums" suppressHydrationWarning>
+              <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 px-4 py-3 rounded-full w-fit shadow-sm relative overflow-hidden">
+                <p className="text-2xl font-black text-black tracking-tighter leading-none tabular-nums" suppressHydrationWarning>
                   {formatCurrency(deal.precio_actual)}
                 </p>
-                <div className="flex flex-col border-l border-bandha-secondary/20 pl-2 leading-[0.8]">
-                    <span className="text-[11px] font-black text-bandha-secondary uppercase tracking-tighter">PRECIO</span>
-                    <span className="text-[11px] font-black text-bandha-secondary uppercase tracking-tighter">GRUPAL</span>
+                <div className="flex flex-col border-l border-gray-200 pl-3 leading-[0.8]">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">PRECIO</span>
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">GRUPAL</span>
                 </div>
               </div>
             </>
           ) : (
             <div className="flex flex-col gap-1">
-              <p className="text-[22px] font-black text-bandha-text tracking-tighter leading-none tabular-nums" suppressHydrationWarning>
+              <p className="text-[22px] font-black text-black tracking-tighter leading-none tabular-nums" suppressHydrationWarning>
                 {formatCurrency(product.precio_individual)}
               </p>
-              <span className="text-[11px] font-black text-bandha-text-muted uppercase tracking-tighter ml-1">PRECIO INDIVIDUAL</span>
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">PRECIO INDIVIDUAL</span>
             </div>
           )}
         </div>

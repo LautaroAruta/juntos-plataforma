@@ -9,7 +9,9 @@ export interface CartItem {
   image?: string;
   imageUrl?: string;
   stock: number;
-  isGroupDeal?: boolean; // Para saber estadísticamente si viene de compra grupal
+  isGroupDeal?: boolean; 
+  providerId?: string; // Para vincular la orden al proveedor correcto
+  productId?: string;  // El ID del producto original si es una oferta
 }
 
 interface CartState {

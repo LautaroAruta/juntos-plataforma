@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Share2, Link as LinkIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 interface ProductShareActionsProps {
@@ -12,8 +13,16 @@ interface ProductShareActionsProps {
 }
 
 export default function ProductShareActions({ productName, price, productId, baseUrl }: ProductShareActionsProps) {
-  const shareUrl = `${baseUrl}/productos/${productId}`;
-  const shareText = `¡Mirá esta oferta en BANDHA! 🐧 ${productName} a solo $${price.toLocaleString()}. Si nos unimos, ahorramos todos. Sumate acá: ${shareUrl}`;
+  const { data: session } = useSession();
+  const referralCode = (session?.user as any)?.referral_code;
+  
+  const shareUrl = referralCode 
+    ? `${baseUrl}/productos/${productId}?ref=${referralCode}` 
+    : `${baseUrl}/productos/${productId}`;
+    
+  const shareText = referralCode
+    ? `¡Mirá esta oferta en BANDHA! 🐧 ${productName} a solo $${price.toLocaleString()}. Si te unís con mi código, ¡nos ahorramos todos y ganamos premios! Sumate acá: ${shareUrl}`
+    : `¡Mirá esta oferta en BANDHA! 🐧 ${productName} a solo $${price.toLocaleString()}. Si nos unimos, ahorramos todos. Sumate acá: ${shareUrl}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);

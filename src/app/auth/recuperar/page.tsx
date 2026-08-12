@@ -25,7 +25,11 @@ export default function RecuperarPassword() {
       if (error) throw error;
       setSuccess(true);
     } catch (err: any) {
-      setError("Ocurrió un error. Verificá tu email e intentá de nuevo.");
+      if (err.message?.includes("Email rate limit exceeded")) {
+        setError("Límite de correos excedido. Intentá de nuevo en una hora o contactá a soporte.");
+      } else {
+        setError("Ocurrió un error. Verificá tu email e intentá de nuevo.");
+      }
     } finally {
       setLoading(false);
     }

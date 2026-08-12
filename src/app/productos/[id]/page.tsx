@@ -3,8 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Users, Timer, Info, Star, Share2, ShieldCheck, Truck, ChevronRight, Award, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import JoinDealButton from "@/components/group-deals/JoinDealButton";
-import GroupAvatars from "@/components/group-deals/GroupAvatars";
-import CountdownTimer from "@/components/shared/CountdownTimer";
+import RealtimeDealProgress from "@/components/group-deals/RealtimeDealProgress";
 import ProductGallery from "@/components/products/ProductGallery";
 import ProductShareActions from "@/components/products/ProductShareActions";
 import { getServerSession } from "next-auth";
@@ -184,47 +183,14 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               </p>
             </div>
 
-            {/* CENTRO DE CONTROL DE OFERTA (ULTRA COMPACTO) */}
+            {/* CENTRO DE CONTROL DE OFERTA (ULTRA COMPACTO REALT-TIME) */}
             {activeDeal && (
-              <div className="bg-bandha-surface rounded-[1.25rem] p-4 md:p-5 mb-8 border border-bandha-border shadow-[0_4px_20px_rgb(0,0,0,0.02)] relative overflow-hidden group/progress">
-                <div className="flex flex-col gap-3 relative z-10">
-
-                  {/* Fila Superior: Timer con Etiqueta */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm md:text-base font-black text-bandha-text tracking-tighter uppercase shrink-0">
-                      ¡FINALIZA EN:
-                    </span>
-                    <CountdownTimer
-                      targetDate={activeDeal.fecha_vencimiento}
-                      className="text-xl md:text-2xl font-black"
-                      iconSize={18}
-                    />
-                  </div>
-
-                  {/* Fila Media: Avatares Modulares (Efecto Zeigarnik) */}
-                  <GroupAvatars
-                    current={activeDeal.participantes_actuales}
-                    min={activeDeal.min_participantes}
-                  />
-
-                  {/* Barra de Progreso Dominante y Vibrante */}
-                  <div className="space-y-2.5">
-                    <div className="h-2.5 w-full bg-bandha-subtle rounded-full overflow-hidden relative shadow-inner">
-                      <div
-                        className="h-full bg-gradient-to-r from-bandha-secondary via-bandha-secondary to-bandha-primary rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
-                        style={{ width: `${Math.max(2, Math.min(100, progress))}%` }}
-                      >
-                        <div className="absolute inset-0 bg-white/10 animate-pulse" />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-bandha-text-secondary bg-bandha-primary/5 py-1.5 px-3 rounded-lg border border-bandha-primary/5 self-start">
-                      <ShieldCheck size={13} className="text-bandha-primary shrink-0" />
-                      <span className="leading-tight">Si no hay quórum, se reintegra el dinero automáticamente.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <RealtimeDealProgress
+                dealId={activeDeal.id}
+                initialParticipants={activeDeal.participantes_actuales}
+                minParticipants={activeDeal.min_participantes}
+                targetDate={activeDeal.fecha_vencimiento}
+              />
             )}
 
             {/* BOTONES DE ACCIÓN (Desktop) */}

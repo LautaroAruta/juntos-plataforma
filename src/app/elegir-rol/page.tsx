@@ -61,10 +61,10 @@ export default function ElegirRolPage() {
 
   if (session === undefined || (typeof window !== "undefined" && !session)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F5]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-violet-600 animate-spin" strokeWidth={2.5} />
-          <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Cargando...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#FCFBFA]">
+        <div className="flex flex-col items-center gap-6">
+          <Loader2 className="w-12 h-12 text-brand-camel animate-spin" strokeWidth={1.5} />
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Sincronizando Colección</p>
         </div>
       </div>
     );
@@ -76,57 +76,58 @@ export default function ElegirRolPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-180px)] flex items-center justify-center p-6 bg-[#F5F5F5]">
-      <div className="w-full max-w-4xl">
-        <div className="text-center mb-16">
-          <h1 className="text-3xl md:text-5xl font-black text-gray-800 tracking-tighter uppercase mb-4">
-            ¿Cómo querés usar BANDHA?
+    <div className="min-h-screen flex items-center justify-center p-8 bg-[#FCFBFA] py-24">
+      <div className="w-full max-w-5xl">
+        <div className="text-center mb-20">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-camel mb-4 block">Bienvenido a su Espacio</span>
+          <h1 className="text-4xl md:text-6xl font-black font-serif text-brand-charcoal tracking-tighter mb-6">
+            ¿Cómo desea <span className="text-brand-camel italic">participar</span> hoy?
           </h1>
-          <p className="text-gray-500 text-lg">Elegí tu perfil para continuar</p>
+          <p className="text-slate-400 font-medium text-sm tracking-wide uppercase">Seleccione su perfil de acceso</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {/* Card Comprador */}
-          <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-200 flex flex-col items-center text-center group hover:shadow-2xl hover:shadow-[#009EE3]/5 transition-all">
-            <div className="w-24 h-24 bg-[#FFF8E7] rounded-[2rem] flex items-center justify-center text-[#009EE3] mb-8 group-hover:scale-110 transition-transform">
-              <ShoppingCart size={48} />
+          <div className="bg-white boutique-card p-12 flex flex-col items-center text-center group cursor-pointer"
+               onClick={() => handleSelectRole("cliente")}>
+            <div className="w-24 h-24 bg-stone-50 rounded-full flex items-center justify-center text-brand-camel mb-10 border border-stone-100 shadow-xl shadow-brand-camel/5 group-hover:scale-110 transition-transform duration-500">
+              <ShoppingCart size={40} strokeWidth={1.5} />
             </div>
-            <h2 className="text-3xl font-black text-gray-800 tracking-tight mb-4">Quiero Comprar</h2>
-            <p className="text-gray-500 font-medium mb-10 leading-relaxed text-lg">
-              Encontrá los mejores precios comprando en grupo
+            <h2 className="text-3xl font-black font-serif text-brand-charcoal tracking-tight mb-4">Adquirir Colecciones</h2>
+            <p className="text-slate-500 font-medium mb-10 leading-relaxed text-sm">
+              Explore curadurías exclusivas de su comunidad y acceda a beneficios por compra grupal.
             </p>
             <button
-              onClick={() => handleSelectRole("cliente")}
               disabled={loading}
-              className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50 uppercase tracking-tight"
+              className="w-full btn-boutique h-16 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50 text-xs tracking-widest"
             >
               {loading ? <Loader2 className="animate-spin" size={24} /> : (
                 <>
-                  Empezar a comprar
-                  <ArrowRight size={20} />
+                  Entrar como Cliente
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
           </div>
 
           {/* Card Proveedor */}
-          <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-200 flex flex-col items-center text-center group hover:shadow-2xl hover:shadow-gray-300 transition-all">
-            <div className="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center text-gray-400 group-hover:bg-gray-800 group-hover:text-white transition-all mb-8 group-hover:scale-110">
-              <Store size={48} />
+          <div className="bg-brand-charcoal boutique-card p-12 flex flex-col items-center text-center group cursor-pointer"
+               onClick={() => handleSelectRole("proveedor")}>
+            <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center text-brand-camel mb-10 border border-white/10 group-hover:scale-110 transition-transform duration-500">
+              <Store size={40} strokeWidth={1.5} />
             </div>
-            <h2 className="text-3xl font-black text-gray-800 tracking-tight mb-4">Quiero ser Proveedor</h2>
-            <p className="text-gray-500 font-medium mb-10 leading-relaxed text-lg">
-              Vendé tus productos en grupo. Registrá tu negocio.
+            <h2 className="text-3xl font-black font-serif text-white tracking-tight mb-4">Ser el Curador</h2>
+            <p className="text-white/40 font-medium mb-10 leading-relaxed text-sm px-4">
+              Gestione su inventario, publique ofertas exclusivas y potencie su negocio con Bandha.
             </p>
             <button
-              onClick={() => handleSelectRole("proveedor")}
               disabled={loading}
-              className="w-full bg-gray-800 hover:bg-black text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50 uppercase tracking-tight"
+              className="w-full bg-white text-brand-charcoal hover:bg-brand-stone font-black h-16 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50 text-xs tracking-widest uppercase"
             >
               {loading ? <Loader2 className="animate-spin" size={24} /> : (
                 <>
-                  Registrar negocio
-                  <ArrowRight size={20} />
+                  Panel de Proveedor
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>

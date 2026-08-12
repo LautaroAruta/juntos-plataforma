@@ -14,20 +14,20 @@
 }
 
 :root {
-  --background: #FFF8E7; /* Butter Yellow */
-  --foreground: #1e293b; /* Slate 800 */
+  --background: #FFFFFF; /* Pure White */
+  --foreground: #000000; /* Pure Black */
   
-  --bandha-bg: #FFF8E7;
-  --bandha-surface: #FFFFFF;
+  --bandha-bg: #FFFFFF;
+  --bandha-surface: #F5F5F7; /* Apple Cloud Gray */
   --bandha-surface-raised: #FFFFFF;
-  --bandha-border: #f1f5f9;
-  --bandha-text: #1e293b;
-  --bandha-text-secondary: #64748b;
-  --bandha-text-muted: #94a3b8;
-  --bandha-primary: #009EE3;
-  --bandha-secondary: #00A650;
-  --bandha-danger: #E3242B;
-  --bandha-subtle: #f8fafc;
+  --bandha-border: #E5E5EA; /* Subtle gray border */
+  --bandha-text: #000000;
+  --bandha-text-secondary: #8E8E93; /* Apple secondary gray */
+  --bandha-text-muted: #C7C7CC;
+  --bandha-primary: #000000; /* Primary action is deep Black */
+  --bandha-secondary: #000000; /* Deep black for secondary too */
+  --bandha-danger: #FF3B30; /* Apple red */
+  --bandha-subtle: #F2F2F7; /* Subtle background area */
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);

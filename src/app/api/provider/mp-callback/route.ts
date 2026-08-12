@@ -16,6 +16,14 @@ export async function GET(req: Request) {
   }
 
   try {
+    // Check environment variables first
+    if (!process.env.MP_ACCESS_TOKEN || !process.env.MP_CLIENT_ID || !process.env.MP_CLIENT_SECRET) {
+      console.error("Missing Mercado Pago credentials in .env.local");
+      return NextResponse.json({ 
+        message: "Faltan credenciales de Mercado Pago en el servidor (MP_ACCESS_TOKEN, MP_CLIENT_ID o MP_CLIENT_SECRET)" 
+      }, { status: 500 });
+    }
+
     // Exchange code for access token
     const response = await fetch('https://api.mercadopago.com/oauth/token', {
       method: 'POST',
@@ -76,7 +84,9 @@ export async function GET(req: Request) {
     return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/provider/onboarding-complete?id=${providerId}`);
     
   } catch (error) {
-    console.error("Callback handler error:", error);
-    return NextResponse.json({ message: "Error interno del servidor" }, { status: 500 });
+    return NextResponse.json({ 
+      message: "Error interno del servidor al procesar la vinculación",
+      error: error instanceof Error ? error.message : "Error desconocido"
+    }, { status: 500 });
   }
 }

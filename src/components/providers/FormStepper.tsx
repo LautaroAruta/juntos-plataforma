@@ -29,14 +29,14 @@ export function FormStepper({ currentStep, totalSteps }: FormStepperProps) {
           <div key={index} className="flex items-center flex-1 last:flex-none">
             {/* Step circle */}
             <div className="flex flex-col items-center gap-2">
-              <div
-                className={`
+                <div
+                  className={`
                   w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm
                   ${isCompleted 
-                    ? "bg-[#00A650] text-white shadow-[#00A650]/30 scale-90" 
+                    ? "bg-black text-white shadow-lg scale-90" 
                     : isActive 
-                      ? "bg-[#009EE3] text-white shadow-[#009EE3]/30 shadow-lg scale-110" 
-                      : "bg-slate-100 text-slate-300"
+                      ? "bg-black text-white shadow-[0_10px_30px_rgba(0,0,0,0.15)] scale-110" 
+                      : "bg-[#F5F5F7] text-gray-400"
                   }
                 `}
               >
@@ -49,7 +49,7 @@ export function FormStepper({ currentStep, totalSteps }: FormStepperProps) {
               <span
                 className={`
                   text-[10px] font-black uppercase tracking-widest transition-colors duration-300
-                  ${isActive ? "text-[#009EE3]" : isCompleted ? "text-[#00A650]" : "text-slate-300"}
+                  ${isActive ? "text-black" : isCompleted ? "text-gray-500" : "text-gray-300"}
                 `}
               >
                 {step.label}
@@ -58,9 +58,9 @@ export function FormStepper({ currentStep, totalSteps }: FormStepperProps) {
 
             {/* Connector line */}
             {stepNum < totalSteps && (
-              <div className="flex-1 mx-3 h-0.5 rounded-full relative overflow-hidden bg-slate-100">
+              <div className="flex-1 mx-3 h-0.5 rounded-full relative overflow-hidden bg-[#F5F5F7]">
                 <div
-                  className="absolute inset-y-0 left-0 bg-[#00A650] rounded-full transition-all duration-700 ease-out"
+                  className="absolute inset-y-0 left-0 bg-black rounded-full transition-all duration-700 ease-out"
                   style={{ width: isCompleted ? "100%" : "0%" }}
                 />
               </div>

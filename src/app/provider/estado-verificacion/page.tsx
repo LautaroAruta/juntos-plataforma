@@ -123,33 +123,37 @@ export default function EstadoVerificacion() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF8E7] pb-24 px-4 pt-12">
-      <div className="max-w-md mx-auto space-y-6">
+    <div className="min-h-screen bg-white pb-24 px-4 pt-16 text-black">
+      <div className="max-w-xl mx-auto space-y-12">
         {/* Main Status Card */}
-        <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/50 border border-slate-50 text-center">
+        <div className="bg-white border-4 border-black p-12 shadow-[24px_24px_0px_0px_rgba(0,0,0,1)] text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-[#FF5C00]" />
+          
           <div
-            className={`inline-flex items-center justify-center w-24 h-24 rounded-full ${config.bg} ${config.color} mb-6 border-4 ${config.border} ring-8 ${config.ring}`}
+            className={`inline-flex items-center justify-center w-28 h-28 border-4 border-black mb-10 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] ${config.bg.replace('bg-', 'bg-').replace('amber-50', '[#FF5C00]').replace('blue-50', 'black').replace('green-50', '[#00A650]').replace('red-50', 'white')} ${config.color.includes('text-white') ? 'text-white' : 'text-black'}`}
           >
-            <StatusIcon size={48} />
+            <StatusIcon size={56} strokeWidth={3} />
           </div>
 
-          <h1 className="text-3xl font-black text-slate-800 mb-2 tracking-tight uppercase">{config.title}</h1>
-          <p className="text-slate-400 font-bold text-sm mb-4">{config.subtitle}</p>
-          <p className="text-slate-500 text-sm leading-relaxed">{config.description}</p>
+          <h1 className="text-4xl font-black text-black mb-4 tracking-tighter uppercase italic leading-none">{config.title}</h1>
+          <p className="text-[#FF5C00] font-black text-[10px] uppercase tracking-[0.4em] mb-8">{config.subtitle}</p>
+          <div className="bg-black/5 p-6 border-2 border-black/10">
+            <p className="text-xs font-mono font-black text-black/60 leading-relaxed uppercase">{config.description}</p>
+          </div>
 
           {kycData?.nombre_empresa && (
-            <div className="mt-6 bg-slate-50 rounded-2xl px-5 py-3 inline-block">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Empresa</span>
-              <p className="text-slate-800 font-bold text-sm">{kycData.nombre_empresa}</p>
+            <div className="mt-10 pt-10 border-t-2 border-dashed border-black/10 flex flex-col items-center">
+              <span className="text-[9px] font-black text-black/30 uppercase tracking-[0.5em] mb-2">ORG_IDENTIFIER</span>
+              <p className="text-black font-black text-xl uppercase italic tracking-tighter">{kycData.nombre_empresa}</p>
             </div>
           )}
         </div>
 
         {/* Timeline */}
         {status !== "rechazado" && (
-          <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
-              Progreso de Verificación
+          <div className="bg-white border-4 border-black p-10 shadow-[16px_16px_0px_0px_rgba(255,92,0,1)]">
+            <h3 className="text-[10px] font-black text-black uppercase tracking-[0.4em] mb-10 italic">
+              VERIFICATION_PIPELINE // PROGRESS_LOG
             </h3>
             <div className="space-y-0">
               {TIMELINE_STEPS.map((tStep, i) => {
@@ -159,38 +163,39 @@ export default function EstadoVerificacion() {
                 const isLast = i === TIMELINE_STEPS.length - 1;
 
                 return (
-                  <div key={tStep.key} className="flex items-start gap-4">
+                  <div key={tStep.key} className="flex items-start gap-8">
                     {/* Dot + line */}
                     <div className="flex flex-col items-center">
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                        className={`w-14 h-14 border-2 border-black flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
                           isCompleted
                             ? "bg-[#00A650] text-white"
                             : isActive
-                            ? "bg-[#009EE3] text-white shadow-lg shadow-[#009EE3]/30"
-                            : "bg-slate-100 text-slate-300"
+                            ? "bg-[#FF5C00] text-black animate-pulse"
+                            : "bg-white text-black/20"
                         }`}
                       >
-                        <TimeIcon size={18} strokeWidth={2.5} />
+                        <TimeIcon size={24} strokeWidth={3} />
                       </div>
                       {!isLast && (
                         <div
-                          className={`w-0.5 h-8 rounded-full my-1 ${
-                            isCompleted ? "bg-[#00A650]" : "bg-slate-100"
+                          className={`w-1 h-12 my-2 ${
+                            isCompleted ? "bg-[#00A650]" : "bg-black/10"
                           }`}
                         />
                       )}
                     </div>
 
                     {/* Label */}
-                    <div className="pt-2">
+                    <div className="pt-4">
                       <p
-                        className={`text-sm font-bold ${
-                          isActive ? "text-[#009EE3]" : isCompleted ? "text-[#00A650]" : "text-slate-300"
+                        className={`text-sm font-black uppercase tracking-widest italic ${
+                          isActive ? "text-[#FF5C00]" : isCompleted ? "text-[#00A650]" : "text-black/20"
                         }`}
                       >
                         {tStep.label}
                       </p>
+                      {isActive && <span className="text-[9px] font-black text-[#FF5C00]/60 uppercase tracking-widest">CURRENT_STAGE</span>}
                     </div>
                   </div>
                 );
@@ -201,51 +206,51 @@ export default function EstadoVerificacion() {
 
         {/* Rejection Notes */}
         {status === "rechazado" && kycData?.kyc_notas && (
-          <div className="bg-red-50 border border-red-100 rounded-2xl p-5">
-            <h3 className="text-red-800 font-bold text-sm mb-2 flex items-center gap-2">
-              <AlertCircle size={16} /> Motivo del Rechazo
+          <div className="bg-black text-[#FF5C00] border-4 border-black p-8 shadow-[12px_12px_0px_0px_rgba(239,68,68,1)]">
+            <h3 className="text-sm font-black uppercase tracking-[0.3em] mb-4 flex items-center gap-3 italic">
+              <AlertCircle size={20} strokeWidth={3} /> SYSTEM_REJECTION_REASON
             </h3>
-            <p className="text-red-600 text-sm leading-relaxed">{kycData.kyc_notas}</p>
+            <p className="text-xs font-mono font-black uppercase leading-loose">{kycData.kyc_notas}</p>
           </div>
         )}
 
         {/* CTA */}
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-6">
           {status === "aprobado" ? (
             <Link
               href="/provider/dashboard"
-              className="w-full bg-[#00A650] hover:bg-[#009EE3] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#00A650]/20 transition-all flex items-center justify-center gap-2 uppercase tracking-tight"
+              className="w-full bg-[#00A650] text-white border-4 border-black font-black py-6 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-4 uppercase tracking-widest italic text-xl"
             >
-              Ir a mi Panel <ArrowRight size={20} />
+              ACCESS_DASHBOARD <ArrowRight size={28} strokeWidth={3} />
             </Link>
           ) : status === "rechazado" ? (
             <Link
               href="/auth/registro/proveedor"
-              className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-2 uppercase tracking-tight"
+              className="w-full bg-[#FF5C00] text-black border-4 border-black font-black py-6 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-4 uppercase tracking-widest italic text-xl"
             >
-              Corregir y Reenviar <ArrowRight size={20} />
+              RESUBMIT_PROTOCOL <ArrowRight size={28} strokeWidth={3} />
             </Link>
           ) : (
             <button
               onClick={fetchKYCStatus}
-              className="w-full bg-slate-100 text-slate-600 font-black py-5 rounded-[2rem] hover:bg-slate-200 transition-all flex items-center justify-center gap-2 uppercase tracking-tight text-sm"
+              className="w-full bg-black text-white border-4 border-black font-black py-6 shadow-[12px_12px_0px_0px_rgba(255,92,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-4 uppercase tracking-widest italic"
             >
-              <RefreshCw size={18} /> Actualizar Estado
+              <RefreshCw size={24} strokeWidth={3} className="animate-spin" /> REFRESH_STATUS
             </button>
           )}
 
           <Link
             href="/"
-            className="w-full bg-white text-slate-400 font-bold py-4 rounded-[2rem] border border-slate-100 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm"
+            className="w-full bg-white text-black/40 border-4 border-black/10 font-black py-5 hover:bg-black hover:text-white hover:border-black transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.4em] italic"
           >
-            Volver al Inicio
+            TERMINATE_SESSION_RETURN_HOME
           </Link>
         </div>
 
         {/* Security badge */}
-        <div className="flex items-center justify-center gap-2 text-slate-300 text-[10px] font-bold uppercase tracking-widest">
-          <Shield size={12} strokeWidth={2.5} />
-          Verificación segura por BANDHA
+        <div className="flex items-center justify-center gap-3 text-black/20 text-[9px] font-black uppercase tracking-[0.5em] italic">
+          <Shield size={14} strokeWidth={3} />
+          SECURE_VERIFICATION_BY_BANDHA_OS
         </div>
       </div>
     </div>

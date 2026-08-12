@@ -97,7 +97,7 @@ const InputField = ({
             : isSuccess 
               ? "border-green-400 ring-2 ring-green-50"
               : "border-slate-100"
-        } rounded-2xl py-4 pl-12 pr-12 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all ${
+        } rounded-2xl py-4 pl-12 pr-12 text-sm focus:outline-none focus:ring-4 focus:ring-gray-100 focus:border-black transition-all ${
           mono ? "font-mono" : ""
         }`}
       />
@@ -490,7 +490,7 @@ export default function RegisterProveedor() {
 
             <button
               onClick={nextStep}
-              className="w-full bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 text-base uppercase tracking-tight active:scale-95"
+              className="w-full bg-black hover:bg-gray-800 text-white font-black py-5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all flex items-center justify-center gap-3 text-base uppercase tracking-tight active:scale-95"
             >
               Siguiente <ArrowRight size={20} />
             </button>
@@ -548,7 +548,7 @@ export default function RegisterProveedor() {
                   <select
                     value={formData.categoria}
                     onChange={(e) => updateField("categoria", e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all appearance-none"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-gray-100 focus:border-black transition-all appearance-none"
                   >
                     <option value="">Seleccionar categoría...</option>
                     <option value="alimentos">Alimentos y Bebidas</option>
@@ -572,7 +572,7 @@ export default function RegisterProveedor() {
                     value={formData.descripcion}
                     onChange={(e) => updateField("descripcion", e.target.value)}
                     rows={3}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#009EE3]/5 focus:border-[#009EE3] transition-all resize-none"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-gray-100 focus:border-black transition-all resize-none"
                   />
                 </div>
               </div>
@@ -587,7 +587,7 @@ export default function RegisterProveedor() {
               </button>
               <button
                 onClick={nextStep}
-                className="flex-[2] bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
+                className="flex-[2] bg-black hover:bg-gray-800 text-white font-black py-5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
               >
                 Siguiente <ArrowRight size={20} />
               </button>
@@ -727,7 +727,7 @@ export default function RegisterProveedor() {
                       placeholder="Busca tu calle, ciudad o pueblo..."
                       value={searchQuery}
                       onChange={(e) => handleAddressSearch(e.target.value)}
-                      className="w-full bg-slate-50 border-2 border-slate-50 rounded-[2rem] py-5 pl-14 pr-6 text-sm font-bold focus:outline-none focus:ring-8 focus:ring-[#009EE3]/5 focus:border-[#009EE3] focus:bg-white transition-all placeholder:text-slate-300"
+                      className="w-full bg-slate-50 border-2 border-slate-50 rounded-[2rem] py-5 pl-14 pr-6 text-sm font-bold focus:outline-none focus:ring-8 focus:ring-gray-100 focus:border-black focus:bg-white transition-all placeholder:text-slate-300"
                     />
                     {isSearching && (
                       <div className="absolute right-6 top-1/2 -translate-y-1/2">
@@ -885,7 +885,7 @@ export default function RegisterProveedor() {
               </button>
               <button
                 onClick={nextStep}
-                className="flex-[2] bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
+                className="flex-[2] bg-black hover:bg-gray-800 text-white font-black py-5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
               >
                 Siguiente <ArrowRight size={20} />
               </button>
@@ -946,7 +946,7 @@ export default function RegisterProveedor() {
               </button>
               <button
                 onClick={nextStep}
-                className="flex-[2] bg-[#009EE3] hover:bg-[#00A650] text-white font-black py-5 rounded-[2rem] shadow-2xl shadow-[#009EE3]/20 transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
+                className="flex-[2] bg-black hover:bg-gray-800 text-white font-black py-5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] transition-all flex items-center justify-center gap-3 uppercase tracking-tight active:scale-95"
               >
                 Revisar Datos <ArrowRight size={20} />
               </button>
